@@ -1,5 +1,5 @@
 # SSL - 2025 - K2051
-## Grupo \## 1
+## Grupo \1
 
 Repositorio designado para los trabajos prácticos *grupales* de la asignatura
 **Sintáxis y Semántica de los Lenguajes**,
