@@ -7,7 +7,7 @@ perteneciente a la carrera de **Ingeniería en Sistemas de Información** dictad
 **Universidad Tecnológica Nacional - Facultad Regional Buenos Aires** (***UTN FRBA***).
 
 - ***Docente:*** Santiago Ferreiros Cabrera
-- ***Tutor asignado:*** *\*Completar cuando sea publicado en la planilla\**
+- ***Tutor asignado:*** Santiago Boero
 
 ### Integrantes
 | Legajo    | Apellido(s)    | Nombre(s)        | Usuario de GitHub                      | Correo electrónico institucional       |
