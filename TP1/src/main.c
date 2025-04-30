@@ -60,7 +60,7 @@ columna caracter_a_columna(int c){
             return COL_otro_caracter;
 
     } 
-};
+}
 
 
 void fin_de_cadena (estado estado, FILE * salida ){
@@ -82,7 +82,7 @@ void fin_de_cadena (estado estado, FILE * salida ){
 void scanner (FILE* entrada, FILE *salida){
     int c;
     estado estado_actual = ESTADO_INICIAL;
-    while(c = fgetc(entrada) != EOF){
+    while((c = fgetc(entrada)) != EOF){
         if(c != CENTINELA){
             fputc(c, salida);
             estado_actual = tabla_transiciones[estado_actual][caracter_a_columna(c)];
@@ -92,7 +92,7 @@ void scanner (FILE* entrada, FILE *salida){
         }
     }
     fin_de_cadena(estado_actual,salida);
-};
+}
 
 int main(int argc, char *argv[]) {
     
@@ -105,8 +105,12 @@ int main(int argc, char *argv[]) {
             printf("%s: Error al intentar abrir el archivo: %s\n", argv[1], strerror(errno));
             return EXIT_FAILURE;
         }
-    
-    scanner(entrada, stdout);
+    FILE *salida = fopen(argv[2], "w+");
+    if(salida == NULL) {
+        printf("%s: Error al intentar crear el archivo: %s\n", argv[2], strerror(errno));
+        return EXIT_FAILURE;
+    }
+    scanner(entrada, salida);
     fclose (entrada);
     return EXIT_SUCCESS;
 }
