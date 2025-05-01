@@ -68,10 +68,10 @@ void fin_de_cadena (estado estado, FILE * salida ){
     if (estado == Q2){
         fprintf(salida, "\t\tDECIMAL\n");
     } 
-    if (estado == Q1 || estado == Q5){
+    else if (estado == Q1 || estado == Q5){
         fprintf(salida, "\t\tOCTAL\n");
     } 
-    if (estado == Q4){
+    else if (estado == Q4){
         fprintf(salida, "\t\tHEXADECIMAL\n");
     } 
     else {
