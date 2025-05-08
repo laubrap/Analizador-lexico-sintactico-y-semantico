@@ -64,7 +64,7 @@ columna caracter_a_columna(int c){
 
 
 void fin_de_cadena (estado estado, FILE * salida ){
-
+    
     if (estado == Q2){
         fprintf(salida, "\t\tDECIMAL\n");
     } 
@@ -74,9 +74,9 @@ void fin_de_cadena (estado estado, FILE * salida ){
     else if (estado == Q4){
         fprintf(salida, "\t\tHEXADECIMAL\n");
     } 
-    else {
-        fprintf(salida, "\t\tNO RECONOCIDA\n");
-    }
+     else {
+         fprintf(salida, "\t\tNO RECONOCIDA\n");
+     }
 }
 
 void scanner (FILE* entrada, FILE *salida){
