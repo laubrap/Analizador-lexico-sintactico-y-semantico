@@ -5,7 +5,8 @@
 *Imagen*
 
 ### Tabla de Transiciones (TT)
-*Imagen*
+![image](https://github.com/user-attachments/assets/c9ae1953-b13f-4f3a-a340-54454c7bb2f0)
+
 
 ### Ficha técnica
 - **Estándar de C utilizado**:
