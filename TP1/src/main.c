@@ -105,9 +105,9 @@ int main(int argc, char *argv[]) {
             printf("%s: Error al intentar abrir el archivo: %s\n", argv[1], strerror(errno));
             return EXIT_FAILURE;
         }
-    FILE *salida = fopen(argv[2], "w+");
+    FILE *salida = fopen("salida.txt", "w+");
     if(salida == NULL) {
-        printf("%s: Error al intentar crear el archivo: %s\n", argv[2], strerror(errno));
+        printf("%s: Error al intentar crear el archivo: %s\n", "salida.txt", strerror(errno));
         return EXIT_FAILURE;
     }
     scanner(entrada, salida);
