@@ -7,7 +7,14 @@
 %{
 
 #include <stdio.h>
+#include "TP"
 
+int acumuladorIdentificadores = 0
+
+
+ nodo * lista = malloc(sizeof(nodo));
+ 
+ 
 %}
 
     /* La siguiente línea define explícitamente a yytext como un puntero a un caracter ( char* yytext; ). Ésta es la opción por defecto si no se pone nada. */
@@ -22,6 +29,16 @@
 
     /* Declaraciones con cada nombre y su definición; se utilizan para simplificar las reglas */
 /* digito [0-9] */
+digito [0-9]
+digitoNoCero [1-9]
+digitoOctal [0-7]
+digitoHexa [0-9a-fA-F]
+noDigito [_a-zA-Z]
+sufijoEntero ([uU][lL]?|[lL][uU]?)
+sufijoReal ([fF][lL]?|[lL][fF]?)
+escapeSimple [abfnrtv'\"\?\\]
+exponente (e[+-]?{digito}*)
+
 
 /* Fin de la sección de definiciones */
 
@@ -31,10 +48,20 @@
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
 
-[1-9][0-9]* { printf("\nEncontre una constante entera decimal: %s\n", yytext); }
-0[0-7]* { printf("\nEncontre una constante entera octal: %s\n", yytext); }
-0[xX][0-9a-fA-F]+ { printf("\nEncontre una constante entera hexadecimal: %s\n", yytext); }
-[_a-zA-Z]([_a-zA-Z]|[0-9])* { printf("\nEncontre un identificador: %s\n", yytext); }
+{digitoNoCero}{digito}*{sufijoEntero}? { printf(yyout,"\nEncontre una constante entera decimal: %s\n", yytext);}
+0{digitoOctal}*{sufijoEntero}? { printf(yyout,"\nEncontre una constante entera octal: %s\n", yytext); }
+0[xX]{digitoHexa}+{sufijoEntero}? { printf(yyout,"\nEncontre una constante entera hexadecimal: %s\n", yytext); }
+{noDigito}({noDigito}|{digito})* { printf(yyout,"\nEncontre un identificador: %s\n", yytext);}
+{digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { printf(yyout,"\nEncontre una constante real: %s\n", yytext); }
+'([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { printf(yyout,"\nEncontre un caracter: %s\n", yytext); }
+\"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { printf(yyout,"\nEncontre una literal cadena: %s\n", yytext, yyleng - 2 ); } // es por las comillas que se le resta 2
+
+
+/*
+    char* variable = "Algo
+                        que tiene
+                         enters en el medio"
+*/
 
     /* Reglas por defecto de Flex: */
         /* <*>.|\n { ECHO; } */
@@ -50,9 +77,17 @@
     /* 2. Toda esta sección simplemente se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 
 int main(int argc, char *argv[]) {
+
+    yyin = fopen ("entrada.txt","r" );
+    yyout = fopen ("salida.txt", "w");
     yylex();
+
+    
+    fclose(yyin);
+    fclose(yyout);
 
     return 0;
 }
+
 
 /* Fin de la sección de código de usuario */
