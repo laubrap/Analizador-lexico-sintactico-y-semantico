@@ -5,8 +5,13 @@
 #include <errno.h>
 #include <limits.h>
 
-typedef struct {
+typedef struct{
     char *nombreIdentificador;
     int contador;
-    nodo *sgte = NULL;
-} nodo;
+}infoNodo;
+
+typedef struct nodo nodo;
+typedef struct nodo{
+    infoNodo info;
+    nodo *sgte;
+};

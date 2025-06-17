@@ -2,45 +2,55 @@
 
 
 int estaEnLista(nodo* raiz, char* elemento){
-    while(raiz->sgte != NULL){
-        if(strcmp(raiz->nombreIdentificador, elemento) == 0) {
-            raiz = raiz->sgte;
+    while(raiz != NULL){
+        if(strcmp(raiz->info.nombreIdentificador, elemento) == 0) {
             return 1;
         }
-        return 0;
+        raiz = raiz->sgte;
     }
+    return 0;
 }
 
  nodo * agregarALista(nodo* raiz, char* elementoParaAgregar){
 
    nodo *aux = raiz;
-   
-   if(estaEnLista(raiz,elementoParaAgregar)){
-    raiz->contador += 1;
+   while(aux != NULL){
+   if(estaEnLista(aux,elementoParaAgregar)){
+    aux->info.contador += 1;
+    return raiz;
    }
-   
-   else{
-        if(aux->sgte==NULL){
-            aux->nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
-            strcpy(aux->nombreIdentificador, elementoParaAgregar);
-            aux->sgte = NULL;
-            aux->contador = 1;
-        }
-    
-        raiz->nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
-        raiz->sgte = aux;
-        raiz->contador = 1;
+    aux = aux ->sgte;
+   }
 
-    }
+    nodo * nuevo= (nodo*)malloc(sizeof(nodo));
+    nuevo->info.nombreIdentificador = strdup(elementoParaAgregar);
+    nuevo->info.contador = 1;
+        // if(aux->sgte==NULL){
+        //     aux->info.nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
+        //     strcpy(aux->info.nombreIdentificador, elementoParaAgregar);
+        //     aux->sgte = NULL;
+        //     aux->info.contador = 1;
+    nuevo->sgte = raiz;
+    raiz = nuevo;
+ 
+    
+        // raiz->info.nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
+        // raiz->sgte = aux;
+        // raiz->info.contador = 1;
+
+
 return raiz;
 }
 
-int cantidadDeVecesQueAparece(nodo* lista, char* paraContar){
-
-    lista = agregarALista(lista, paraContar);
-
-    return lista->contador;
-
+int cantidadDeVecesQueAparece(nodo* raiz, char* elemento){
+nodo * aux = raiz;
+while (aux != NULL){
+    if(strcmp(aux->info.nombreIdentificador, elemento)==0){
+        return aux->info.contador;
+        }
+    aux = aux ->sgte;
+}
+return 0;
 }
 
 // Enteros

@@ -10,9 +10,9 @@
 
 int sumaDecimales = 0;
 
-int acumuladorIdentificadores = 0
+int acumuladorIdentificadores = 0;
 
-nodo*lista = NULL;
+nodo*raiz = NULL;
 %}
 
     /* La siguiente línea define explícitamente a yytext como un puntero a un caracter ( char* yytext; ). Ésta es la opción por defecto si no se pone nada. */
@@ -47,55 +47,44 @@ exponente (e[+-]?{digito}*)
 %%
 
 {digitoNoCero}{digito}*{sufijoEntero}? { 
-    printf(yyout,"\nEncontre una constante entera decimal: %s\n", yytext, sumaDecimales += atoi(yytext));
+    fprintf(yyout,"\nEncontre una constante entera decimal: %s\n", yytext, sumaDecimales += atoi(yytext));
 
 }
 
 
 0{digitoOctal}*{sufijoEntero}? { 
-    printf(yyout,"\nEncontre una constante entera octal: %s\n", yytext); 
+    fprintf(yyout,"\nEncontre una constante entera octal: %s\n", yytext); 
     
 }
 
 
 0[xX]{digitoHexa}+{sufijoEntero}? { 
-    printf(yyout,"\nEncontre una constante entera hexadecimal: %s\n", yytext); 
+    fprintf(yyout,"\nEncontre una constante entera hexadecimal: %s\n", yytext); 
     
 }
 
 
 {noDigito}({noDigito}|{digito})* { 
-    printf(yyout,"\nLa palabra %s aparece : %s veces\n", yytext, agregarALaLista(lista,yytext));
+    raiz = agregarALista(raiz, yytext);
+    fprintf(yyout,"\nLa palabra %s aparece : %d veces\n", yytext, cantidadDeVecesQueAparece(raiz,yytext));
     
 }
 
 
 {digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
-    printf(yyout,"\nEncontre una constante real: %s\n", yytext); 
+    fprintf(yyout,"\nEncontre una constante real: %s\n", yytext); 
     
 }
 
 
 '([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
-    printf(yyout,"\nEncontre un caracter: %s\n", yytext); 
+    fprintf(yyout,"\nEncontre un caracter: %s\n", yytext); 
     
     }
 
 
-\"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { printf(yyout,"\nEncontre una literal cadena: %s\n", yytext, yyleng - 2 ); } // es por las comillas que se le resta 2
+\"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { fprintf(yyout,"\nEncontre una literal cadena: %s, longitud: %d\n", yytext, yyleng - 2 ); } // es por las comillas que se le resta 2
 
-
-/*
-    char* variable = "Algo
-                        que tiene
-                         enters en el medio"
-*/
-
-    /* Reglas por defecto de Flex: */
-        /* <*>.|\n { ECHO; } */
-            /* (ECHO; escribe yytext en la salida del escáner: FILE* yyout (variable global a la cual por defecto se le asigna stdout)) */
-        /* <<EOF>> { yyterminate(); } */
-            /* (yyterminate(); hace que la función yylex finalice retornando un 0, indicando un fin-de-entrada (EOF)) */
 
 %%
 /* Fin de la sección de reglas */ 
