@@ -1,9 +1,9 @@
 #include "misFunciones.h"
 
 
-int estaEnLista(nodo* raiz, char* aBuscar){
+int estaEnLista(nodo* raiz, char* elemento){
     while(raiz->sgte != NULL){
-        if(strcmp(raiz->nombreIdentificador, aBuscar) == 0) {
+        if(strcmp(raiz->nombreIdentificador, elemento) == 0) {
             raiz = raiz->sgte;
             return 1;
         }
@@ -11,28 +11,28 @@ int estaEnLista(nodo* raiz, char* aBuscar){
     }
 }
 
- nodo * agregarALista(nodo* lista, char* paraAgregar){
+ nodo * agregarALista(nodo* raiz, char* elementoParaAgregar){
 
-   nodo *aux = lista;
+   nodo *aux = raiz;
    
-   if(estaEnLista(lista,paraAgregar)){
-     
-    lista->contador += 1;
-
-   }else{
+   if(estaEnLista(raiz,elementoParaAgregar)){
+    raiz->contador += 1;
+   }
+   
+   else{
         if(aux->sgte==NULL){
-            aux->nombreIdentificador = (char*)malloc(strlen(paraAgregar));
-            strcpy(aux->nombreIdentificador, paraAgregar);
+            aux->nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
+            strcpy(aux->nombreIdentificador, elementoParaAgregar);
             aux->sgte = NULL;
             aux->contador = 1;
         }
-   
-   lista->nombreIdentificador = paraAgregar;
-   lista->sgte = aux;
-   lista->contador = 1;
+    
+        raiz->nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
+        raiz->sgte = aux;
+        raiz->contador = 1;
 
-}
-return lista;
+    }
+return raiz;
 }
 
 int cantidadDeVecesQueAparece(nodo* lista, char* paraContar){
@@ -59,9 +59,8 @@ int obtenerValorDeOctal(int octal) {
 int obtenerValorDeHexadecimal(char* hex) {
     int decimal = 0;
     int valor;
-    int longitud = strlen(hex);
     hex[1] = '0';
-    for (int i = longitud - 1 ; hex[i] != '\0'; i--) {
+    for (int i = 0 ; hex[i] != '\0'; i++) {
         if (hex[i] >= '0' && hex[i] <= '9')
             valor = hex[i] - '0';
         else if (hex[i] >= 'A' && hex[i] <= 'F')
