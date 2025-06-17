@@ -6,15 +6,13 @@
 
 %{
 
-#include <stdio.h>
-#include "TP"
+#include "misFunciones.h"
+
+int sumaDecimales = 0;
 
 int acumuladorIdentificadores = 0
 
-
- nodo * lista = malloc(sizeof(nodo));
- 
- 
+nodo*lista = NULL;
 %}
 
     /* La siguiente línea define explícitamente a yytext como un puntero a un caracter ( char* yytext; ). Ésta es la opción por defecto si no se pone nada. */
@@ -48,12 +46,42 @@ exponente (e[+-]?{digito}*)
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
 
-{digitoNoCero}{digito}*{sufijoEntero}? { printf(yyout,"\nEncontre una constante entera decimal: %s\n", yytext);}
-0{digitoOctal}*{sufijoEntero}? { printf(yyout,"\nEncontre una constante entera octal: %s\n", yytext); }
-0[xX]{digitoHexa}+{sufijoEntero}? { printf(yyout,"\nEncontre una constante entera hexadecimal: %s\n", yytext); }
-{noDigito}({noDigito}|{digito})* { printf(yyout,"\nEncontre un identificador: %s\n", yytext);}
-{digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { printf(yyout,"\nEncontre una constante real: %s\n", yytext); }
-'([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { printf(yyout,"\nEncontre un caracter: %s\n", yytext); }
+{digitoNoCero}{digito}*{sufijoEntero}? { 
+    printf(yyout,"\nEncontre una constante entera decimal: %s\n", yytext, sumaDecimales += atoi(yytext));
+
+}
+
+
+0{digitoOctal}*{sufijoEntero}? { 
+    printf(yyout,"\nEncontre una constante entera octal: %s\n", yytext); 
+    
+}
+
+
+0[xX]{digitoHexa}+{sufijoEntero}? { 
+    printf(yyout,"\nEncontre una constante entera hexadecimal: %s\n", yytext); 
+    
+}
+
+
+{noDigito}({noDigito}|{digito})* { 
+    printf(yyout,"\nLa palabra %s aparece : %s veces\n", yytext, agregarALaLista(lista,yytext));
+    
+}
+
+
+{digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
+    printf(yyout,"\nEncontre una constante real: %s\n", yytext); 
+    
+}
+
+
+'([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
+    printf(yyout,"\nEncontre un caracter: %s\n", yytext); 
+    
+    }
+
+
 \"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { printf(yyout,"\nEncontre una literal cadena: %s\n", yytext, yyleng - 2 ); } // es por las comillas que se le resta 2
 
 
@@ -83,6 +111,7 @@ int main(int argc, char *argv[]) {
     yylex();
 
     
+
     fclose(yyin);
     fclose(yyout);
 
