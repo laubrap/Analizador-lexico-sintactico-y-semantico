@@ -11,36 +11,25 @@ int estaEnLista(nodo* raiz, char* elemento){
     return 0;
 }
 
- nodo * agregarALista(nodo* raiz, char* elementoParaAgregar){
+nodo *agregarALista(nodo *raiz, char *elementoParaAgregar) {
+    nodo *aux = raiz;
 
-   nodo *aux = raiz;
-   while(aux != NULL){
-   if(estaEnLista(aux,elementoParaAgregar)){
-    aux->info.contador += 1;
-    return raiz;
-   }
-    aux = aux ->sgte;
-   }
+    while (aux != NULL) {
+        if (strcmp(aux->info.nombreIdentificador, elementoParaAgregar) == 0) {
+            aux->info.contador += 1;
+            return raiz;
+        }
+        aux = aux->sgte;
+    }
 
-    nodo * nuevo= (nodo*)malloc(sizeof(nodo));
+    nodo *nuevo = (nodo *)malloc(sizeof(nodo));
     nuevo->info.nombreIdentificador = strdup(elementoParaAgregar);
     nuevo->info.contador = 1;
-        // if(aux->sgte==NULL){
-        //     aux->info.nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
-        //     strcpy(aux->info.nombreIdentificador, elementoParaAgregar);
-        //     aux->sgte = NULL;
-        //     aux->info.contador = 1;
     nuevo->sgte = raiz;
-    raiz = nuevo;
- 
-    
-        // raiz->info.nombreIdentificador = (char*)malloc(strlen(elementoParaAgregar));
-        // raiz->sgte = aux;
-        // raiz->info.contador = 1;
 
-
-return raiz;
+    return nuevo;
 }
+
 
 int cantidadDeVecesQueAparece(nodo* raiz, char* elemento){
 nodo * aux = raiz;
@@ -53,6 +42,13 @@ while (aux != NULL){
 return 0;
 }
 
+void imprimirIdentificadores(nodo* raiz, FILE* salida) {
+    nodo* aux = raiz;
+    while (aux != NULL) {
+        fprintf(salida, "La palabra %s aparece : %d veces\n", aux->info.nombreIdentificador, aux->info.contador);
+        aux = aux->sgte;
+    }
+}
 // Enteros
 
 int obtenerValorDeOctal(int octal) {

@@ -1,0 +1,14 @@
+
+La palabra int aparece : 1 veces
+
+
+La palabra int aparece : 2 veces
+
+
+La palabra void aparece : 1 veces
+
+
+La palabra char aparece : 1 veces
+
+
+La palabra main aparece : 1 veces

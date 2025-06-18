@@ -45,6 +45,16 @@ exponente (e[+-]?{digito}*)
         /* Esto podría utilizarse para declarar variables que son locales a la rutina de análisis léxico y (después de las declaraciones) al código que debe ejecutarse siempre que se entra a la rutina de análisis léxico */
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
+a   { 
+    fprintf(yyout, "Encontré una 'a'\n");
+    printf("Encontré una 'a'\n");
+}
+
+b   { 
+    fprintf(yyout, "Encontré una 'b'\n");
+    printf("Encontré una 'b'\n");
+}
+
 
 {digitoNoCero}{digito}*{sufijoEntero}? { 
     fprintf(yyout,"\nEncontre una constante entera decimal: %s\n", yytext, sumaDecimales += atoi(yytext));
@@ -64,11 +74,12 @@ exponente (e[+-]?{digito}*)
 }
 
 
-{noDigito}({noDigito}|{digito})* { 
-    raiz = agregarALista(raiz, yytext);
+{noDigito}({noDigito}|{digito})* {
+    raiz = agregarALista (raiz, yytext);
+    int cantidad = cantidadDeVecesQueAparece(raiz, yytext);
     fprintf(yyout,"\nLa palabra %s aparece : %d veces\n", yytext, cantidadDeVecesQueAparece(raiz,yytext));
-    
 }
+
 
 
 {digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
@@ -85,21 +96,13 @@ exponente (e[+-]?{digito}*)
 
 \"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { fprintf(yyout,"\nEncontre una literal cadena: %s, longitud: %d\n", yytext, yyleng - 2 ); } // es por las comillas que se le resta 2
 
-
 %%
-/* Fin de la sección de reglas */ 
-
-/* Inicio de la sección de código de usuario, la cual: */
-	/* 1. Se utiliza para rutinas de complemento que llaman al analizador léxico o son llamadas por este; la presencia de esta sección es opcional */
-    /* 2. Toda esta sección simplemente se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
-
 int main(int argc, char *argv[]) {
 
     yyin = fopen ("entrada.txt","r" );
     yyout = fopen ("salida.txt", "w");
     yylex();
 
-    
 
     fclose(yyin);
     fclose(yyout);

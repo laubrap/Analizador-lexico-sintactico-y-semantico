@@ -4,6 +4,7 @@
         "stdlib.h": "c",
         "TP2.C": "cpp",
         "tp": "cpp",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "structstp2.h": "c"
     }
 }

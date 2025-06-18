@@ -5,3 +5,4 @@ int estaEnLista(nodo* , char* );
 int cantidadDeVecesQueAparece(nodo* , char*);
 int obtenerValorDeOctal(int );
 int obtenerValorDeHexadecimal(char* );
+void imprimirIdentificadores(nodo* raiz, FILE* salida);
