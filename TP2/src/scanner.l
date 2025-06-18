@@ -76,8 +76,6 @@ b   {
 
 {noDigito}({noDigito}|{digito})* {
     raiz = agregarALista (raiz, yytext);
-    int cantidad = cantidadDeVecesQueAparece(raiz, yytext);
-    fprintf(yyout,"\nLa palabra %s aparece : %d veces\n", yytext, cantidadDeVecesQueAparece(raiz,yytext));
 }
 
 
@@ -103,6 +101,7 @@ int main(int argc, char *argv[]) {
     yyout = fopen ("salida.txt", "w");
     yylex();
 
+    imprimirIdentificadores(raiz, yyout);
 
     fclose(yyin);
     fclose(yyout);

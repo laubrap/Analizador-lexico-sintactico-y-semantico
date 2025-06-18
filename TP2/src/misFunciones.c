@@ -1,16 +1,5 @@
 #include "misFunciones.h"
 
-
-int estaEnLista(nodo* raiz, char* elemento){
-    while(raiz != NULL){
-        if(strcmp(raiz->info.nombreIdentificador, elemento) == 0) {
-            return 1;
-        }
-        raiz = raiz->sgte;
-    }
-    return 0;
-}
-
 nodo *agregarALista(nodo *raiz, char *elementoParaAgregar) {
     nodo *aux = raiz;
 
@@ -30,17 +19,6 @@ nodo *agregarALista(nodo *raiz, char *elementoParaAgregar) {
     return nuevo;
 }
 
-
-int cantidadDeVecesQueAparece(nodo* raiz, char* elemento){
-nodo * aux = raiz;
-while (aux != NULL){
-    if(strcmp(aux->info.nombreIdentificador, elemento)==0){
-        return aux->info.contador;
-        }
-    aux = aux ->sgte;
-}
-return 0;
-}
 
 void imprimirIdentificadores(nodo* raiz, FILE* salida) {
     nodo* aux = raiz;
