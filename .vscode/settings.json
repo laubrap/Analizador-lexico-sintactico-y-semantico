@@ -5,6 +5,7 @@
         "TP2.C": "cpp",
         "tp": "cpp",
         "stdio.h": "c",
-        "structstp2.h": "c"
+        "structstp2.h": "c",
+        "misfunciones.h": "c"
     }
 }

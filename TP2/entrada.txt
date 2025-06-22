@@ -1,6 +1,24 @@
 int
-int
-int
-void
+lautarotarsia
+francotarsia(acosador)
+"ejemplo1"
+"ejemplo3"
+adaser
+123
+0xAF43;
+125
+65
+19
+69
+"hola, mundo"
+"hola lauti"
+"hola juli"
 op0
+045
+062
+07
+0
 sa
+0x23123
+0X493
+0xAFBCDE

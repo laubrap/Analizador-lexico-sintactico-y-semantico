@@ -12,7 +12,16 @@ int sumaDecimales = 0;
 
 int acumuladorIdentificadores = 0;
 
-nodo*raiz = NULL;
+nodoIdentificadores *raizIdentificador = NULL;
+
+nodoLiteralCadena *raizLiterales = NULL;
+
+nodoDecimal * raizDecimal = NULL;
+
+nodoHexadecimal * raizHexadecimal = NULL;
+
+nodoOctal * raizOctal = NULL;
+
 %}
 
     /* La siguiente línea define explícitamente a yytext como un puntero a un caracter ( char* yytext; ). Ésta es la opción por defecto si no se pone nada. */
@@ -45,37 +54,27 @@ exponente (e[+-]?{digito}*)
         /* Esto podría utilizarse para declarar variables que son locales a la rutina de análisis léxico y (después de las declaraciones) al código que debe ejecutarse siempre que se entra a la rutina de análisis léxico */
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
-a   { 
-    fprintf(yyout, "Encontré una 'a'\n");
-    printf("Encontré una 'a'\n");
-}
-
-b   { 
-    fprintf(yyout, "Encontré una 'b'\n");
-    printf("Encontré una 'b'\n");
-}
-
 
 {digitoNoCero}{digito}*{sufijoEntero}? { 
-    fprintf(yyout,"\nEncontre una constante entera decimal: %s\n", yytext, sumaDecimales += atoi(yytext));
+    raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
 
 }
 
 
 0{digitoOctal}*{sufijoEntero}? { 
-    fprintf(yyout,"\nEncontre una constante entera octal: %s\n", yytext); 
+    raizOctal = agregarOctal(raizOctal, yytext);
     
 }
 
 
 0[xX]{digitoHexa}+{sufijoEntero}? { 
-    fprintf(yyout,"\nEncontre una constante entera hexadecimal: %s\n", yytext); 
+    raizHexadecimal = agregarHexadecimal(raizHexadecimal, yytext);
     
 }
 
 
 {noDigito}({noDigito}|{digito})* {
-    raiz = agregarALista (raiz, yytext);
+    raizIdentificador = agregarALista(raizIdentificador, yytext);
 }
 
 
@@ -87,13 +86,14 @@ b   {
 
 
 '([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
-    fprintf(yyout,"\nEncontre un caracter: %s\n", yytext); 
+    fprintf(yyout,"\nEncontre un caracter: %s\n", atoi(yytext)); 
     
     }
 
 
-\"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { fprintf(yyout,"\nEncontre una literal cadena: %s, longitud: %d\n", yytext, yyleng - 2 ); } // es por las comillas que se le resta 2
-
+\"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
+    raizLiterales = literalesCadena(raizLiterales, yytext, yyleng - 2);
+}
 %%
 int main(int argc, char *argv[]) {
 
@@ -101,7 +101,11 @@ int main(int argc, char *argv[]) {
     yyout = fopen ("salida.txt", "w");
     yylex();
 
-    imprimirIdentificadores(raiz, yyout);
+    imprimirIdentificadores(raizIdentificador,yyout);
+    imprimirLiteralesCadena(raizLiterales,yyout);
+    imprimirDecimales(raizDecimal,yyout);
+    imprimirHexadecimales(raizHexadecimal,yyout);
+    imprimirOctal(raizOctal, yyout);
 
     fclose(yyin);
     fclose(yyout);
