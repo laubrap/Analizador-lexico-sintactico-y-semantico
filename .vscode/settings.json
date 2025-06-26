@@ -6,6 +6,7 @@
         "tp": "cpp",
         "stdio.h": "c",
         "structstp2.h": "c",
-        "misfunciones.h": "c"
+        "misfunciones.h": "c",
+        "structstp1.h": "c"
     }
 }
