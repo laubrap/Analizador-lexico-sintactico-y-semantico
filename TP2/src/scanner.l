@@ -12,6 +12,8 @@ int sumaDecimales = 0;
 
 int acumuladorIdentificadores = 0;
 
+int num_linea = 1;
+
 nodoIdentificadores *raizIdentificador = NULL;
 
 nodoLiteralCadena *raizLiterales = NULL;
@@ -21,6 +23,19 @@ nodoDecimal * raizDecimal = NULL;
 nodoHexadecimal * raizHexadecimal = NULL;
 
 nodoOctal * raizOctal = NULL;
+
+nodoReservada *raizPalabraReservada = NULL;
+
+nodoReal * raizReal = NULL;
+
+nodoCaracter *raizCaracter = NULL;
+
+int yylval;
+
+#define INICIO_CONTEO_LINEA 1
+#define INICIO_CONTEO_COLUMNA 1
+
+int linea_actual = INICIO_CONTEO_LINEA, columna_actual = INICIO_CONTEO_COLUMNA;
 
 %}
 
@@ -45,6 +60,17 @@ sufijoEntero ([uU][lL]?|[lL][uU]?)
 sufijoReal ([fF][lL]?|[lL][fF]?)
 escapeSimple [abfnrtv'\"\?\\]
 exponente (e[+-]?{digito}*)
+almacenamiento (auto|register|static|extern|typedef)
+especificadoresDeTipo (void|char|short|int|long|float|double|signed|unsigned)
+calificadoresDeTipo (const|volatile)
+calificadoresDeUnion (struct|union)
+calificadoresDeEnum (enum)
+etiquetas (case|default)
+seleccion (if|else|switch)
+iteracion (do|while|for)
+salto (goto|continue|break|return)
+unario (sizeof)
+
 
 
 /* Fin de la sección de definiciones */
@@ -55,44 +81,58 @@ exponente (e[+-]?{digito}*)
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
 
+[ ] { columna_actual += 1; }
+[\t] { columna_actual += 4; }         
+\n { linea_actual += yyleng; columna_actual = INICIO_CONTEO_COLUMNA; }    
+        
+{almacenamiento}|{especificadoresDeTipo}|{especificadoresDeTipo}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
+    raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, columna_actual, linea_actual);
+    columna_actual += yyleng;
+}
+    
+
 {digitoNoCero}{digito}*{sufijoEntero}? { 
     raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
-
+    columna_actual += (yyleng);
 }
 
 
 0{digitoOctal}*{sufijoEntero}? { 
     raizOctal = agregarOctal(raizOctal, yytext);
-    
+    columna_actual += yyleng;
 }
 
 
 0[xX]{digitoHexa}+{sufijoEntero}? { 
     raizHexadecimal = agregarHexadecimal(raizHexadecimal, yytext);
-    
+    columna_actual += yyleng;
 }
 
 
 {noDigito}({noDigito}|{digito})* {
-    raizIdentificador = agregarALista(raizIdentificador, yytext);
+    raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
+        columna_actual += yyleng;
 }
 
 
-
 {digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
-    fprintf(yyout,"\nEncontre una constante real: %s\n", yytext); 
+    raizReal = agregarReal(raizReal, yytext);
+    columna_actual += yyleng;
     
 }
 
 
 '([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
-    fprintf(yyout,"\nEncontre un caracter: %s\n", atoi(yytext)); 
+    raizCaracter = agregarCaracter(raizCaracter, yytext);
+    columna_actual += yyleng;
     
     }
 
 
+
 \"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
-    raizLiterales = literalesCadena(raizLiterales, yytext, yyleng - 2);
+    raizLiterales = agregarLiteralesCadena(raizLiterales, yytext, yyleng - 2);
+    columna_actual += yyleng;
 }
 %%
 int main(int argc, char *argv[]) {
@@ -103,9 +143,12 @@ int main(int argc, char *argv[]) {
 
     imprimirIdentificadores(raizIdentificador,yyout);
     imprimirLiteralesCadena(raizLiterales,yyout);
+    imprimirPalabrasReservadas (raizPalabraReservada, yyout);
     imprimirDecimales(raizDecimal,yyout);
     imprimirHexadecimales(raizHexadecimal,yyout);
     imprimirOctal(raizOctal, yyout);
+    imprimirReales(raizReal, yyout);
+    imprimirCaracteres(raizCaracter, yyout);
 
     fclose(yyin);
     fclose(yyout);

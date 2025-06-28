@@ -44,6 +44,17 @@ typedef struct {
     CategoriaReservada categoria;
 } infoNodoPalabrasReservada;
 
+typedef struct {
+    char* valor;
+    int parteEntera;
+    float mantisa;
+}infoNodoReal;
+
+typedef struct {
+    char* caracter;
+    struct nodoCaracter *sgte;
+}infoNodoCaracter;
+
 typedef struct{
     int valor;
     struct nodoDecimal *sgte;
@@ -59,14 +70,14 @@ typedef struct {
     struct nodoOctal *sgte;
 }nodoOctal;
 
-typedef struct {
-    char* valor;
-    int parteEntera;
-    double mantisa;
+
+typedef struct{
+    infoNodoReal info;
     struct nodoReal *sgte;
 }nodoReal;
-typedef struct {
-    char* caracter;
+
+typedef struct{
+    infoNodoCaracter info;
     struct nodoCaracter *sgte;
 }nodoCaracter;
 
@@ -83,7 +94,6 @@ typedef struct nodoReservada {
     infoNodoPalabrasReservada info;
     struct nodoReservada* sgte;
 } nodoReservada;
-
 
 
 

@@ -1,50 +1,65 @@
-
-
-()
-
-
-
-
-;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-* Listado de identificadores encontrados: 
-La palabra acosador aparece: 1 veces
+;* Listado de identificadores encontrados: 
 La palabra adaser aparece: 1 veces
+La palabra arotarsia aparece: 1 veces
 La palabra francotarsia aparece: 1 veces
-La palabra int aparece: 1 veces
-La palabra lautarotarsia aparece: 1 veces
+La palabra juli aparece: 1 veces
+La palabra laut aparece: 1 veces
 La palabra op0 aparece: 1 veces
 La palabra sa aparece: 1 veces
 
 * Listado de literales cadena encontrados: 
- "ejemplo3": longitud 8
+ "hola": longitud 4
+"ejemplo3": longitud 8
 "ejemplo1": longitud 8
 "hola juli": longitud 9
 "hola lauti": longitud 10
-"hola, mundo": longitud 11
+
+*Listado de palabras reservadas (clase de almacenamiento):
+auto: linea 31, columna 1
+
+
+* Listado de palabras reservadas (especificadores de tipo):
+int: linea 1, columna 1
+int: linea 2, columna 6
+int: linea 18, columna 1
+int: linea 18, columna 5
+int: linea 18, columna 9
+int: linea 19, columna 1
+int: linea 19, columna 17
+int: linea 21, columna 1
+int: linea 25, columna 4
+int: linea 32, columna 17
+
+
+* Listado de palabras reservadas (calificadores de tipo):
+
+
+* Listado de palabras reservadas (struct / union):
+
+
+* Listado de palabras reservadas (enumeraciones):
+
+
+* Listado de palabras reservadas (etiquetas):
+
+
+* Listado de palabras reservadas (selección):
+
+
+* Listado de palabras reservadas (iteración):
+
+
+* Listado de palabras reservadas (salto):
+
+
+* Listado de palabras reservadas (operadores unarios):
+sizeof: linea 31, columna 6
 
 * Listado de constantes enteras decimales: 
 123: valor 123
 125: valor 125
 65: valor 65
-19: valor 19
-69: valor 69
-Total acumulado de sumar todas las constantes decimales: 401
+Total acumulado de sumar todas las constantes decimales: 313
 
 * Listado de constantes enteras hexadecimales: 
 0xAF43: valor 44867
@@ -57,3 +72,16 @@ Total acumulado de sumar todas las constantes decimales: 401
 062: valor 50
 07: valor 7
 0: valor 0
+
+* Listado de constantes enteras decimales: 
+3.734: parte entera: 3, mantisa: 0.734000
+6.49: parte entera: 6, mantisa: 0.490000
+6.421: parte entera: 6, mantisa: 0.421000
+79.23: parte entera: 79, mantisa: 0.230003
+
+* Listado de constantes de caracter; 
+1) 'a'
+2) 'b'
+3) 'c'
+4) '0'
+5) '@'

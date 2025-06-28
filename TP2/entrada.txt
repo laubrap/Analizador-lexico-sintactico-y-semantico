@@ -1,24 +1,34 @@
 int
-lautarotarsia
-francotarsia(acosador)
+laut int arotarsia
+francotarsia
 "ejemplo1"
 "ejemplo3"
+3.734
+'a'
+6.49
+'b'
+6.421
+79.23
+'c'
 adaser
 123
 0xAF43;
 125
 65
-19
-69
-"hola, mundo"
-"hola lauti"
+int int int 
+int"hola lauti" int 
 "hola juli"
+int juli
 op0
 045
 062
-07
+07 int
 0
 sa
 0x23123
 0X493
 0xAFBCDE
+auto sizeof
+        "hola"  int                         
+'0'
+'@'

@@ -5,7 +5,8 @@
 
 // ---------- IDENTIFICADORES ----------
 
-nodoIdentificadores *agregarALista(nodoIdentificadores *raiz, char *elementoParaAgregar) {
+
+nodoIdentificadores * agregarIdentificadores(nodoIdentificadores*raiz , char*elementoParaAgregar) {
     nodoIdentificadores *aux = raiz;
 
     while (aux != NULL) {
@@ -57,7 +58,7 @@ void imprimirIdentificadores(nodoIdentificadores* raiz, FILE* salida) {
 
 // ---------- LITERALES CADENA ----------
 
-nodoLiteralCadena* literalesCadena(nodoLiteralCadena *raizLiterales, char *elementoParaAgregar, int longitud) {
+nodoLiteralCadena* agregarLiteralesCadena(nodoLiteralCadena *raizLiterales, char *elementoParaAgregar, int longitud) {
     nodoLiteralCadena *aux = raizLiterales;
 
     while (aux != NULL) {
@@ -104,6 +105,183 @@ void imprimirLiteralesCadena(nodoLiteralCadena* raiz, FILE* salida) {
         fprintf(salida, "%s: longitud %d\n", aux->info.nombreLiteralCadena, aux->info.longitud);
         aux = aux->sgte;
     }
+}
+
+// ----------Palabras Reservadas-------
+
+nodoReservada * agregarReservada(nodoReservada * raizReservada, char *valor, int columna, int linea){
+
+    nodoReservada * nuevo = (nodoReservada*)malloc(sizeof(nodoReservada));
+    nuevo->info.columna = columna;
+    nuevo->info.linea = linea;
+    nuevo->info.palabra = strdup(valor);
+    nuevo->sgte = NULL;
+    
+    nodoReservada * aux = raizReservada;
+
+    if(raizReservada == NULL){
+      raizReservada = nuevo;  
+      return raizReservada;
+    }
+    else{
+        while(aux->sgte != NULL){
+            aux = aux->sgte;
+        }
+        aux->sgte = nuevo;
+        return raizReservada;
+    }
+}
+
+void imprimirAlmacenamiento(nodoReservada *raiz, FILE *salida) {
+
+    nodoReservada *aux = raiz;
+
+    fprintf(salida,"\n*Listado de palabras reservadas (clase de almacenamiento):\n");
+
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "auto") == 0 || 
+            strcmp(aux->info.palabra, "register") == 0 ||
+            strcmp(aux->info.palabra, "static") == 0 || 
+            strcmp(aux->info.palabra, "extern") == 0 ||
+            strcmp(aux->info.palabra, "typedef") == 0) 
+        {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra,aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirEspecificadoresTipo(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (especificadores de tipo):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "void") == 0 ||
+            strcmp(aux->info.palabra, "char") == 0 ||
+            strcmp(aux->info.palabra, "short") == 0 ||
+            strcmp(aux->info.palabra, "int") == 0 ||
+            strcmp(aux->info.palabra, "long") == 0 ||
+            strcmp(aux->info.palabra, "float") == 0 ||
+            strcmp(aux->info.palabra, "double") == 0 ||
+            strcmp(aux->info.palabra, "signed") == 0 ||
+            strcmp(aux->info.palabra, "unsigned") == 0) 
+        {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirCalificadoresTipo(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (calificadores de tipo):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "const") == 0 ||
+            strcmp(aux->info.palabra, "volatile") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirCalificadoresUnion(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (struct / union):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "struct") == 0 ||
+            strcmp(aux->info.palabra, "union") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirEnumeraciones(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (enumeraciones):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "enum") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirEtiquetas(nodoReservada *raiz, FILE *salida){
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (etiquetas):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "case") == 0 ||
+            strcmp(aux->info.palabra, "default") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+void imprimirSeleccion(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (selección):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "if") == 0 ||
+            strcmp(aux->info.palabra, "else") == 0 ||
+            strcmp(aux->info.palabra, "switch") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirIteracion(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (iteración):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "for") == 0 ||
+            strcmp(aux->info.palabra, "while") == 0 ||
+            strcmp(aux->info.palabra, "do") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirSalto(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (salto):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "goto") == 0 ||
+            strcmp(aux->info.palabra, "continue") == 0 ||
+            strcmp(aux->info.palabra, "break") == 0 ||
+            strcmp(aux->info.palabra, "return") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+void imprimirUnario(nodoReservada *raiz, FILE *salida) {
+    nodoReservada *aux = raiz;
+    fprintf(salida, "\n\n* Listado de palabras reservadas (operadores unarios):\n");
+    while (aux != NULL) {
+        if (strcmp(aux->info.palabra, "sizeof") == 0) {
+            fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+        }
+        aux = aux->sgte;
+    }
+}
+
+
+void imprimirPalabrasReservadas (nodoReservada *raiz, FILE *salida){
+    
+    imprimirAlmacenamiento(raiz, salida);
+    imprimirEspecificadoresTipo(raiz, salida);
+    imprimirCalificadoresTipo(raiz, salida);
+    imprimirCalificadoresUnion(raiz, salida);
+    imprimirEnumeraciones(raiz, salida);
+    imprimirEtiquetas(raiz, salida);
+    imprimirSeleccion(raiz, salida);
+    imprimirIteracion(raiz, salida);
+    imprimirSalto(raiz, salida);
+    imprimirUnario(raiz, salida);
+    
 }
 
 // ---------- DECIMALES ----------
@@ -199,6 +377,75 @@ void imprimirOctal(nodoOctal *raiz, FILE *salida){
 }
 
 // ----------- Reales ---------
+
+nodoReal * agregarReal(nodoReal *raizReal, char* valor){
+    nodoReal * aux = raizReal;
+    nodoReal * nuevo = (nodoReal*)malloc(sizeof(nodoReal));
+    float valorDecimal = atof(valor);
+
+    nuevo->info.valor = strdup(valor);
+    nuevo->info.parteEntera = floor(valorDecimal);
+    nuevo->info.mantisa = (float)(valorDecimal - floor(valorDecimal));
+    nuevo->sgte = NULL;
+    
+    if(raizReal == NULL){
+        raizReal = nuevo;
+        return nuevo;
+    }
+    else{
+
+        while(aux->sgte != NULL){
+            aux=aux->sgte;
+        }
+    }
+    aux->sgte = nuevo;
+    return raizReal;
+}
+
+void imprimirReales(nodoReal * raizReal, FILE* salida){
+
+    nodoReal * aux = raizReal;
+    fprintf(salida, "\n* Listado de constantes enteras decimales: \n");
+    while( aux !=NULL){
+        fprintf(salida, "%s: parte entera: %d, mantisa: %f\n", aux->info.valor, aux->info.parteEntera, aux->info.mantisa );
+        aux=aux->sgte;
+    }
+}
+
+
+
+// ------ Caracteres --------
+nodoCaracter * agregarCaracter (nodoCaracter *raizCaracter, char* valor){
+    nodoCaracter * aux = raizCaracter;
+    nodoCaracter *nuevo = (nodoCaracter*)malloc(sizeof(nodoCaracter));
+    nuevo->info.caracter = strdup(valor);
+    nuevo->sgte = NULL;
+
+    if (raizCaracter == NULL) {
+        raizCaracter = nuevo;
+        return nuevo;     
+    } else {
+        while (aux->sgte != NULL) {
+            aux = aux->sgte;
+    }
+    }
+    aux->sgte = nuevo;
+    return raizCaracter;
+}
+
+void imprimirCaracteres (nodoCaracter *raizCaracter, FILE* salida) {
+    nodoCaracter *aux = raizCaracter;
+    int contador = 0;
+    fprintf(salida, "\n* Listado de constantes de caracter; \n");
+
+    while( aux !=NULL){
+    contador+=1;
+    fprintf(salida, "%d) %s\n", contador,aux->info.caracter);
+    aux=aux->sgte;
+    }
+}
+
+
 
 // ---------- LIBERACIÓN DE MEMORIA ----------
 
