@@ -50,7 +50,7 @@ typedef struct {
 
 typedef struct {
     char* valor;
-    int parteEntera;
+    float parteEntera;
     float mantisa;
 }infoNodoReal;
 
