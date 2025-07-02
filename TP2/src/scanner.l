@@ -14,6 +14,8 @@ int acumuladorIdentificadores = 0;
 
 int num_linea = 1;
 
+char* buffer = NULL;
+
 nodoIdentificadores *raizIdentificador = NULL;
 
 nodoLiteralCadena *raizLiterales = NULL;
@@ -29,6 +31,10 @@ nodoReservada *raizPalabraReservada = NULL;
 nodoReal * raizReal = NULL;
 
 nodoCaracter *raizCaracter = NULL;
+
+nodoPuntuaciones *raizPuntuaciones = NULL;
+
+nodoCadenasNoReconocidas* raizNoReconocida = NULL;
 
 int yylval;
 
@@ -47,7 +53,7 @@ int linea_actual = INICIO_CONTEO_LINEA, columna_actual = INICIO_CONTEO_COLUMNA;
     /* Condiciones de arranque inclusivas */
 /* %s */
     /* Condiciones de arranque exclusivas */
-/* %x */
+%x tokenNoReconocido
 
     /* Declaraciones con cada nombre y su definición; se utilizan para simplificar las reglas */
 /* digito [0-9] */
@@ -70,8 +76,8 @@ seleccion (if|else|switch)
 iteracion (do|while|for)
 salto (goto|continue|break|return)
 unario (sizeof)
-
-
+puntuaciones ("["|"]"|"("|")"|"{"|"}"|"."|"->"|"++"|"--"|"&"|"*"|"+"|"-"|"̃ "|"!"|"/"|"%"|"<<"|">>"|"<"|">"|"<="|">="|"=="|"!="|"^"|"|"|"&&"|"||"|"="|"*="|"/="|"%="|"+="|"-="|"<<="|">>="|"&="|"^="|"|="|"?"|":"|";"|"..."|","|"#"|"##")
+noReconocida ([^ \t\n])
 
 /* Fin de la sección de definiciones */
 
@@ -111,30 +117,68 @@ unario (sizeof)
 
 {noDigito}({noDigito}|{digito})* {
     raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
-        columna_actual += yyleng;
+    columna_actual += yyleng;
 }
 
 
 {digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
     raizReal = agregarReal(raizReal, yytext);
     columna_actual += yyleng;
-    
 }
 
 
 '([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
     raizCaracter = agregarCaracter(raizCaracter, yytext);
     columna_actual += yyleng;
-    
-    }
-
+}
 
 
 \"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
     raizLiterales = agregarLiteralesCadena(raizLiterales, yytext, yyleng - 2);
     columna_actual += yyleng;
 }
+
+{puntuaciones} {
+    raizPuntuaciones = agregarPuntuacion(raizPuntuaciones, yytext);
+    columna_actual += yyleng;
+}
+
+{noReconocida} { 
+    buffer = strdup(yytext);
+    columna_actual += yyleng;
+    BEGIN(tokenNoReconocido); 
+}
+
+<tokenNoReconocido>{
+    <<EOF>> {
+        fprintf(stderr, "\n");
+        BEGIN(INITIAL);
+    }
+    " "|\t|\n {
+        yyless(0);
+        BEGIN(INITIAL);
+    }
+    [^ \t\n]+ {
+    
+            if(buffer == NULL){
+            buffer = calloc(yyleng + 1, sizeof(char));
+            strncpy(buffer, yytext, yyleng);
+            }
+            else{
+            size_t actual_len = strlen(buffer);
+            buffer = realloc(buffer, actual_len + yyleng + 1);
+            strncat(buffer, yytext, yyleng);
+            }
+            raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_actual, linea_actual, yyout);
+            free(buffer);
+            buffer = NULL;
+            columna_actual += yyleng;
+            BEGIN(INITIAL);
+    }
+}
+
 %%
+
 int main(int argc, char *argv[]) {
 
     yyin = fopen ("entrada.txt","r" );
@@ -149,6 +193,8 @@ int main(int argc, char *argv[]) {
     imprimirOctal(raizOctal, yyout);
     imprimirReales(raizReal, yyout);
     imprimirCaracteres(raizCaracter, yyout);
+    imprimirPuntuaciones(raizPuntuaciones, yyout);
+    imprimirCadenaNoReconocida(raizNoReconocida,yyout);
 
     fclose(yyin);
     fclose(yyout);

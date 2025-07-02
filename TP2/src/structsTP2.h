@@ -23,6 +23,10 @@ typedef struct{
     char *nombreIdentificador;
     int contador;
 }infoNodoIdentificadores;
+typedef struct{
+    char *nombrePuntuaciones;
+    int contador;
+}infoNodoPuntuaciones;
 
 typedef struct{
     char *nombreLiteralCadena;
@@ -55,10 +59,17 @@ typedef struct {
     struct nodoCaracter *sgte;
 }infoNodoCaracter;
 
+
 typedef struct{
     int valor;
     struct nodoDecimal *sgte;
 }nodoDecimal;
+
+typedef struct {
+    char* palabra;
+    int linea;
+    int columna;
+} infoNodoCadenasNoReconocidas;
 
 typedef struct {
     infoNodoHexadecimal info;
@@ -95,6 +106,14 @@ typedef struct nodoReservada {
     struct nodoReservada* sgte;
 } nodoReservada;
 
+typedef struct nodoPuntuaciones{
+    infoNodoPuntuaciones info;
+   struct nodoPuntuaciones * sgte;
+} nodoPuntuaciones;
 
+typedef struct nodoCadenasNoReconocidas {
+    infoNodoCadenasNoReconocidas info;
+   struct nodoCadenasNoReconocidas * sgte;
+} nodoCadenasNoReconocidas;
 
 

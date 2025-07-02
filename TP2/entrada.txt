@@ -1,34 +1,7 @@
-int
-laut int arotarsia
-francotarsia
-"ejemplo1"
-"ejemplo3"
-3.734
-'a'
-6.49
-'b'
-6.421
-79.23
-'c'
-adaser
-123
-0xAF43;
-125
-65
-int int int 
-int"hola lauti" int 
-"hola juli"
-int juli
-op0
-045
-062
-07 int
-0
-sa
-0x23123
-0X493
-0xAFBCDE
-auto sizeof
-        "hola"  int                         
-'0'
-'@'
+int main(void) {
+    char *cadena = "Hola, Mundo\n";
+    char *cadena_2 = "mundo";
+    if cadena = "texto"
+    @double@ sizeof
+    return (20 * 10) + 07 + 0xFF + 017 + 07 + 1.5 * ('a' + '\0');
+}

@@ -37,6 +37,12 @@ void imprimirReales(nodoReal *raiz, FILE *salida);
 nodoCaracter * agregarCaracter(nodoCaracter *raizCaracter, char *valor);
 void imprimirCaracteres(nodoCaracter *raiz, FILE *salida);
 
+nodoPuntuaciones* agregarPuntuacion (nodoPuntuaciones *raiz, char *caracter);
+void imprimirPuntuaciones(nodoPuntuaciones* raiz, FILE* salida);
+
+nodoCadenasNoReconocidas* agregarCadenaNoReconocida(nodoCadenasNoReconocidas* raiz, char *valor ,int columna, int linea, FILE* salida);
+void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz, FILE *salida);
+
 
 
 

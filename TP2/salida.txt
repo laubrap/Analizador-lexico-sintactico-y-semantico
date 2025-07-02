@@ -1,34 +1,21 @@
-;* Listado de identificadores encontrados: 
-La palabra adaser aparece: 1 veces
-La palabra arotarsia aparece: 1 veces
-La palabra francotarsia aparece: 1 veces
-La palabra juli aparece: 1 veces
-La palabra laut aparece: 1 veces
-La palabra op0 aparece: 1 veces
-La palabra sa aparece: 1 veces
+* Listado de identificadores encontrados: 
+La palabra cadena aparece: 2 veces
+La palabra cadena_2 aparece: 1 veces
+La palabra main aparece: 1 veces
 
 * Listado de literales cadena encontrados: 
- "hola": longitud 4
-"ejemplo3": longitud 8
-"ejemplo1": longitud 8
-"hola juli": longitud 9
-"hola lauti": longitud 10
+ "texto": longitud 5
+"mundo": longitud 5
+"Hola, Mundo\n": longitud 13
 
 *Listado de palabras reservadas (clase de almacenamiento):
-auto: linea 31, columna 1
 
 
 * Listado de palabras reservadas (especificadores de tipo):
 int: linea 1, columna 1
-int: linea 2, columna 6
-int: linea 18, columna 1
-int: linea 18, columna 5
-int: linea 18, columna 9
-int: linea 19, columna 1
-int: linea 19, columna 17
-int: linea 21, columna 1
-int: linea 25, columna 4
-int: linea 32, columna 17
+void: linea 1, columna 10
+char: linea 2, columna 5
+char: linea 3, columna 5
 
 
 * Listado de palabras reservadas (calificadores de tipo):
@@ -38,50 +25,57 @@ int: linea 32, columna 17
 
 
 * Listado de palabras reservadas (enumeraciones):
+	-
 
 
 * Listado de palabras reservadas (etiquetas):
+	-
 
 
 * Listado de palabras reservadas (selección):
+if: linea 4, columna 5
 
 
 * Listado de palabras reservadas (iteración):
 
 
 * Listado de palabras reservadas (salto):
+return: linea 6, columna 5
 
 
 * Listado de palabras reservadas (operadores unarios):
-sizeof: linea 31, columna 6
+sizeof: linea 5, columna 14
 
 * Listado de constantes enteras decimales: 
-123: valor 123
-125: valor 125
-65: valor 65
-Total acumulado de sumar todas las constantes decimales: 313
+20: valor 20
+10: valor 10
+Total acumulado de sumar todas las constantes decimales: 30
 
 * Listado de constantes enteras hexadecimales: 
-0xAF43: valor 44867
-0x23123: valor 143651
-0X493: valor 1171
-0xAFBCDE: valor 11517150
+0xFF: valor 255
 
 * Listado de constantes enteras octales: 
-045: valor 37
-062: valor 50
 07: valor 7
-0: valor 0
+017: valor 15
+07: valor 7
 
 * Listado de constantes enteras decimales: 
-3.734: parte entera: 3, mantisa: 0.734000
-6.49: parte entera: 6, mantisa: 0.490000
-6.421: parte entera: 6, mantisa: 0.421000
-79.23: parte entera: 79, mantisa: 0.230003
+1.5: parte entera: 1, mantisa: 0.500000
 
 * Listado de constantes de caracter; 
 1) 'a'
-2) 'b'
-3) 'c'
-4) '0'
-5) '@'
+2) '\0'
+
+* Listado de caracteres de puntuación encontrados: 
+ ( :aparece 3 veces
+ ) :aparece 3 veces
+ * :aparece 4 veces
+ + :aparece 6 veces
+ ; :aparece 3 veces
+ = :aparece 3 veces
+ { :aparece 1 veces
+ } :aparece 1 veces
+
+
+* Listado de palabras no reconocidas: 
+@double@: linea 5, columna 6
