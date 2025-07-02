@@ -557,8 +557,7 @@ void imprimirCaracteres (nodoCaracter *raizCaracter, FILE* salida) {
 
 
 // ------------- Puntuacion -------------
-nodoPuntuaciones* agregarPuntuacion (nodoPuntuaciones *raiz, char *caracter){
-
+nodoPuntuaciones* agregarPuntuacion(nodoPuntuaciones *raiz, char *caracter) {
     nodoPuntuaciones *aux = raiz;
 
     while (aux != NULL) {
@@ -569,34 +568,21 @@ nodoPuntuaciones* agregarPuntuacion (nodoPuntuaciones *raiz, char *caracter){
         aux = aux->sgte;
     }
 
-    nodoPuntuaciones *nuevo = (nodoPuntuaciones *)malloc(sizeof(nodoPuntuaciones));
-    if (!nuevo) return raiz;
-
+    nodoPuntuaciones *nuevo = (nodoPuntuaciones*)malloc(sizeof(nodoPuntuaciones));
     nuevo->info.nombrePuntuaciones = strdup(caracter);
-    if (!nuevo->info.nombrePuntuaciones) {
-        free(nuevo);
-        return raiz;
-    }
-
     nuevo->info.contador = 1;
     nuevo->sgte = NULL;
 
-    nodoPuntuaciones *punteroAnterior = NULL;
-    nodoPuntuaciones *punteroActual = raiz;
-
-    while (punteroActual != NULL && strcmp(punteroActual->info.nombrePuntuaciones, caracter) < 0) {
-        punteroAnterior = punteroActual;
-        punteroActual = punteroActual->sgte;
+    if (raiz == NULL) 
+        return nuevo;
+      else {
+        aux = raiz;
+        while (aux->sgte != NULL) {
+            aux = aux->sgte;
+        }
+        aux->sgte = nuevo;
+        return raiz;
     }
-
-    if (punteroAnterior != NULL) {
-        punteroAnterior->sgte = nuevo;
-    } else {
-        raiz = nuevo;
-    }
-
-    nuevo->sgte = punteroActual;
-    return raiz;
 }
 
 void imprimirPuntuaciones(nodoPuntuaciones* raiz, FILE* salida) {
