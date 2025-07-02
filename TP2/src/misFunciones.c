@@ -59,7 +59,7 @@ void imprimirIdentificadores(nodoIdentificadores* raiz, FILE* salida) {
     }
 
     if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -117,7 +117,7 @@ void imprimirLiteralesCadena(nodoLiteralCadena* raiz, FILE* salida) {
     }
 
     if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -161,13 +161,13 @@ void imprimirAlmacenamiento(nodoReservada *raiz, FILE *salida) {
             strcmp(aux->info.palabra, "typedef") == 0) 
         {
             fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra,aux->info.linea, aux->info.columna);
+            encontradas = 1;
         }
-        encontradas = 1;
         aux = aux->sgte;
     }
 
     if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -188,12 +188,12 @@ void imprimirEspecificadoresTipo(nodoReservada *raiz, FILE *salida) {
             strcmp(aux->info.palabra, "unsigned") == 0) 
         {
             fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+            encontradas = 1;
         }
-        encontradas = 1;
         aux = aux->sgte;
     }
     if (encontradas == 0) {
-        fprintf(salida, "\t-\n");
+        fprintf(salida, "-");
     }
 }
 
@@ -207,19 +207,18 @@ void imprimirCalificadoresTipo(nodoReservada *raiz, FILE *salida) {
         if (strcmp(aux->info.palabra, "const") == 0 ||
             strcmp(aux->info.palabra, "volatile") == 0) {
             fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
-            
+            encontradas = 1;
         }
-        encontradas = 1;
         aux = aux->sgte;
     }
     if (encontradas == 0) {
-      fprintf(salida, "\t-\n");
+      fprintf(salida, "-");
 }
 }
 
 void imprimirCalificadoresUnion(nodoReservada *raiz, FILE *salida) {
     nodoReservada *aux = raiz;
-    int encontradas = 1;
+    int encontradas = 0;
     fprintf(salida, "\n\n* Listado de palabras reservadas (struct / union):\n");
 
     while (aux != NULL) {
@@ -232,7 +231,7 @@ void imprimirCalificadoresUnion(nodoReservada *raiz, FILE *salida) {
     }
 
     if (encontradas == 0) {
-        fprintf(salida, "\t-\n");
+        fprintf(salida, "-");
     }
 }
 
@@ -245,13 +244,13 @@ void imprimirEnumeraciones(nodoReservada *raiz, FILE *salida) {
     while (aux != NULL) {
         if (strcmp(aux->info.palabra, "enum") == 0) {
             fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
-             encontradas = 1;
+            encontradas = 1;
         }
         aux = aux->sgte;
     }
 
     if (encontradas == 0) {
-        fprintf(salida, "\t-\n");
+        fprintf(salida, "-");
     }
 }
 
@@ -265,12 +264,13 @@ void imprimirEtiquetas(nodoReservada *raiz, FILE *salida){
         if (strcmp(aux->info.palabra, "case") == 0 ||
             strcmp(aux->info.palabra, "default") == 0) {
             fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+            encontradas = 1;
         }
         aux = aux->sgte;
     }
 
     if (encontradas == 0) {
-        fprintf(salida, "\t-\n");
+        fprintf(salida, "-");
     }    
 }
 
@@ -290,7 +290,7 @@ void imprimirSeleccion(nodoReservada *raiz, FILE *salida) {
     }
 
     if (encontradas == 0) {
-        fprintf(salida, "\t-\n");
+        fprintf(salida, "-");
     }
 }
 
@@ -305,12 +305,12 @@ void imprimirIteracion(nodoReservada *raiz, FILE *salida) {
             strcmp(aux->info.palabra, "while") == 0 ||
             strcmp(aux->info.palabra, "do") == 0) {
             fprintf(salida, "%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
+            encontradas = 1;
         }
-        encontradas = 1;
         aux = aux->sgte;
     }
     if (encontradas == 0) {
-      fprintf(salida, "\t-\n");
+      fprintf(salida, "-");
 }
 }
 
@@ -331,7 +331,7 @@ void imprimirSalto(nodoReservada *raiz, FILE *salida) {
         aux = aux->sgte;
     }
     if (encontradas == 0) {
-      fprintf(salida, "\t-\n");
+      fprintf(salida, "-");
     }
 }
 
@@ -349,7 +349,7 @@ void imprimirUnario(nodoReservada *raiz, FILE *salida) {
     }
     
     if (encontradas == 0) {
-        fprintf(salida, "\t-\n");
+        fprintf(salida, "-");
     }
 }
 
@@ -402,7 +402,7 @@ void imprimirDecimales(nodoDecimal *raiz, FILE *salida){
     }
     fprintf(salida, "Total acumulado de sumar todas las constantes decimales: %d\n", suma);
     if (encontradas == 0) {
-        fprintf(salida, "\t-\n");
+        fprintf(salida, "-");
     }
 }
 
@@ -438,7 +438,7 @@ void imprimirHexadecimales(nodoHexadecimal *raiz, FILE *salida){
     aux = aux->sgte;
 }
 if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -473,7 +473,7 @@ void imprimirOctal(nodoOctal *raiz, FILE *salida){
     aux = aux->sgte;
 }
 if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -515,7 +515,7 @@ void imprimirReales(nodoReal * raizReal, FILE* salida){
         aux=aux->sgte;
     }
     if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -551,7 +551,7 @@ void imprimirCaracteres (nodoCaracter *raizCaracter, FILE* salida) {
     aux=aux->sgte;
     }
     if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -611,7 +611,7 @@ void imprimirPuntuaciones(nodoPuntuaciones* raiz, FILE* salida) {
         
     }
     if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 
@@ -653,7 +653,7 @@ void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz, FILE *salida) {
     }
 
     if (encontradas == 0) {
-            fprintf(salida, "\t-\n");
+            fprintf(salida, "-");
     }
 }
 

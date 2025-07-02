@@ -9,7 +9,7 @@ La palabra main aparece: 1 veces
 "Hola, Mundo\n": longitud 13
 
 *Listado de palabras reservadas (clase de almacenamiento):
-
+-
 
 * Listado de palabras reservadas (especificadores de tipo):
 int: linea 1, columna 1
@@ -19,25 +19,23 @@ char: linea 3, columna 5
 
 
 * Listado de palabras reservadas (calificadores de tipo):
-
+-
 
 * Listado de palabras reservadas (struct / union):
-
+-
 
 * Listado de palabras reservadas (enumeraciones):
-	-
-
+-
 
 * Listado de palabras reservadas (etiquetas):
-	-
-
+-
 
 * Listado de palabras reservadas (selección):
 if: linea 4, columna 5
 
 
 * Listado de palabras reservadas (iteración):
-
+-
 
 * Listado de palabras reservadas (salto):
 return: linea 6, columna 5
