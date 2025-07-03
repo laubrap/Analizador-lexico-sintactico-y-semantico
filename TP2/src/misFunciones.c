@@ -559,7 +559,6 @@ void imprimirCaracteres (nodoCaracter *raizCaracter) {
     }
 }
 
-
 // ------------- Puntuacion -------------
 nodoPuntuaciones* agregarPuntuacion(nodoPuntuaciones *raiz, char *caracter) {
     nodoPuntuaciones *aux = raiz;
@@ -613,9 +612,7 @@ void imprimirPuntuaciones(nodoPuntuaciones* raiz) {
     }
 }
 
-
 // ------------ Cadenas no reconocidas ------------
-
 nodoCadenasNoReconocidas* agregarCadenaNoReconocida(nodoCadenasNoReconocidas* raiz, char *valor ,int columna, int linea){
 
     nodoCadenasNoReconocidas * nuevo = (nodoCadenasNoReconocidas*)malloc(sizeof(nodoCadenasNoReconocidas));
