@@ -224,7 +224,7 @@ void imprimirCalificadoresTipo(nodoReservada *raiz) {
 void imprimirCalificadoresUnion(nodoReservada *raiz) {
     nodoReservada *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de palabras reservadas (struct / union):\n");
+    printf("* Listado de palabras reservadas (struct o union):\n");
 
     while (aux != NULL) {
         if (strcmp(aux->info.palabra, "struct") == 0 ||
@@ -244,7 +244,7 @@ void imprimirCalificadoresUnion(nodoReservada *raiz) {
 void imprimirEnumeraciones(nodoReservada *raiz) {
     nodoReservada *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de palabras reservadas (enumeraciones):\n");
+    printf("* Listado de palabras reservadas (enumeracion):\n");
  
     while (aux != NULL) {
         if (strcmp(aux->info.palabra, "enum") == 0) {
@@ -263,7 +263,7 @@ void imprimirEnumeraciones(nodoReservada *raiz) {
 void imprimirEtiquetas(nodoReservada *raiz){
     nodoReservada *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de palabras reservadas (etiquetas):\n");
+    printf("* Listado de palabras reservadas (etiqueta):\n");
 
     while (aux != NULL) {
         if (strcmp(aux->info.palabra, "case") == 0 ||
@@ -343,7 +343,7 @@ void imprimirSalto(nodoReservada *raiz) {
 void imprimirUnario(nodoReservada *raiz) {
     nodoReservada *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de palabras reservadas (operadores unarios):\n");
+    printf("* Listado de palabras reservadas (unario):\n");
 
     while (aux != NULL) {
         if (strcmp(aux->info.palabra, "sizeof") == 0) {
@@ -437,7 +437,7 @@ void imprimirHexadecimales(nodoHexadecimal *raiz){
     printf("* Listado de constantes enteras hexadecimales: \n");
     
     while(aux != NULL){
-        printf("%s: valor %d\n", aux->info.hexadecimal, aux->info.decimal);
+        printf("%s: valor entero decimal %d\n", aux->info.hexadecimal, aux->info.decimal);
         encontradas = 1;
     aux = aux->sgte;
 }
@@ -472,7 +472,7 @@ void imprimirOctal(nodoOctal *raiz){
     printf("* Listado de constantes enteras octales: \n");
     
     while(aux != NULL){
-        printf("%s: valor %d\n", aux->info.octal, aux->info.decimal);
+        printf("%s: valor entero decimal %d\n", aux->info.octal, aux->info.decimal);
         encontradas = 1;
     aux = aux->sgte;
 }
@@ -642,7 +642,7 @@ nodoCadenasNoReconocidas* agregarCadenaNoReconocida(nodoCadenasNoReconocidas* ra
 void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
     nodoCadenasNoReconocidas *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de palabras no reconocidas: \n");
+    printf("* Listado de cadenas no reconocidas: \n");
     
     while (aux != NULL) { 
         printf("%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
