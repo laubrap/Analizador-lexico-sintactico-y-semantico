@@ -168,7 +168,7 @@ noReconocida ([^ \t\n])
             buffer = realloc(buffer, actual_len + yyleng + 1);
             strncat(buffer, yytext, yyleng);
             }
-            raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_actual, linea_actual, yyout);
+            raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_actual, linea_actual);
             free(buffer);
             buffer = NULL;
             columna_actual += yyleng;
@@ -180,23 +180,21 @@ noReconocida ([^ \t\n])
 
 int main(int argc, char *argv[]) {
 
-    yyin = fopen ("entrada.txt","r" );
-    yyout = fopen ("salida.txt", "w");
+    yyin = fopen(argv[1],"r");
     yylex();
 
-    imprimirIdentificadores(raizIdentificador,yyout);
-    imprimirLiteralesCadena(raizLiterales,yyout);
-    imprimirPalabrasReservadas (raizPalabraReservada, yyout);
-    imprimirDecimales(raizDecimal,yyout);
-    imprimirHexadecimales(raizHexadecimal,yyout);
-    imprimirOctal(raizOctal, yyout);
-    imprimirReales(raizReal, yyout);
-    imprimirCaracteres(raizCaracter, yyout);
-    imprimirPuntuaciones(raizPuntuaciones, yyout);
-    imprimirCadenaNoReconocida(raizNoReconocida,yyout);
+    imprimirIdentificadores(raizIdentificador);
+    imprimirLiteralesCadena(raizLiterales);
+    imprimirPalabrasReservadas (raizPalabraReservada);
+    imprimirDecimales(raizDecimal);
+    imprimirHexadecimales(raizHexadecimal);
+    imprimirOctal(raizOctal);
+    imprimirReales(raizReal);
+    imprimirCaracteres(raizCaracter);
+    imprimirPuntuaciones(raizPuntuaciones);
+    imprimirCadenaNoReconocida(raizNoReconocida);
 
     fclose(yyin);
-    fclose(yyout);
 
     return 0;
 }
