@@ -68,20 +68,14 @@ void imprimirIdentificadores(nodoIdentificadores* raiz) {
     if (encontradas == 0) {
             printf("-\n");
     }
+    printf("\n");
+
 }
 
 // ---------- LITERALES CADENA ----------
 
 nodoLiteralCadena* agregarLiteralesCadena(nodoLiteralCadena *raizLiterales, char *elementoParaAgregar, int longitud) {
     nodoLiteralCadena *aux = raizLiterales;
-
-    while (aux != NULL) {
-        if (strcmp(aux->info.nombreLiteralCadena, elementoParaAgregar) == 0) {
-            return raizLiterales;
-        }
-        aux = aux->sgte;
-    }
-
     nodoLiteralCadena *nuevo = (nodoLiteralCadena*)malloc(sizeof(nodoLiteralCadena));
     if (!nuevo) return raizLiterales;
 
@@ -97,7 +91,7 @@ nodoLiteralCadena* agregarLiteralesCadena(nodoLiteralCadena *raizLiterales, char
     nodoLiteralCadena *punteroAnterior = NULL;
     nodoLiteralCadena *punteroActual = raizLiterales;
 
-    while (punteroActual != NULL && punteroActual->info.longitud < nuevo->info.longitud) {
+    while (punteroActual != NULL && punteroActual->info.longitud <= nuevo->info.longitud) {
         punteroAnterior = punteroActual;
         punteroActual = punteroActual->sgte;
     }
@@ -125,6 +119,8 @@ void imprimirLiteralesCadena(nodoLiteralCadena* raiz) {
     if (encontradas == 0) {
         printf("-\n");
     }
+    printf("\n");
+
 }
 
 // ----------Palabras Reservadas-------
@@ -175,6 +171,8 @@ void imprimirAlmacenamiento(nodoReservada *raiz) {
     if (encontradas == 0) {
         printf("-\n");
     }
+
+
 }
 
 void imprimirEspecificadoresTipo(nodoReservada *raiz) {
@@ -201,6 +199,8 @@ void imprimirEspecificadoresTipo(nodoReservada *raiz) {
     if (encontradas == 0) {
         printf("-\n");
     }
+
+
 }
 
 void imprimirCalificadoresTipo(nodoReservada *raiz) {
@@ -219,6 +219,8 @@ void imprimirCalificadoresTipo(nodoReservada *raiz) {
     if (encontradas == 0) {
       printf("-\n");
 }
+
+
 }
 
 void imprimirCalificadoresUnion(nodoReservada *raiz) {
@@ -238,6 +240,8 @@ void imprimirCalificadoresUnion(nodoReservada *raiz) {
     if (encontradas == 0) {
         printf("-\n");
     }
+
+
 }
 
 
@@ -257,6 +261,8 @@ void imprimirEnumeraciones(nodoReservada *raiz) {
     if (encontradas == 0) {
         printf("-\n");
     }
+
+
 }
 
 
@@ -277,6 +283,8 @@ void imprimirEtiquetas(nodoReservada *raiz){
     if (encontradas == 0) {
         printf("-\n");
     }    
+
+
 }
 
 void imprimirSeleccion(nodoReservada *raiz) {
@@ -297,6 +305,7 @@ void imprimirSeleccion(nodoReservada *raiz) {
     if (encontradas == 0) {
         printf("-\n");
     }
+
 }
 
 
@@ -317,6 +326,8 @@ void imprimirIteracion(nodoReservada *raiz) {
     if (encontradas == 0) {
       printf("-\n");
 }
+
+
 }
 
 
@@ -338,6 +349,8 @@ void imprimirSalto(nodoReservada *raiz) {
     if (encontradas == 0) {
       printf("-\n");
     }
+
+
 }
 
 void imprimirUnario(nodoReservada *raiz) {
@@ -356,22 +369,34 @@ void imprimirUnario(nodoReservada *raiz) {
     if (encontradas == 0) {
         printf("-\n");
     }
+
+
 }
 
 
 void imprimirPalabrasReservadas (nodoReservada *raiz){
     
     imprimirAlmacenamiento(raiz);
+    printf("\n");
     imprimirEspecificadoresTipo(raiz);
+    printf("\n");
     imprimirCalificadoresTipo(raiz);
+    printf("\n");
     imprimirCalificadoresUnion(raiz);
+    printf("\n");
     imprimirEnumeraciones(raiz);
+    printf("\n");
     imprimirEtiquetas(raiz);
+    printf("\n");
     imprimirSeleccion(raiz);
+    printf("\n");
     imprimirIteracion(raiz);
+    printf("\n");
     imprimirSalto(raiz);
+    printf("\n");
     imprimirUnario(raiz);
-    
+    printf("\n");
+
 }
 
 // ---------- DECIMALES ----------
@@ -404,10 +429,14 @@ void imprimirDecimales(nodoDecimal *raiz){
         encontradas = 1;
         aux = aux->sgte;
     }
-    printf("Total acumulado de sumar todas las constantes decimales: %d\n", suma);
+    if(suma > 0){
+        printf("Total acumulado de sumar todas las constantes decimales: %d\n", suma);
+        }
     if (encontradas == 0) {
         printf("-\n");
     }
+    printf("\n");
+
 }
 
 
@@ -444,6 +473,8 @@ void imprimirHexadecimales(nodoHexadecimal *raiz){
 if (encontradas == 0) {
     printf("-\n");
     }
+printf("\n");
+
 }
 
 
@@ -479,6 +510,8 @@ void imprimirOctal(nodoOctal *raiz){
 if (encontradas == 0) {
     printf("-\n");
     }
+printf("\n");
+
 }
 
 
@@ -511,16 +544,18 @@ void imprimirReales(nodoReal * raizReal){
 
     nodoReal * aux = raizReal;
     int encontradas = 0;
-    printf("* Listado de constantes enteras decimales: \n");
+    printf("* Listado de constantes reales: \n");
     
     while( aux !=NULL){
-        printf("%s: parte entera: %f, mantisa: %f\n", aux->info.valor, aux->info.parteEntera, aux->info.mantisa );
+        printf("%s: parte entera %f, mantisa %f\n", aux->info.valor, aux->info.parteEntera, aux->info.mantisa );
         encontradas = 1;
         aux=aux->sgte;
     }
     if (encontradas == 0) {
     printf("-\n");
     }
+printf("\n");
+
 }
 
 // ------ Caracteres --------
@@ -546,7 +581,7 @@ void imprimirCaracteres (nodoCaracter *raizCaracter) {
     nodoCaracter *aux = raizCaracter;
     int contador = 0;
     int encontradas = 0;
-    printf("* Listado de constantes de caracter: \n");
+    printf("* Listado de constantes caracter enumerados: \n");
    
     while( aux !=NULL){
     contador+=1;
@@ -557,6 +592,8 @@ void imprimirCaracteres (nodoCaracter *raizCaracter) {
     if (encontradas == 0) {
         printf("-\n");
     }
+printf("\n");
+
 }
 
 // ------------- Puntuacion -------------
@@ -591,7 +628,7 @@ nodoPuntuaciones* agregarPuntuacion(nodoPuntuaciones *raiz, char *caracter) {
 void imprimirPuntuaciones(nodoPuntuaciones* raiz) {
     nodoPuntuaciones* aux = raiz;
     int encontradas = 0;
-    printf("* Listado de caracteres de puntuacion encontrados: \n");
+    printf("* Listado de operadores/caracteres de puntuación: \n");
    
     while (aux != NULL) {
 
@@ -610,6 +647,7 @@ void imprimirPuntuaciones(nodoPuntuaciones* raiz) {
     if (encontradas == 0) {
     printf("-\n");
     }
+    printf("\n");
 }
 
 // ------------ Cadenas no reconocidas ------------
@@ -648,7 +686,7 @@ void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
     }
 
     if (encontradas == 0) {
-        printf("-\n");
+        printf("-");
     }
 }
 

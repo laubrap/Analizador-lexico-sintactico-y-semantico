@@ -31,7 +31,7 @@ $(program1)_FIND_SOURCES:=$(shell $(FIND) $(if $($(program1)_SRCDIR),'$($(progra
 $(program1)_SOURCES:=$($(program1)_FIND_SOURCES)
 #   Sets the program's linking order. You may add the -l and -L linking flags here
 $(program1)_LDADD:=$($(program1)_SOURCES)
-
+#comente esto
 # # Add here the options to be passed to CC for the preprocessing phase for $(program1)
 # $(program1)_CPPFLAGS=
 # # Add here the options to be passed to CC for $(program1)
@@ -40,6 +40,7 @@ $(program1)_LDADD:=$($(program1)_SOURCES)
 # $(program1)_ASFLAGS=
 # # Add here the options to be passed to CC for the linking phase for $(program1)
 # $(program1)_LDFLAGS=
+# agregue esto
 ifeq ($(shell uname), Darwin)
     FLEX_PREFIX=/opt/homebrew/opt/flex
     $(program1)_CPPFLAGS+= -I$(FLEX_PREFIX)/include

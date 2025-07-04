@@ -153,28 +153,43 @@ noReconocida ([^ \t\n])
         fprintf(stderr, "\n");
         BEGIN(INITIAL);
     }
-    " "|\t|\n {
-        yyless(0);
+
+    [ ] {
+        columna_actual += 1;
         BEGIN(INITIAL);
     }
+    [\t] {
+        columna_actual += 4;
+        BEGIN(INITIAL);
+    }
+
+    \n {
+        linea_actual += 1;
+        columna_actual = INICIO_CONTEO_COLUMNA;
+
+        BEGIN(INITIAL);
+    }
+
     [^ \t\n]+ {
-    
-            if(buffer == NULL){
+        if(buffer == NULL){
             buffer = calloc(yyleng + 1, sizeof(char));
             strncpy(buffer, yytext, yyleng);
-            }
-            else{
+        }
+        else{
             size_t actual_len = strlen(buffer);
             buffer = realloc(buffer, actual_len + yyleng + 1);
             strncat(buffer, yytext, yyleng);
-            }
-            raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_actual, linea_actual);
-            free(buffer);
-            buffer = NULL;
-            columna_actual += yyleng;
-            BEGIN(INITIAL);
+        }
+
+        raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_actual, linea_actual);
+        columna_actual += yyleng;
+
+        free(buffer);
+        buffer = NULL;
+        BEGIN(INITIAL);
     }
 }
+
 
 %%
 
