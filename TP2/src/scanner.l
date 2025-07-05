@@ -145,6 +145,7 @@ noReconocida ([^ \t\n])
 
 {noReconocida} { 
     buffer = strdup(yytext);
+    columna_actual += yyleng;
     BEGIN(tokenNoReconocido); 
 }
 
