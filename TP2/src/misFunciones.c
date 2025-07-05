@@ -686,7 +686,7 @@ void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
     }
 
     if (encontradas == 0) {
-        printf("-");
+        printf("-\n");
     }
 }
 

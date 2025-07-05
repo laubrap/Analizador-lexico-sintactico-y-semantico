@@ -172,6 +172,7 @@ noReconocida ([^ \t\n])
     }
 
     [^ \t\n]+ {
+        int columna_inicio = columna_actual - 1;
         if(buffer == NULL){
             buffer = calloc(yyleng + 1, sizeof(char));
             strncpy(buffer, yytext, yyleng);
@@ -182,7 +183,7 @@ noReconocida ([^ \t\n])
             strncat(buffer, yytext, yyleng);
         }
 
-        raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_actual, linea_actual);
+        raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_inicio, linea_actual);
         columna_actual += yyleng;
 
         free(buffer);
