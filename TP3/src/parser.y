@@ -28,7 +28,7 @@ void yyerror(const char*);
 
 	/* Para especificar la colección completa de posibles tipos de datos para los valores semánticos */
 %union {
-	unsigned long unsigned_long_type;
+
 }
 
         /* */
@@ -56,13 +56,77 @@ line
         ;
 
 exp
-        : NUM             { $$ = $1; }
-        | exp exp '+'     { $$ = $1 + $2; }
-        | exp exp '-'     { $$ = $1 - $2; }
-        | exp exp '*'     { $$ = $1 * $2; }
-        | exp exp '/'     { $$ = $1 / $2; }
-        | exp exp '^'     { $$ = pow($1, $2); }
+        : expAsignacion
         ;
+expAsignacion
+        : expCondicional
+        | expUnaria '=' expAsignacion
+        | expUnaria '+=' expAsignacion
+        | expUnaria '-=' expAsignacion
+        | expUnaria '*=' expAsignacion
+        | expUnaria '/=' expAsignacion
+        ;
+expCondicional
+        : expOr
+        ;
+expOr
+        : expAnd
+        | expOr '||' expAnd
+        ;
+expAnd
+        : expIgualdad
+        | expAnd '&&' expIgualdad
+        ;
+expIgualdad
+        : expRelacional
+        | expIgualdad '==' expRelacional
+        | expIgualdad '!=' expRelacional
+        ;
+expRelacional
+        : expAditiva
+        | expRelacional '>=' expAditiva
+        | expRelacional '>' expAditiva
+        | expRelacional '<=' expAditiva
+        | expRelacional '<' expAditiva
+        ;
+expAditiva
+        : expMultiplicativa
+        | expAditiva '+' expMultiplicativa
+        | expAditiva '-' expMultiplicativa
+        ;
+expMultiplicativa
+        : expUnaria
+        | expMultiplicativa '*' expUnaria
+        | expMultiplicativa '/' expUnaria
+        ;
+expUnaria
+        : expPostfijo
+        | '++'expUnaria
+        | '--'expUnaria
+        | expUnaria'++'
+        | expUnaria'--'
+        | '&'expUnaria
+        | '*'expUnaria
+        | '-'expUnaria
+        | '!'expUnaria
+        ;
+expPostfijo
+        : expPrimaria
+        | expPostfijo '['exp']'
+        | expPostfijo '('listaArgumentos')'
+        ;
+listaArgumentos
+        : expAsignacion
+        | listaArgumentos ',' expAsignacion
+        ;
+expPrimaria
+        : identificador
+        | constante
+        | literalCadena
+        | '('exp')'
+        ;
+
+
 
 %%
 /* Fin de la sección de reglas gramaticales */
