@@ -25,6 +25,27 @@
 
     /* Declaraciones con cada nombre y su definición; se utilizan para simplificar las reglas */
 digito [0-9]
+digitoNoCero [1-9]
+digitoOctal [0-7]
+digitoHexa [0-9a-fA-F]
+noDigito [_a-zA-Z]
+sufijoEntero ([uU][lL]?|[lL][uU]?)
+sufijoReal ([fF][lL]?|[lL][fF]?)
+escapeSimple [abfnrtv'\"\?\\]
+exponente (e[+-]?{digito}*)
+almacenamiento (auto|register|static|extern|typedef)
+especificadoresDeTipo (void|char|short|int|long|float|double|signed|unsigned)
+calificadoresDeTipo (const|volatile)
+calificadoresDeUnion (struct|union)
+calificadoresDeEnum (enum)
+etiquetas (case|default)
+seleccion (if|else|switch)
+iteracion (do|while|for)
+salto (goto|continue|break|return)
+unario (sizeof)
+puntuaciones ("["|"]"|"("|")"|"{"|"}"|"."|"->"|"++"|"--"|"&"|"*"|"+"|"-"|"̃ "|"!"|"/"|"%"|"<<"|">>"|"<"|">"|"<="|">="|"=="|"!="|"^"|"|"|"&&"|"||"|"="|"*="|"/="|"%="|"+="|"-="|"<<="|">>="|"&="|"^="|"|="|"?"|":"|";"|"..."|","|"#"|"##")
+noReconocida ([^ \t\n])
+
 
 /* Fin de la sección de definiciones */
 
@@ -36,13 +57,69 @@ digito [0-9]
 
     reinicializarUbicacion();
 
-{digito}+ {
+{almacenamiento}|{especificadoresDeTipo}|{especificadoresDeTipo}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
+    raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, columna_actual, linea_actual);
+    columna_actual += yyleng;
+}
+
+{digitoNoCero}{digito}*{sufijoEntero}? { 
+    raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
+    columna_actual += (yyleng);
+}   
+//como estaba hecho
+/* {digito}+ {
         yylloc.last_column += yyleng;
         yylval.unsigned_long_type = strtoul(yytext, NULL, 0);
         return NUM;
-    }
+    } */
+{digitoNoCero}{digito}*{sufijoEntero}? { 
+    raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
+    columna_actual += (yyleng);
+}
 
-"+" { yylloc.last_column += yyleng; return '+'; }
+
+0{digitoOctal}*{sufijoEntero}? { 
+    raizOctal = agregarOctal(raizOctal, yytext);
+    columna_actual += yyleng;
+}
+
+
+0[xX]{digitoHexa}+{sufijoEntero}? { 
+    raizHexadecimal = agregarHexadecimal(raizHexadecimal, yytext);
+    columna_actual += yyleng;
+}
+
+
+{noDigito}({noDigito}|{digito})* {
+    raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
+    columna_actual += yyleng;
+}
+
+
+{digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
+    raizReal = agregarReal(raizReal, yytext);
+    columna_actual += yyleng;
+}
+
+
+'([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
+    raizCaracter = agregarCaracter(raizCaracter, yytext);
+    columna_actual += yyleng;
+}
+
+
+\"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
+    raizLiterales = agregarLiteralesCadena(raizLiterales, yytext, yyleng - 2);
+    columna_actual += yyleng;
+}
+
+{puntuaciones} {
+    raizPuntuaciones = agregarPuntuacion(raizPuntuaciones, yytext);
+    columna_actual += yyleng;
+}
+
+
+/* "+" { yylloc.last_column += yyleng; return '+'; }
 
 "-" { yylloc.last_column += yyleng; return '-'; }
 
@@ -50,7 +127,7 @@ digito [0-9]
 
 "/" { yylloc.last_column += yyleng; return '/'; }
 
-"^" { yylloc.last_column += yyleng; return '^'; }
+"^" { yylloc.last_column += yyleng; return '^'; } */
 
 [ \t]+ { yylloc.first_column = yylloc.last_column += yyleng; }
 
@@ -61,18 +138,55 @@ digito [0-9]
     }
 
 [^ \t\n] { yylloc.last_column += yyleng; fprintf(stderr, "Flex: %d:%d: Error lexico: token no reconocido: %s", yylloc.first_line, yylloc.first_column, yytext); BEGIN(tokenNoReconocido); }
+{noReconocida} { 
+    buffer = strdup(yytext);
+    columna_actual += yyleng;
+    BEGIN(tokenNoReconocido); 
+}
+
 <tokenNoReconocido>{
-    " "|\t|\n {
-        yyless(0);
+    <<EOF>> {
         fprintf(stderr, "\n");
         BEGIN(INITIAL);
     }
+
+    [ ] {
+        columna_actual += 1;
+        BEGIN(INITIAL);
+    }
+    [\t] {
+        columna_actual += 4;
+        BEGIN(INITIAL);
+    }
+
+    \n {
+        linea_actual += 1;
+        columna_actual = INICIO_CONTEO_COLUMNA;
+
+        BEGIN(INITIAL);
+    }
+
     [^ \t\n]+ {
-        yylloc.last_column += yyleng;
-        fprintf(stderr, "%s\n", yytext);
+        int columna_inicio = columna_actual - 1;
+        if(buffer == NULL){
+            buffer = calloc(yyleng + 1, sizeof(char));
+            strncpy(buffer, yytext, yyleng);
+        }
+        else{
+            size_t actual_len = strlen(buffer);
+            buffer = realloc(buffer, actual_len + yyleng + 1);
+            strncat(buffer, yytext, yyleng);
+        }
+
+        raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_inicio, linea_actual);
+        columna_actual += yyleng;
+
+        free(buffer);
+        buffer = NULL;
         BEGIN(INITIAL);
     }
 }
+
 
     /* Reglas por defecto de Flex: */
         /* <*>.|\n { ECHO; } */
@@ -88,3 +202,13 @@ digito [0-9]
     /* 2. Toda esta sección simplemente se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 
 /* Fin de la sección de código de usuario */
+
+
+
+
+
+
+
+
+
+
