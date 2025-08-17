@@ -55,7 +55,7 @@ noReconocida ([^ \t\n])
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
 
-    reinicializarUbicacion();
+reinicializarUbicacion();
 
 {almacenamiento}|{especificadoresDeTipo}|{especificadoresDeTipo}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
     raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, columna_actual, linea_actual);
@@ -93,6 +93,7 @@ noReconocida ([^ \t\n])
 {noDigito}({noDigito}|{digito})* {
     raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
     columna_actual += yyleng;
+    return IDENTIFICADOR;
 }
 
 

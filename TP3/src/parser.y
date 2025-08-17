@@ -33,6 +33,9 @@ void yyerror(const char*);
 
         /* */
 %token <unsigned_long_type> NUM
+%token IDENTIFICADOR DECIMAL OCTAL HEXA REAL CARACTER STRING_LITERAL
+%token IF ELSE WHILE FOR RETURN
+%token PLUS MINUS STAR SLASH PUNCTUATION
 
 	/* */
 %type <unsigned_long_type> exp
@@ -58,6 +61,7 @@ line
 exp
         : expAsignacion
         ;
+
 expAsignacion
         : expCondicional
         | expUnaria '=' expAsignacion
@@ -66,22 +70,27 @@ expAsignacion
         | expUnaria '*=' expAsignacion
         | expUnaria '/=' expAsignacion
         ;
+
 expCondicional
         : expOr
         ;
+
 expOr
         : expAnd
         | expOr '||' expAnd
         ;
+
 expAnd
         : expIgualdad
         | expAnd '&&' expIgualdad
         ;
+
 expIgualdad
         : expRelacional
         | expIgualdad '==' expRelacional
         | expIgualdad '!=' expRelacional
         ;
+
 expRelacional
         : expAditiva
         | expRelacional '>=' expAditiva
@@ -89,16 +98,19 @@ expRelacional
         | expRelacional '<=' expAditiva
         | expRelacional '<' expAditiva
         ;
+
 expAditiva
         : expMultiplicativa
         | expAditiva '+' expMultiplicativa
         | expAditiva '-' expMultiplicativa
         ;
+
 expMultiplicativa
         : expUnaria
         | expMultiplicativa '*' expUnaria
         | expMultiplicativa '/' expUnaria
         ;
+
 expUnaria
         : expPostfijo
         | '++'expUnaria
@@ -110,22 +122,95 @@ expUnaria
         | '-'expUnaria
         | '!'expUnaria
         ;
+
 expPostfijo
         : expPrimaria
         | expPostfijo '['exp']'
         | expPostfijo '('listaArgumentos')'
         ;
+
 listaArgumentos
         : expAsignacion
         | listaArgumentos ',' expAsignacion
         ;
+        
 expPrimaria
-        : identificador
-        | constante
-        | literalCadena
+        : IDENTIFICADOR 
+        | constante 
+        | literalCadena 
         | '('exp')'
         ;
 
+// BNF de sentencias
+
+sentencia
+        :sentCompuesta 
+        | sentExpresion 
+        | sentSeleccion 
+        | sentIteracion 
+        | sentSalto
+        ;
+
+sentCompuesta
+        : listaDeclaraciones
+        | listaSentencias
+        ;
+
+listaDeclaraciones
+        :declaracion
+        | listaDeclaraciones declaracion
+        ;
+
+listaSentencias
+        : sentencia
+        | listaSentencias sentencia
+        ;
+
+sentExpresion
+        : '('exp')'
+        ;
+
+sentSeleccion
+        : if '('exp')' sentencia
+        | if '('exp')' sentencia else sentencia
+        ;
+        
+sentIteracion
+        : while '('exp')' sentencia
+	| do sentencia while '('exp')'
+        | for ( '('exp')' ; '('exp')' ; '('exp')' ) sentencia
+        ;
+
+sentSalto
+        : return '('exp')'
+        ;
+
+// BNF de las Declaraciones
+
+declaracion
+        : declaVarSimples
+        ;
+
+declaVarSimples
+        : tipoDato listaVarSimples 
+        ;
+
+tipoDato
+        : int double char
+        ;
+
+listaVarSimples
+        :unaVarSimple
+	| listaVarSimples unaVarSimple
+        ;
+
+unaVarSimple	
+        :identificador inicializacion
+        ;
+
+inicializacion		
+        : = '('exp')'
+        ;
 
 
 %%
