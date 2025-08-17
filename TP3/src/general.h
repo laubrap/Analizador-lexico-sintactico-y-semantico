@@ -20,5 +20,6 @@ typedef struct YYLTYPE
 void pausa(void);
 void inicializarUbicacion(void);
 void reinicializarUbicacion(void);
+char *devolverAParser(char *aDevolver);
 
 #endif
