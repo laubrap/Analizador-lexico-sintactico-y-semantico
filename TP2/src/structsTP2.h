@@ -1,3 +1,6 @@
+#ifndef TIPOS_H
+#define TIPOS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +8,6 @@
 #include <errno.h>
 #include <limits.h>
 
-//INFO DE LOS NODOS
 typedef enum {
     clase_almacenamiento,
     especificador_tipo,
@@ -32,6 +34,7 @@ typedef struct{
     char *nombreLiteralCadena;
     int longitud; 
 }infoNodoLiteralCadena;
+
 typedef struct {
     char* hexadecimal;
     int decimal;
@@ -101,19 +104,19 @@ typedef struct{
     infoNodoLiteralCadena info;
     struct nodoLiteralCadena *sgte;
 }nodoLiteralCadena;
-typedef struct nodoReservada {
+typedef struct{
     infoNodoPalabrasReservada info;
     struct nodoReservada* sgte;
 } nodoReservada;
 
-typedef struct nodoPuntuaciones{
+typedef struct{
     infoNodoPuntuaciones info;
    struct nodoPuntuaciones * sgte;
 } nodoPuntuaciones;
 
-typedef struct nodoCadenasNoReconocidas {
+typedef struct{
     infoNodoCadenasNoReconocidas info;
    struct nodoCadenasNoReconocidas * sgte;
 } nodoCadenasNoReconocidas;
 
-
+#endif /* TIPOS_H */

@@ -628,7 +628,7 @@ nodoPuntuaciones* agregarPuntuacion(nodoPuntuaciones *raiz, char *caracter) {
 void imprimirPuntuaciones(nodoPuntuaciones* raiz) {
     nodoPuntuaciones* aux = raiz;
     int encontradas = 0;
-    printf("* Listado de operadores/caracteres de puntuación: \n");
+    printf("* Listado de operadores/caracteres de puntuacion: \n");
    
     while (aux != NULL) {
 

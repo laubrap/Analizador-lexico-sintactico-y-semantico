@@ -7,41 +7,7 @@
 %{
 
 #include "misFunciones.h"
-
-int sumaDecimales = 0;
-
-int acumuladorIdentificadores = 0;
-
-int num_linea = 1;
-
-char* buffer = NULL;
-
-nodoIdentificadores *raizIdentificador = NULL;
-
-nodoLiteralCadena *raizLiterales = NULL;
-
-nodoDecimal * raizDecimal = NULL;
-
-nodoHexadecimal * raizHexadecimal = NULL;
-
-nodoOctal * raizOctal = NULL;
-
-nodoReservada *raizPalabraReservada = NULL;
-
-nodoReal * raizReal = NULL;
-
-nodoCaracter *raizCaracter = NULL;
-
-nodoPuntuaciones *raizPuntuaciones = NULL;
-
-nodoCadenasNoReconocidas* raizNoReconocida = NULL;
-
-int yylval;
-
-#define INICIO_CONTEO_LINEA 1
-#define INICIO_CONTEO_COLUMNA 1
-
-int linea_actual = INICIO_CONTEO_LINEA, columna_actual = INICIO_CONTEO_COLUMNA;
+#include "global.h"
 
 %}
 
@@ -89,7 +55,7 @@ noReconocida ([^ \t\n])
 
 [ ] { columna_actual += 1; }
 [\t] { columna_actual += 4; }         
-\n { linea_actual += yyleng; columna_actual = INICIO_CONTEO_COLUMNA; }    
+\n { linea_actual += yyleng; columna_actual = 1; }    
         
 {almacenamiento}|{especificadoresDeTipo}|{especificadoresDeTipo}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
     raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, columna_actual, linea_actual);
@@ -166,7 +132,7 @@ noReconocida ([^ \t\n])
 
     \n {
         linea_actual += 1;
-        columna_actual = INICIO_CONTEO_COLUMNA;
+        columna_actual = 1;
 
         BEGIN(INITIAL);
     }
