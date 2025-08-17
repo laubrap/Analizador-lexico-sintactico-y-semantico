@@ -28,14 +28,32 @@ void yyerror(const char*);
 
 	/* Para especificar la colección completa de posibles tipos de datos para los valores semánticos */
 %union {
-
+        long unsigned_long_type;
+        double constantes; 
+        char *string;
+        char *caracter;
+        
 }
 
         /* */
-%token <unsigned_long_type> NUM
-%token IDENTIFICADOR DECIMAL OCTAL HEXA REAL CARACTER STRING_LITERAL
-%token IF ELSE WHILE FOR RETURN
-%token PLUS MINUS STAR SLASH PUNCTUATION
+        
+%token <string> IDENTIFICADOR 
+%token <constantes> DECIMAL 
+%token <constantes> OCTAL 
+%token <string> HEXA 
+%token <constantes> REAL
+%token <caracter> CARACTER 
+%token <string> LITERAL_CADENA
+%token <string> IF 
+%token <string> ELSE 
+%token <string> WHILE 
+%token <string> FOR 
+%token <string> RETURN
+%token <caracter> MAS   
+%token <caracter> MENOS 
+%token <caracter> BARRA_BAJA 
+%token <caracter> PUNTO_COMA 
+%token <caracter> PUNTERO
 
 	/* */
 %type <unsigned_long_type> exp
@@ -135,7 +153,7 @@ listaArgumentos
         ;
         
 expPrimaria
-        : IDENTIFICADOR 
+        : identificador 
         | constante 
         | literalCadena 
         | '('exp')'
@@ -178,7 +196,7 @@ sentSeleccion
 sentIteracion
         : while '('exp')' sentencia
 	| do sentencia while '('exp')'
-        | for ( '('exp')' ; '('exp')' ; '('exp')' ) sentencia
+        | for ( '('exp')' ; '('exp')' ; '('exp')') sentencia
         ;
 
 sentSalto
