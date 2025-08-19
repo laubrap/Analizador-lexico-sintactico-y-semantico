@@ -46,7 +46,6 @@ unario (sizeof)
 puntuaciones ("["|"]"|"("|")"|"{"|"}"|"."|"->"|"++"|"--"|"&"|"*"|"+"|"-"|"̃ "|"!"|"/"|"%"|"<<"|">>"|"<"|">"|"<="|">="|"=="|"!="|"^"|"|"|"&&"|"||"|"="|"*="|"/="|"%="|"+="|"-="|"<<="|">>="|"&="|"^="|"|="|"?"|":"|";"|"..."|","|"#"|"##")
 noReconocida ([^ \t\n])
 
-
 /* Fin de la sección de definiciones */
 
 /* Inicio de la sección de reglas. Aquí: */
@@ -57,42 +56,42 @@ noReconocida ([^ \t\n])
 
 reinicializarUbicacion();
 
-{almacenamiento}|{especificadoresDeTipo}|{especificadoresDeTipo}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
+{almacenamiento}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
     raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, columna_actual, linea_actual);
     columna_actual += yyleng;
+    yylval.string = strdup(yytext);
+    return devolverAParser(yytext);
 }
 
+    
 {digitoNoCero}{digito}*{sufijoEntero}? { 
     raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
     columna_actual += (yyleng);
-}   
-//como estaba hecho
-/* {digito}+ {
-        yylloc.last_column += yyleng;
-        yylval.unsigned_long_type = strtoul(yytext, NULL, 0);
-        return NUM;
-    } */
-{digitoNoCero}{digito}*{sufijoEntero}? { 
-    raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
-    columna_actual += (yyleng);
+    yylval.numeros = atoi(yytext);
+    return DECIMAL;
 }
 
 
 0{digitoOctal}*{sufijoEntero}? { 
     raizOctal = agregarOctal(raizOctal, yytext);
     columna_actual += yyleng;
+    yylval.numeros = strtol(yytext, NULL, 8);
+    return OCTAL;
 }
 
 
 0[xX]{digitoHexa}+{sufijoEntero}? { 
     raizHexadecimal = agregarHexadecimal(raizHexadecimal, yytext);
     columna_actual += yyleng;
+    yylval.numeros = strtol(yytext, NULL, 16);
+    return HEXA;
 }
 
 
 {noDigito}({noDigito}|{digito})* {
     raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
     columna_actual += yyleng;
+    yylval.string = strdup(yytext);
     return IDENTIFICADOR;
 }
 
@@ -100,23 +99,30 @@ reinicializarUbicacion();
 {digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
     raizReal = agregarReal(raizReal, yytext);
     columna_actual += yyleng;
+    return REAL;
 }
 
 
 '([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
     raizCaracter = agregarCaracter(raizCaracter, yytext);
     columna_actual += yyleng;
+    yylval.caracter = strdup(yytext);
+    return CARACTER;
 }
 
 
 \"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
     raizLiterales = agregarLiteralesCadena(raizLiterales, yytext, yyleng - 2);
     columna_actual += yyleng;
+    yylval.string = strdup(yytext);
+    return LITERAL_CADENA;
 }
 
 {puntuaciones} {
     raizPuntuaciones = agregarPuntuacion(raizPuntuaciones, yytext);
     columna_actual += yyleng;
+    yylval.string = strdup(yytext);
+    return devolverAParser(yytext);
 }
 
 

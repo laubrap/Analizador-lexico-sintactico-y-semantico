@@ -29,6 +29,7 @@ void yyerror(const char*);
 	/* Para especificar la colección completa de posibles tipos de datos para los valores semánticos */
 %union {
         long unsigned_long_type;
+        int numeros;
         double constantes; 
         char *string;
         char *caracter;
@@ -38,24 +39,29 @@ void yyerror(const char*);
         /* */
         
 %token <string> IDENTIFICADOR 
-%token <constantes> DECIMAL 
-%token <constantes> OCTAL 
-%token <string> HEXA 
+%token <numeros> DECIMAL 
+%token <numeros> OCTAL 
+%token <numeros> HEXA 
 %token <constantes> REAL
 %token <caracter> CARACTER 
 %token <string> LITERAL_CADENA
-%token <string> IF 
-%token <string> ELSE 
-%token <string> WHILE 
-%token <string> FOR 
-%token <string> RETURN
-%token <caracter> MAS   
-%token <caracter> MENOS 
-%token <caracter> BARRA_BAJA 
-%token <caracter> PUNTO_COMA 
-%token <caracter> PUNTERO
 
-	/* */
+%token AUTO REGISTER STATIC EXTERN TYPEDEF
+%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED
+%token CONST VOLATILE
+%token STRUCT UNION
+%token ENUM
+%token CASE DEFAULT
+%token IF ELSE SWITCH
+%token DO WHILE FOR
+%token GOTO CONTINUE BREAK RETURN SIZEOF
+
+%token INCREMENTO DECREMENTO
+%token MAS_IGUAL MENOS_IGUAL MULTIPLICAR_IGUAL DIVIDIR_IGUAL
+%token IGUAL_IGUAL NEGADO_IGUAL
+%token MAYOR_IGUAL MENOR_IGUAL AND OR
+
+        /* */
 %type <unsigned_long_type> exp
 
 	/* Para especificar el no-terminal de inicio de la gramática (el axioma). Si esto se omitiera, se asumiría que es el no-terminal de la primera regla */
@@ -82,11 +88,11 @@ exp
 
 expAsignacion
         : expCondicional
-        | expUnaria '=' expAsignacion
-        | expUnaria '+=' expAsignacion
-        | expUnaria '-=' expAsignacion
-        | expUnaria '*=' expAsignacion
-        | expUnaria '/=' expAsignacion
+        | expUnaria '=' expAsignacion {$$ = $1 = $3}
+        | expUnaria '+=' expAsignacion {$$ = $1 += $3}
+        | expUnaria '-=' expAsignacion {$$ = $1 -= $3}
+        | expUnaria '*=' expAsignacion {$$ = $1 *= $3}
+        | expUnaria '/=' expAsignacion {$$ = $1 /= $3}
         ;
 
 expCondicional
@@ -95,50 +101,50 @@ expCondicional
 
 expOr
         : expAnd
-        | expOr '||' expAnd
+        | expOr '||' expAnd {$$ = $1 || $3}
         ;
 
 expAnd
         : expIgualdad
-        | expAnd '&&' expIgualdad
+        | expAnd '&&' expIgualdad {$$ = $1 && $3}
         ;
 
 expIgualdad
         : expRelacional
-        | expIgualdad '==' expRelacional
-        | expIgualdad '!=' expRelacional
+        | expIgualdad '==' expRelacional {$$ = $1 == $3}
+        | expIgualdad '!=' expRelacional {$$ = $1 != $3}
         ;
 
 expRelacional
         : expAditiva
-        | expRelacional '>=' expAditiva
-        | expRelacional '>' expAditiva
-        | expRelacional '<=' expAditiva
-        | expRelacional '<' expAditiva
+        | expRelacional '>=' expAditiva {$$ = $1 >= $3}
+        | expRelacional '>' expAditiva  {$$ = $1 > $3}
+        | expRelacional '<=' expAditiva {$$ = $1 <= $3}
+        | expRelacional '<' expAditiva {$$ = $1 < $3}
         ;
 
 expAditiva
         : expMultiplicativa
-        | expAditiva '+' expMultiplicativa
-        | expAditiva '-' expMultiplicativa
+        | expAditiva '+' expMultiplicativa {$$ = $1 + $3}
+        | expAditiva '-' expMultiplicativa {$$ = $1 - $3}
         ;
 
 expMultiplicativa
         : expUnaria
-        | expMultiplicativa '*' expUnaria
-        | expMultiplicativa '/' expUnaria
+        | expMultiplicativa '*' expUnaria {$$ = $1 * $3}
+        | expMultiplicativa '/' expUnaria {$$ = $1 / $3}
         ;
 
 expUnaria
         : expPostfijo
-        | '++'expUnaria
-        | '--'expUnaria
-        | expUnaria'++'
-        | expUnaria'--'
-        | '&'expUnaria
-        | '*'expUnaria
-        | '-'expUnaria
-        | '!'expUnaria
+        | INCREMENTO expUnaria {$$ = INCREMENTO $2}
+        | DECREMENTO expUnaria {$$ = DECREMENTO $2}
+        | expUnaria INCREMENTO {$$ = $1 INCREMENTO}
+        | expUnaria DECREMENTO {$$ = $1 DECREMENTO}     
+        | '&'expUnaria {$$ = & $2}
+        | '*'expUnaria {$$ = $1 * $2}
+        | '-'expUnaria {$$ = $1 - $2}
+        | '!'expUnaria {$$ =  !$2}
         ;
 
 expPostfijo
@@ -153,9 +159,11 @@ listaArgumentos
         ;
         
 expPrimaria
-        : identificador 
-        | constante 
-        | literalCadena 
+        : IDENTIFICADOR
+        | DECIMAL
+        | OCTAL
+        | HEXA
+        | REAL
         | '('exp')'
         ;
 
@@ -189,18 +197,27 @@ sentExpresion
         ;
 
 sentSeleccion
-        : if '('exp')' sentencia
-        | if '('exp')' sentencia else sentencia
+        : IF '('exp')' sentencia
+        | IF '('exp')' sentencia ELSE sentencia
+        | IF error
         ;
         
 sentIteracion
-        : while '('exp')' sentencia
-	| do sentencia while '('exp')'
-        | for ( '('exp')' ; '('exp')' ; '('exp')') sentencia
+        : WHILE '('exp')' sentencia
+	| DO sentencia WHILE '('exp')'
+        | FOR '(' '('exp')' ; '('exp')' ; '('exp')' ')' sentencia
+        | FOR '(' '('')' ; '('exp')' ; '('exp')' ')' sentencia
+        | FOR '(' '('exp')' ; '('')' ; '('exp')' ')' sentencia
+        | FOR '(' '('exp')' ; '('exp')' ; '('')' ')' sentencia
+        | FOR '(' '('exp')' ; '('')' ; '('')' ')' sentencia
+        | FOR '(' '('')' ; '('')' ; '('')' ')' sentencia
+        | WHILE error
+        | FOR error
+        | DO error
         ;
 
 sentSalto
-        : return '('exp')'
+        : RETURN '('exp')'
         ;
 
 // BNF de las Declaraciones
@@ -214,7 +231,7 @@ declaVarSimples
         ;
 
 tipoDato
-        : int double char
+        : INT DOUBLE CHAR
         ;
 
 listaVarSimples
