@@ -11,6 +11,15 @@
 /* Es indispensable que incluyamos el archivo de cabecera con las definiciones de YACC (*.tab.h) que se genera a partir del archivo fuente de YACC (*.y) */
 #include "parser.tab.h"
 
+/* Utilidades estándar */
+#include <stdlib.h>
+#include <string.h>
+
+/* Estado para errores léxicos */
+static char *buffer = NULL;
+static int error_start_line = 0;
+static int error_start_column = 0;
+
 %}
 
     /* La siguiente línea define explícitamente a yytext como un puntero a un caracter ( char* yytext; ). Ésta es la opción por defecto si no se pone nada. */
@@ -32,7 +41,7 @@ noDigito [_a-zA-Z]
 sufijoEntero ([uU][lL]?|[lL][uU]?)
 sufijoReal ([fF][lL]?|[lL][fF]?)
 escapeSimple [abfnrtv'\"\?\\]
-exponente (e[+-]?{digito}*)
+exponente ([eE][+-]?{digito}+)
 almacenamiento (auto|register|static|extern|typedef)
 especificadoresDeTipo (void|char|short|int|long|float|double|signed|unsigned)
 calificadoresDeTipo (const|volatile)
@@ -43,7 +52,7 @@ seleccion (if|else|switch)
 iteracion (do|while|for)
 salto (goto|continue|break|return)
 unario (sizeof)
-puntuaciones ("["|"]"|"("|")"|"{"|"}"|"."|"->"|"++"|"--"|"&"|"*"|"+"|"-"|"̃ "|"!"|"/"|"%"|"<<"|">>"|"<"|">"|"<="|">="|"=="|"!="|"^"|"|"|"&&"|"||"|"="|"*="|"/="|"%="|"+="|"-="|"<<="|">>="|"&="|"^="|"|="|"?"|":"|";"|"..."|","|"#"|"##")
+puntuaciones ("["|"]"|"("|")"|"{"|"}"|"."|"&"|"*"|"+"|"-"|"!"|"/"|"%"|"<"|">"|"^"|"|"|"="|"?"|":"|";"|","|"#")
 noReconocida ([^ \t\n])
 
 /* Fin de la sección de definiciones */
@@ -54,19 +63,50 @@ noReconocida ([^ \t\n])
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
 
-reinicializarUbicacion();
+"auto"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return AUTO; }
+"register"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return REGISTER; }
+"static"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return STATIC; }
+"extern"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return EXTERN; }
+"typedef"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return TYPEDEF; }
 
-{almacenamiento}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
-    raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, columna_actual, linea_actual);
-    columna_actual += yyleng;
-    yylval.string = strdup(yytext);
-    return devolverAParser(yytext);
-}
+"void"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return VOID; }
+"char"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CHAR; }
+"short"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SHORT; }
+"int"       { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return INT; }
+"long"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return LONG; }
+"float"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return FLOAT; }
+"double"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return DOUBLE; }
+"signed"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SIGNED; }
+"unsigned"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return UNSIGNED; }
+"const"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CONST; }
+"volatile"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return VOLATILE; }
+
+"struct"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return STRUCT; }
+"union"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return UNION; }
+"enum"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return ENUM; }
+
+"case"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CASE; }
+"default"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return DEFAULT; }
+
+"if"        { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return IF; }
+"else"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return ELSE; }
+"switch"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SWITCH; }
+
+"do"        { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return DO; }
+"while"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return WHILE; }
+"for"       { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return FOR; }
+
+"goto"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return GOTO; }
+"continue"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CONTINUE; }
+"break"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return BREAK; }
+"return"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return RETURN; }
+
+"sizeof"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SIZEOF; }
 
     
 {digitoNoCero}{digito}*{sufijoEntero}? { 
     raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
-    columna_actual += (yyleng);
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.numeros = atoi(yytext);
     return DECIMAL;
 }
@@ -74,7 +114,7 @@ reinicializarUbicacion();
 
 0{digitoOctal}*{sufijoEntero}? { 
     raizOctal = agregarOctal(raizOctal, yytext);
-    columna_actual += yyleng;
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.numeros = strtol(yytext, NULL, 8);
     return OCTAL;
 }
@@ -82,7 +122,7 @@ reinicializarUbicacion();
 
 0[xX]{digitoHexa}+{sufijoEntero}? { 
     raizHexadecimal = agregarHexadecimal(raizHexadecimal, yytext);
-    columna_actual += yyleng;
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.numeros = strtol(yytext, NULL, 16);
     return HEXA;
 }
@@ -90,22 +130,35 @@ reinicializarUbicacion();
 
 {noDigito}({noDigito}|{digito})* {
     raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
-    columna_actual += yyleng;
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.string = strdup(yytext);
     return IDENTIFICADOR;
 }
 
 
-{digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
+{digito}+\.{digito}+({exponente})?{sufijoReal}? { 
     raizReal = agregarReal(raizReal, yytext);
-    columna_actual += yyleng;
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
+    yylval.constantes = strtod(yytext, NULL);
+    return REAL;
+}
+{digito}+{exponente}{sufijoReal}? {
+    raizReal = agregarReal(raizReal, yytext);
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
+    yylval.constantes = strtod(yytext, NULL);
+    return REAL;
+}
+\.{digito}+({exponente})?{sufijoReal}? {
+    raizReal = agregarReal(raizReal, yytext);
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
+    yylval.constantes = strtod(yytext, NULL);
     return REAL;
 }
 
 
 '([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
     raizCaracter = agregarCaracter(raizCaracter, yytext);
-    columna_actual += yyleng;
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.caracter = strdup(yytext);
     return CARACTER;
 }
@@ -113,71 +166,64 @@ reinicializarUbicacion();
 
 \"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
     raizLiterales = agregarLiteralesCadena(raizLiterales, yytext, yyleng - 2);
-    columna_actual += yyleng;
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.string = strdup(yytext);
     return LITERAL_CADENA;
 }
 
+"++"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return INCREMENTO; }
+"--"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return DECREMENTO; }
+"+="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return MAS_IGUAL; }
+"-="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return MENOS_IGUAL; }
+"*="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return MULTIPLICAR_IGUAL; }
+"/="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return DIVIDIR_IGUAL; }
+"=="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return IGUAL_IGUAL; }
+"!="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return NEGADO_IGUAL; }
+">="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return MAYOR_IGUAL; }
+"<="   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return MENOR_IGUAL; }
+"&&"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return AND; }
+"||"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; return OR; }
+
 {puntuaciones} {
     raizPuntuaciones = agregarPuntuacion(raizPuntuaciones, yytext);
-    columna_actual += yyleng;
-    yylval.string = strdup(yytext);
-    return devolverAParser(yytext);
+    yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
+    return yytext[0];
 }
 
-
-/* "+" { yylloc.last_column += yyleng; return '+'; }
-
-"-" { yylloc.last_column += yyleng; return '-'; }
-
-"*" { yylloc.last_column += yyleng; return '*'; }
-
-"/" { yylloc.last_column += yyleng; return '/'; }
-
-"^" { yylloc.last_column += yyleng; return '^'; } */
-
-[ \t]+ { yylloc.first_column = yylloc.last_column += yyleng; }
+[ \t]+ { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; }
 
 \n {
-        yylloc.first_line = yylloc.last_line += yyleng;
+        yylloc.last_line += yyleng;
+        yylloc.first_line = yylloc.last_line;
         yylloc.first_column = yylloc.last_column = INICIO_CONTEO_COLUMNA;
         return '\n';
     }
 
-[^ \t\n] { yylloc.last_column += yyleng; fprintf(stderr, "Flex: %d:%d: Error lexico: token no reconocido: %s", yylloc.first_line, yylloc.first_column, yytext); BEGIN(tokenNoReconocido); }
-{noReconocida} { 
-    buffer = strdup(yytext);
-    columna_actual += yyleng;
-    BEGIN(tokenNoReconocido); 
+[^ \t\n] {
+    yylloc.first_column = yylloc.last_column;
+    yylloc.last_column += yyleng;
+    if (buffer) { free(buffer); buffer = NULL; }
+    buffer = strndup(yytext, yyleng);
+    error_start_line = yylloc.first_line;
+    error_start_column = yylloc.first_column;
+    BEGIN(tokenNoReconocido);
 }
 
 <tokenNoReconocido>{
     <<EOF>> {
-        fprintf(stderr, "\n");
         BEGIN(INITIAL);
     }
 
-    [ ] {
-        columna_actual += 1;
-        BEGIN(INITIAL);
-    }
-    [\t] {
-        columna_actual += 4;
-        BEGIN(INITIAL);
-    }
+    [ ]     { BEGIN(INITIAL); }
+    [\t]    { BEGIN(INITIAL); }
 
     \n {
-        linea_actual += 1;
-        columna_actual = INICIO_CONTEO_COLUMNA;
-
         BEGIN(INITIAL);
     }
 
     [^ \t\n]+ {
-        int columna_inicio = columna_actual - 1;
         if(buffer == NULL){
-            buffer = calloc(yyleng + 1, sizeof(char));
-            strncpy(buffer, yytext, yyleng);
+            buffer = strndup(yytext, yyleng);
         }
         else{
             size_t actual_len = strlen(buffer);
@@ -185,11 +231,8 @@ reinicializarUbicacion();
             strncat(buffer, yytext, yyleng);
         }
 
-        raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_inicio, linea_actual);
-        columna_actual += yyleng;
-
-        free(buffer);
-        buffer = NULL;
+        raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, error_start_column, error_start_line);
+        free(buffer); buffer = NULL;
         BEGIN(INITIAL);
     }
 }

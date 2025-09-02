@@ -89,10 +89,10 @@ exp
 expAsignacion
         : expCondicional
         | expUnaria '=' expAsignacion {$$ = $1 = $3}
-        | expUnaria '+=' expAsignacion {$$ = $1 += $3}
-        | expUnaria '-=' expAsignacion {$$ = $1 -= $3}
-        | expUnaria '*=' expAsignacion {$$ = $1 *= $3}
-        | expUnaria '/=' expAsignacion {$$ = $1 /= $3}
+        | expUnaria MAS_IGUAL expAsignacion {$$ = $1 += $3}
+        | expUnaria MENOS_IGUAL expAsignacion {$$ = $1 -= $3}
+        | expUnaria MULTIPLICAR_IGUAL expAsignacion {$$ = $1 *= $3}
+        | expUnaria DIVIDIR_IGUAL expAsignacion {$$ = $1 /= $3}
         ;
 
 expCondicional
@@ -101,25 +101,25 @@ expCondicional
 
 expOr
         : expAnd
-        | expOr '||' expAnd {$$ = $1 || $3}
+        | expOr OR expAnd {$$ = $1 || $3}
         ;
 
 expAnd
         : expIgualdad
-        | expAnd '&&' expIgualdad {$$ = $1 && $3}
+        | expAnd AND expIgualdad {$$ = $1 && $3}
         ;
 
 expIgualdad
         : expRelacional
-        | expIgualdad '==' expRelacional {$$ = $1 == $3}
-        | expIgualdad '!=' expRelacional {$$ = $1 != $3}
+        | expIgualdad IGUAL_IGUAL expRelacional {$$ = $1 == $3}
+        | expIgualdad NEGADO_IGUAL expRelacional {$$ = $1 != $3}
         ;
 
 expRelacional
         : expAditiva
-        | expRelacional '>=' expAditiva {$$ = $1 >= $3}
+        | expRelacional MAYOR_IGUAL expAditiva {$$ = $1 >= $3}
         | expRelacional '>' expAditiva  {$$ = $1 > $3}
-        | expRelacional '<=' expAditiva {$$ = $1 <= $3}
+        | expRelacional MENOR_IGUAL expAditiva {$$ = $1 <= $3}
         | expRelacional '<' expAditiva {$$ = $1 < $3}
         ;
 
@@ -222,31 +222,53 @@ sentSalto
 
 // BNF de las Declaraciones
 
+
+tipoDato
+        : VOID
+        | CHAR
+        | INT
+        | DOUBLE
+        | FLOAT
+        | SHORT
+        | LONG
+        | SIGNED
+        | UNSIGNED
+        | CONST
+        | VOLATILE
+        | STRUCT
+        | UNION
+        | ENUM
+        ;
+
 declaracion
         : declaVarSimples
+        | prototipoDeFuncion
         ;
 
 declaVarSimples
-        : tipoDato listaVarSimples 
-        ;
-
-tipoDato
-        : INT DOUBLE CHAR
+        : tipoDato listaVarSimples ';'
         ;
 
 listaVarSimples
         :unaVarSimple
-	| listaVarSimples unaVarSimple
+	| listaVarSimples ',' unaVarSimple
         ;
 
 unaVarSimple	
-        :identificador inicializacion
+        : IDENTIFICADOR 
+        | IDENTIFICADOR '=' exp
         ;
 
 inicializacion		
         : = '('exp')'
         ;
 
+prototipoDeFuncion
+        : tipoDato IDENTIFICADOR '('listaArgumentos')' ';'
+        ;
+definicionDeFuncion
+        : tipoDato IDENTIFICADOR '('listaArgumentos')' '{' listaDeclaraciones listaSentencias '}'
+        ;
 
 %%
 /* Fin de la sección de reglas gramaticales */
