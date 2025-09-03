@@ -138,19 +138,19 @@ expMultiplicativa
 
 expUnaria
         : expPostfijo
-        | INCREMENTO expUnaria {$$ = INCREMENTO $2}
-        | DECREMENTO expUnaria {$$ = DECREMENTO $2}
-        | expUnaria INCREMENTO {$$ = $1 INCREMENTO}
-        | expUnaria DECREMENTO {$$ = $1 DECREMENTO}     
-        | '&'expUnaria {$$ = & $2}
-        | '*'expUnaria {$$ = * $2}
+        | INCREMENTO expUnaria {$$ = $2 +1}
+        | DECREMENTO expUnaria {$$ = $2 -1}
+        | expUnaria INCREMENTO {$$ = $1 -1}
+        | expUnaria DECREMENTO {$$ = $1 +1}     
+        | '&'expUnaria {$$ = (unsigned long)& $2}
+        | '*'expUnaria {$$ = (unsigned long)*((unsigned long*)$2)}
         | '-'expUnaria {$$ = - $2}
         | '!'expUnaria {$$ = ! $2}
         ;       
 
 expPostfijo
         : expPrimaria
-        | expPostfijo '['exp']'
+        | expPostfijo '[' exp ']'
         | expPostfijo '('listaArgumentos')'
         ;
 
@@ -165,13 +165,13 @@ expPrimaria
         | OCTAL
         | HEXA
         | REAL
-        | '('exp')'
+        | '(' exp ')'
         ;
 
 // BNF de sentencias
 
 sentencia
-        :sentCompuesta 
+        : sentCompuesta 
         | sentExpresion 
         | sentSeleccion 
         | sentIteracion 
@@ -184,7 +184,7 @@ sentCompuesta
         ;
 
 listaDeclaraciones
-        :declaracion
+        : declaracion
         | listaDeclaraciones declaracion
         ;
 
@@ -194,12 +194,12 @@ listaSentencias
         ;
 
 sentExpresion
-        : '('exp')'
+        : '(' exp ')'
         ;
 
 sentSeleccion
-        : IF '('exp')' sentencia
-        | IF '('exp')' sentencia ELSE sentencia
+        : IF '(' exp ')' sentencia
+        | IF '(' exp ')' sentencia ELSE sentencia
         | IF error
         ;
 
@@ -220,7 +220,7 @@ sentIteracion
 
 
 sentSalto
-        : RETURN '('exp')'
+        : RETURN '(' exp ')'
         ;
 
 // BNF de las Declaraciones
