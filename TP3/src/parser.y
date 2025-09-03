@@ -62,7 +62,8 @@ void yyerror(const char*);
 %token MAYOR_IGUAL MENOR_IGUAL AND OR
 
         /* */
-%type <unsigned_long_type> exp
+%type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expIgualdad expRelacional expAditiva expMultiplicativa expUnaria expPostfijo expPrimaria listaArgumentos
+
 
 	/* Para especificar el no-terminal de inicio de la gramática (el axioma). Si esto se omitiera, se asumiría que es el no-terminal de la primera regla */
 %start input
@@ -88,11 +89,11 @@ exp
 
 expAsignacion
         : expCondicional
-        | expUnaria '=' expAsignacion {$$ = $1 = $3}
-        | expUnaria MAS_IGUAL expAsignacion {$$ = $1 += $3}
-        | expUnaria MENOS_IGUAL expAsignacion {$$ = $1 -= $3}
-        | expUnaria MULTIPLICAR_IGUAL expAsignacion {$$ = $1 *= $3}
-        | expUnaria DIVIDIR_IGUAL expAsignacion {$$ = $1 /= $3}
+        | expUnaria '=' expAsignacion {$$ = ($1 = $3);}
+        | expUnaria MAS_IGUAL expAsignacion {$$ = ($1 += $3);}
+        | expUnaria MENOS_IGUAL expAsignacion {$$ = ($1 -= $3);}
+        | expUnaria MULTIPLICAR_IGUAL expAsignacion {$$ = ($1 *= $3);}
+        | expUnaria DIVIDIR_IGUAL expAsignacion {$$ = ($1 /= $3);}
         ;
 
 expCondicional
@@ -101,7 +102,7 @@ expCondicional
 
 expOr
         : expAnd
-        | expOr OR expAnd {$$ = $1 || $3}
+        | expOr OR expAnd {$$ = ($1 || $3);}
         ;
 
 expAnd
@@ -142,10 +143,10 @@ expUnaria
         | expUnaria INCREMENTO {$$ = $1 INCREMENTO}
         | expUnaria DECREMENTO {$$ = $1 DECREMENTO}     
         | '&'expUnaria {$$ = & $2}
-        | '*'expUnaria {$$ = $1 * $2}
-        | '-'expUnaria {$$ = $1 - $2}
-        | '!'expUnaria {$$ =  !$2}
-        ;
+        | '*'expUnaria {$$ = * $2}
+        | '-'expUnaria {$$ = - $2}
+        | '!'expUnaria {$$ = ! $2}
+        ;       
 
 expPostfijo
         : expPrimaria
@@ -201,20 +202,22 @@ sentSeleccion
         | IF '('exp')' sentencia ELSE sentencia
         | IF error
         ;
-        
+
+        /* Expresión opcional para manejar los casos vacíos dentro del for */
+optExp
+        : exp
+        | /* vacío */
+        ;
+
 sentIteracion
-        : WHILE '('exp')' sentencia
-	| DO sentencia WHILE '('exp')'
-        | FOR '(' '('exp')' ; '('exp')' ; '('exp')' ')' sentencia
-        | FOR '(' '('')' ; '('exp')' ; '('exp')' ')' sentencia
-        | FOR '(' '('exp')' ; '('')' ; '('exp')' ')' sentencia
-        | FOR '(' '('exp')' ; '('exp')' ; '('')' ')' sentencia
-        | FOR '(' '('exp')' ; '('')' ; '('')' ')' sentencia
-        | FOR '(' '('')' ; '('')' ; '('')' ')' sentencia
+        : WHILE '(' exp ')' sentencia
+        | DO sentencia WHILE '(' exp ')'
+        | FOR '(' optExp ';' optExp ';' optExp ')' sentencia
         | WHILE error
         | FOR error
         | DO error
         ;
+
 
 sentSalto
         : RETURN '('exp')'
@@ -260,7 +263,7 @@ unaVarSimple
         ;
 
 inicializacion		
-        : = '('exp')'
+        : '=' '('exp')'
         ;
 
 prototipoDeFuncion
