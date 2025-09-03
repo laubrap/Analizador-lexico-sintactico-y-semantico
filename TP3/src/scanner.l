@@ -203,7 +203,9 @@ noReconocida ([^ \t\n])
     yylloc.first_column = yylloc.last_column;
     yylloc.last_column += yyleng;
     if (buffer) { free(buffer); buffer = NULL; }
-    buffer = strndup(yytext, yyleng);
+    buffer = (char*)malloc(yyleng + 1);
+    memcpy(buffer, yytext, yyleng);
+    buffer[yyleng] = '\0';
     error_start_line = yylloc.first_line;
     error_start_column = yylloc.first_column;
     BEGIN(tokenNoReconocido);
@@ -223,7 +225,9 @@ noReconocida ([^ \t\n])
 
     [^ \t\n]+ {
         if(buffer == NULL){
-            buffer = strndup(yytext, yyleng);
+            buffer = (char*)malloc(yyleng + 1);
+            memcpy(buffer, yytext, yyleng);
+            buffer[yyleng] = '\0';
         }
         else{
             size_t actual_len = strlen(buffer);
