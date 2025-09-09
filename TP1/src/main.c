@@ -3,21 +3,12 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
-#include <errno.h> 
+#include <errno.h>
 
 #define CANT_ESTADOS 7
 #define CANT_COLUMNAS 6
 #define ESTADO_INICIAL Q0
 #define CENTINELA ','
-typedef enum estado{
-    Q0,
-    Q1,
-    Q2,
-    Q3,
-    Q4,
-    Q5,
-    Q6  
-}estado;
 
 #define ESTADO_FINAL Q1
 #define ESTADO_FINAL2 Q2
@@ -31,6 +22,15 @@ typedef enum columna{
     COL_otro_caracter
 } columna;  
 
+typedef enum estado{
+    Q0,
+    Q1,
+    Q2,
+    Q3,
+    Q4,
+    Q5,
+    Q6  
+}estado;
 
 estado tabla_transiciones[CANT_ESTADOS][CANT_COLUMNAS] = {
       //   0       [1-7]      [8-9]      [a-fA-F]      xX      Otro
@@ -43,8 +43,8 @@ estado tabla_transiciones[CANT_ESTADOS][CANT_COLUMNAS] = {
 /*Q6*/ {   Q6,      Q6,        Q6,         Q6,         Q6,     Q6 },
 };
 
-columna caracter_a_columna(int c){
-    switch(c){
+columna caracter_a_columna(int caracter){
+    switch(caracter){
 
         case '0':
             return COL_0;
@@ -62,9 +62,8 @@ columna caracter_a_columna(int c){
     } 
 }
 
-
 void fin_de_cadena (estado estado, FILE * salida ){
-
+    
     if (estado == Q2){
         fprintf(salida, "\t\tDECIMAL\n");
     } 
@@ -74,18 +73,19 @@ void fin_de_cadena (estado estado, FILE * salida ){
     else if (estado == Q4){
         fprintf(salida, "\t\tHEXADECIMAL\n");
     } 
-    else {
-        fprintf(salida, "\t\tNO RECONOCIDA\n");
-    }
+     else {
+         fprintf(salida, "\t\tNO RECONOCIDA\n");
+     }
 }
 
+
 void scanner (FILE* entrada, FILE *salida){
-    int c;
+    int caracter;
     estado estado_actual = ESTADO_INICIAL;
-    while((c = fgetc(entrada)) != EOF){
-        if(c != CENTINELA){
-            fputc(c, salida);
-            estado_actual = tabla_transiciones[estado_actual][caracter_a_columna(c)];
+    while((caracter = fgetc(entrada)) != EOF){
+        if(caracter != CENTINELA){
+            fputc(caracter, salida);
+            estado_actual = tabla_transiciones[estado_actual][caracter_a_columna(caracter)];
         }else{
             fin_de_cadena(estado_actual, salida);
             estado_actual=ESTADO_INICIAL;
@@ -105,13 +105,10 @@ int main(int argc, char *argv[]) {
             printf("%s: Error al intentar abrir el archivo: %s\n", argv[1], strerror(errno));
             return EXIT_FAILURE;
         }
-    FILE *salida = fopen(argv[2], "w+");
-    if(salida == NULL) {
-        printf("%s: Error al intentar crear el archivo: %s\n", argv[2], strerror(errno));
-        return EXIT_FAILURE;
-    }
-    scanner(entrada, salida);
+
+    scanner(entrada, stdout);
     fclose (entrada);
     return EXIT_SUCCESS;
 }
+
 
