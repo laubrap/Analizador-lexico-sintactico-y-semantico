@@ -6,7 +6,8 @@
 
 %{
 
-#include <stdio.h>
+#include "misFunciones.h"
+#include "global.h"
 
 %}
 
@@ -18,10 +19,31 @@
     /* Condiciones de arranque inclusivas */
 /* %s */
     /* Condiciones de arranque exclusivas */
-/* %x */
+%x tokenNoReconocido
 
     /* Declaraciones con cada nombre y su definición; se utilizan para simplificar las reglas */
 /* digito [0-9] */
+digito [0-9]
+digitoNoCero [1-9]
+digitoOctal [0-7]
+digitoHexa [0-9a-fA-F]
+noDigito [_a-zA-Z]
+sufijoEntero ([uU][lL]?|[lL][uU]?)
+sufijoReal ([fF][lL]?|[lL][fF]?)
+escapeSimple [abfnrtv'\"\?\\]
+exponente (e[+-]?{digito}*)
+almacenamiento (auto|register|static|extern|typedef)
+especificadoresDeTipo (void|char|short|int|long|float|double|signed|unsigned)
+calificadoresDeTipo (const|volatile)
+calificadoresDeUnion (struct|union)
+calificadoresDeEnum (enum)
+etiquetas (case|default)
+seleccion (if|else|switch)
+iteracion (do|while|for)
+salto (goto|continue|break|return)
+unario (sizeof)
+puntuaciones ("["|"]"|"("|")"|"{"|"}"|"."|"->"|"++"|"--"|"&"|"*"|"+"|"-"|"̃ "|"!"|"/"|"%"|"<<"|">>"|"<"|">"|"<="|">="|"=="|"!="|"^"|"|"|"&&"|"||"|"="|"*="|"/="|"%="|"+="|"-="|"<<="|">>="|"&="|"^="|"|="|"?"|":"|";"|"..."|","|"#"|"##")
+noReconocida ([^ \t\n])
 
 /* Fin de la sección de definiciones */
 
@@ -31,28 +53,134 @@
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
 
-[1-9][0-9]* { printf("\nEncontre una constante entera decimal: %s\n", yytext); }
-0[0-7]* { printf("\nEncontre una constante entera octal: %s\n", yytext); }
-0[xX][0-9a-fA-F]+ { printf("\nEncontre una constante entera hexadecimal: %s\n", yytext); }
-[_a-zA-Z]([_a-zA-Z]|[0-9])* { printf("\nEncontre un identificador: %s\n", yytext); }
+[ ] { columna_actual += 1; }
+[\t] { columna_actual += 4; }         
+\n { linea_actual += yyleng; columna_actual = 1; }    
+        
+{almacenamiento}|{especificadoresDeTipo}|{especificadoresDeTipo}|{especificadoresDeTipo}|{calificadoresDeEnum}|{etiquetas}|{seleccion}|{iteracion}|{salto}|{unario}|{calificadoresDeTipo}|{calificadoresDeUnion} { 
+    raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, columna_actual, linea_actual);
+    columna_actual += yyleng;
+}
+    
 
-    /* Reglas por defecto de Flex: */
-        /* <*>.|\n { ECHO; } */
-            /* (ECHO; escribe yytext en la salida del escáner: FILE* yyout (variable global a la cual por defecto se le asigna stdout)) */
-        /* <<EOF>> { yyterminate(); } */
-            /* (yyterminate(); hace que la función yylex finalice retornando un 0, indicando un fin-de-entrada (EOF)) */
+{digitoNoCero}{digito}*{sufijoEntero}? { 
+    raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
+    columna_actual += (yyleng);
+}
+
+
+0{digitoOctal}*{sufijoEntero}? { 
+    raizOctal = agregarOctal(raizOctal, yytext);
+    columna_actual += yyleng;
+}
+
+
+0[xX]{digitoHexa}+{sufijoEntero}? { 
+    raizHexadecimal = agregarHexadecimal(raizHexadecimal, yytext);
+    columna_actual += yyleng;
+}
+
+
+{noDigito}({noDigito}|{digito})* {
+    raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
+    columna_actual += yyleng;
+}
+
+
+{digito}*((\.{digito}*{exponente}?)|{exponente}){sufijoReal}? { 
+    raizReal = agregarReal(raizReal, yytext);
+    columna_actual += yyleng;
+}
+
+
+'([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
+    raizCaracter = agregarCaracter(raizCaracter, yytext);
+    columna_actual += yyleng;
+}
+
+
+\"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
+    raizLiterales = agregarLiteralesCadena(raizLiterales, yytext, yyleng - 2);
+    columna_actual += yyleng;
+}
+
+{puntuaciones} {
+    raizPuntuaciones = agregarPuntuacion(raizPuntuaciones, yytext);
+    columna_actual += yyleng;
+}
+
+{noReconocida} { 
+    buffer = strdup(yytext);
+    columna_actual += yyleng;
+    BEGIN(tokenNoReconocido); 
+}
+
+<tokenNoReconocido>{
+    <<EOF>> {
+        fprintf(stderr, "\n");
+        BEGIN(INITIAL);
+    }
+
+    [ ] {
+        columna_actual += 1;
+        BEGIN(INITIAL);
+    }
+    [\t] {
+        columna_actual += 4;
+        BEGIN(INITIAL);
+    }
+
+    \n {
+        linea_actual += 1;
+        columna_actual = 1;
+
+        BEGIN(INITIAL);
+    }
+
+    [^ \t\n]+ {
+        int columna_inicio = columna_actual - 1;
+        if(buffer == NULL){
+            buffer = calloc(yyleng + 1, sizeof(char));
+            strncpy(buffer, yytext, yyleng);
+        }
+        else{
+            size_t actual_len = strlen(buffer);
+            buffer = realloc(buffer, actual_len + yyleng + 1);
+            strncat(buffer, yytext, yyleng);
+        }
+
+        raizNoReconocida = agregarCadenaNoReconocida(raizNoReconocida, buffer, columna_inicio, linea_actual);
+        columna_actual += yyleng;
+
+        free(buffer);
+        buffer = NULL;
+        BEGIN(INITIAL);
+    }
+}
+
 
 %%
-/* Fin de la sección de reglas */ 
-
-/* Inicio de la sección de código de usuario, la cual: */
-	/* 1. Se utiliza para rutinas de complemento que llaman al analizador léxico o son llamadas por este; la presencia de esta sección es opcional */
-    /* 2. Toda esta sección simplemente se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 
 int main(int argc, char *argv[]) {
+
+    yyin = fopen(argv[1],"r");
     yylex();
+
+    imprimirIdentificadores(raizIdentificador);
+    imprimirLiteralesCadena(raizLiterales);
+    imprimirPalabrasReservadas (raizPalabraReservada);
+    imprimirDecimales(raizDecimal);
+    imprimirHexadecimales(raizHexadecimal);
+    imprimirOctal(raizOctal);
+    imprimirReales(raizReal);
+    imprimirCaracteres(raizCaracter);
+    imprimirPuntuaciones(raizPuntuaciones);
+    imprimirCadenaNoReconocida(raizNoReconocida);
+
+    fclose(yyin);
 
     return 0;
 }
+
 
 /* Fin de la sección de código de usuario */

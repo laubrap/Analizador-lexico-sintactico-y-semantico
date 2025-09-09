@@ -1,6 +1,12 @@
 {
     "files.associations": {
         "tp1.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "TP2.C": "cpp",
+        "tp": "cpp",
+        "stdio.h": "c",
+        "structstp2.h": "c",
+        "misfunciones.h": "c",
+        "structstp1.h": "c"
     }
 }
