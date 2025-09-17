@@ -116,45 +116,45 @@ expOr
 
 expAnd
         : expIgualdad
-        | expAnd AND expIgualdad {$$ = $1 && $3}
+        | expAnd AND expIgualdad {$$ = $1 && $3;}
         ;
 
 expIgualdad
         : expRelacional
-        | expIgualdad IGUAL_IGUAL expRelacional {$$ = $1 == $3}
-        | expIgualdad NEGADO_IGUAL expRelacional {$$ = $1 != $3}
+        | expIgualdad IGUAL_IGUAL expRelacional {$$ = $1 == $3;}
+        | expIgualdad NEGADO_IGUAL expRelacional {$$ = $1 != $3;}
         ;
 
 expRelacional
         : expAditiva
-        | expRelacional MAYOR_IGUAL expAditiva {$$ = $1 >= $3}
-        | expRelacional '>' expAditiva  {$$ = $1 > $3}
-        | expRelacional MENOR_IGUAL expAditiva {$$ = $1 <= $3}
-        | expRelacional '<' expAditiva {$$ = $1 < $3}
+        | expRelacional MAYOR_IGUAL expAditiva {$$ = $1 >= $3;}
+        | expRelacional '>' expAditiva  {$$ = $1 > $3;}
+        | expRelacional MENOR_IGUAL expAditiva {$$ = $1 <= $3;}
+        | expRelacional '<' expAditiva {$$ = $1 < $3;}
         ;
 
 expAditiva
         : expMultiplicativa
-        | expAditiva '+' expMultiplicativa {$$ = $1 + $3}
-        | expAditiva '-' expMultiplicativa {$$ = $1 - $3}
+        | expAditiva '+' expMultiplicativa {$$ = $1 + $3;}
+        | expAditiva '-' expMultiplicativa {$$ = $1 - $3;}
         ;
 
 expMultiplicativa
         : expUnaria
-        | expMultiplicativa '*' expUnaria {$$ = $1 * $3}
-        | expMultiplicativa '/' expUnaria {$$ = $1 / $3}
+        | expMultiplicativa '*' expUnaria {$$ = $1 * $3;}
+        | expMultiplicativa '/' expUnaria {$$ = $1 / $3;}
         ;
 
 expUnaria
         : expPostfijo
-        | INCREMENTO expUnaria {$$ = $2 +1}
-        | DECREMENTO expUnaria {$$ = $2 -1}
-        | expUnaria INCREMENTO {$$ = $1 -1}
-        | expUnaria DECREMENTO {$$ = $1 +1}     
-        | '&'expUnaria {$$ = (unsigned long)& $2}
-        | '*'expUnaria {$$ = (unsigned long)*((unsigned long*)$2)}
-        | '-'expUnaria {$$ = - $2}
-        | '!'expUnaria {$$ = ! $2}
+        | INCREMENTO expUnaria {$$ = $2 +1;}
+        | DECREMENTO expUnaria {$$ = $2 -1;}
+        | expUnaria INCREMENTO {$$ = $1 -1;}
+        | expUnaria DECREMENTO {$$ = $1 +1;}     
+        | '&'expUnaria {$$ = (unsigned long)& $2;}
+        | '*'expUnaria {$$ = (unsigned long)*((unsigned long*)$2);}
+        | '-'expUnaria {$$ = - $2;}
+        | '!'expUnaria {$$ = ! $2;}
         ;       
 
 expPostfijo
