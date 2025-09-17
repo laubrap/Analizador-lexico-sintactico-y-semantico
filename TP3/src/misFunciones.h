@@ -42,3 +42,18 @@ void imprimirPuntuaciones(nodoPuntuaciones* raiz);
 
 nodoCadenasNoReconocidas* agregarCadenaNoReconocida(nodoCadenasNoReconocidas* raiz, char *valor ,int columna, int linea);
 void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz);
+
+extern nodoVarDeclarada* raizVariables;
+extern nodoFuncion* raizFunciones;
+extern nodoSentencia* raizSentencias;
+extern nodoEstructuraNoReconocida* raizEstructurasNoReconocidas;
+
+nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, const char* tipo, int linea);
+nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* retorna, const char* parametros, int es_definicion, int linea);
+nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea, int columna);
+nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoReconocida* raiz, const char* texto, int linea);
+
+void imprimirVariablesDeclaradas(nodoVarDeclarada* raiz);
+void imprimirFunciones(nodoFuncion* raiz);
+void imprimirSentencias(nodoSentencia* raiz);
+void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz);

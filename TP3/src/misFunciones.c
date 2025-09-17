@@ -690,24 +690,179 @@ void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
     }
 }
 
+// ------------- Nuevas funciones ------------------
 
-// ---------- LIBERACIÓN DE MEMORIA ----------
-void liberarIdentificadores(nodoIdentificadores* raiz) {
-    nodoIdentificadores* aux;
-    while (raiz != NULL) {
-        aux = raiz;
-        raiz = raiz->sgte;
-        free(aux->info.nombreIdentificador);
-        free(aux);
+nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, const char* tipo, int linea) {
+
+    nodoVarDeclarada* aux = raiz;
+    nodoVarDeclarada* anterior = NULL;
+
+    while (aux != NULL) {
+        if (aux->info.linea == linea && aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
+            return raiz;
+        }
+        anterior = aux;
+        aux = aux->sgte;
     }
+
+    nodoVarDeclarada* nuevo = malloc(sizeof(nodoVarDeclarada));
+
+    nuevo->info.nombre = strdup(nombre);
+    nuevo->info.tipo = strdup(tipo);
+    nuevo->info.linea = linea;
+    nuevo->sgte = NULL;
+
+    if (raiz == NULL)
+        return nuevo;
+
+    anterior->sgte = nuevo;
+    return raiz;
 }
 
-void liberarLiteralesCadena(nodoLiteralCadena* raiz) {
-    nodoLiteralCadena* aux;
-    while (raiz != NULL) {
-        aux = raiz;
-        raiz = raiz->sgte;
-        free(aux->info.nombreLiteralCadena);
-        free(aux);
+nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* retorna, const char* parametros, int es_definicion, int linea) {
+    
+    nodoFuncion* aux = raiz;
+    nodoFuncion* anterior = NULL;
+
+    while (aux != NULL) {
+        if (aux->info.linea == linea &&
+            aux->info.es_definicion == es_definicion &&
+            aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
+            return raiz;
+        }
+        anterior = aux;
+        aux = aux->sgte;
     }
+
+    nodoFuncion* nuevo = malloc(sizeof(nodoFuncion));
+
+    nuevo->info.nombre = strdup(nombre);
+    nuevo->info.retorna = strdup(retorna);
+    nuevo->info.parametros = strdup(parametros);
+    nuevo->info.es_definicion = es_definicion;
+    nuevo->info.linea = linea;
+    nuevo->sgte = NULL;
+
+    if (raiz == NULL)
+        return nuevo;
+
+    anterior->sgte = nuevo;
+    return raiz;
+}
+
+nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea, int columna) {
+    
+    nodoSentencia* nuevo = malloc(sizeof(nodoSentencia));
+
+    if (!nuevo) 
+        return raiz;
+
+    nuevo->info.tipo = strdup(tipo);
+    nuevo->info.linea = linea;
+    nuevo->info.columna = columna;
+    nuevo->sgte = NULL;
+
+
+    if (!raiz) 
+        return nuevo;
+
+    nodoSentencia* actual = raiz;
+    nodoSentencia* anterior = NULL;
+
+    while (actual) {
+        if (actual->info.linea == linea && actual->info.columna == columna && strcmp(actual->info.tipo, tipo) == 0) {
+            free(nuevo->info.tipo);
+            free(nuevo);
+            return raiz;
+        }
+
+        if (linea < actual->info.linea || (linea == actual->info.linea && columna < actual->info.columna)) {
+            if (anterior) {
+                anterior->sgte = nuevo;
+            } else {
+                raiz = nuevo;
+            }
+            nuevo->sgte = actual;
+            return raiz;
+        }
+
+        anterior = actual;
+        actual = actual->sgte;
+    }
+
+    anterior->sgte = nuevo;
+    return raiz;
+}
+
+
+nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoReconocida* raiz, const char* texto, int linea) {
+    
+    nodoEstructuraNoReconocida* aux = raiz;
+    nodoEstructuraNoReconocida* anterior = NULL;
+
+    nodoEstructuraNoReconocida* nuevo = malloc(sizeof(nodoEstructuraNoReconocida));
+
+    nuevo->info.texto = strdup(texto);
+    nuevo->info.linea = linea;
+    nuevo->sgte = NULL;
+
+    if (raiz == NULL)
+        return nuevo;
+
+    while (aux != NULL) {
+        anterior = aux;
+        aux = aux->sgte;
+    }
+
+    anterior->sgte = nuevo;
+    return raiz;
+}
+
+void imprimirVariablesDeclaradas(nodoVarDeclarada* raiz) {
+    printf("* Listado de variables declaradas (tipo de dato y numero de linea):\n");
+    nodoVarDeclarada* aux = raiz;
+    if (!aux) { printf("-\n\n"); return; }
+    while (aux) {
+        printf("%s: %s, linea %d\n", aux->info.nombre, aux->info.tipo, aux->info.linea);
+        aux = aux->sgte;
+    }
+    printf("\n");
+}
+
+void imprimirFunciones(nodoFuncion* raiz) {
+    printf("* Listado de funciones declaradas o definidas:\n");
+    nodoFuncion* aux = raiz;
+    if (!aux) { printf("-\n\n"); return; }
+    while (aux) {
+        printf("%s: %s, input: %s, retorna: %s, linea %d\n",
+               aux->info.nombre,
+               aux->info.es_definicion ? "definicion" : "declaracion",
+               aux->info.parametros ? aux->info.parametros : "",
+               aux->info.retorna ? aux->info.retorna : "",
+               aux->info.linea);
+        aux = aux->sgte;
+    }
+    printf("\n");
+}
+
+void imprimirSentencias(nodoSentencia* raiz) {
+    printf("* Listado de sentencias indicando tipo, numero de linea y de columna:\n");
+    nodoSentencia* aux = raiz;
+    if (!aux) { printf("-\n\n"); return; }
+    while (aux) {
+        printf("%s: linea %d, columna %d\n", aux->info.tipo, aux->info.linea, aux->info.columna);
+        aux = aux->sgte;
+    }
+    printf("\n");
+}
+
+void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz) {
+    printf("* Listado de estructuras sintacticas no reconocidas:\n");
+    nodoEstructuraNoReconocida* aux = raiz;
+    if (!aux) { printf("-\n\n"); return; }
+    while (aux) {
+        printf("\"%s\": linea %d\n", aux->info.texto, aux->info.linea);
+        aux = aux->sgte;
+    }
+    printf("\n");
 }

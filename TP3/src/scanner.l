@@ -63,46 +63,26 @@ noReconocida ([^ \t\n])
     /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 %%
 
-"auto"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return AUTO; }
-"register"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return REGISTER; }
-"static"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return STATIC; }
-"extern"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return EXTERN; }
-"typedef"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return TYPEDEF; }
-
-"void"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return VOID; }
-"char"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CHAR; }
-"short"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SHORT; }
-"int"       { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return INT; }
-"long"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return LONG; }
-"float"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return FLOAT; }
-"double"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return DOUBLE; }
-"signed"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SIGNED; }
-"unsigned"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return UNSIGNED; }
-"const"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CONST; }
-"volatile"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return VOLATILE; }
-
-"struct"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return STRUCT; }
-"union"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return UNION; }
-"enum"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return ENUM; }
-
-"case"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CASE; }
-"default"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return DEFAULT; }
-
-"if"        { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return IF; }
-"else"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return ELSE; }
-"switch"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SWITCH; }
-
-"do"        { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return DO; }
-"while"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return WHILE; }
-"for"       { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return FOR; }
-
-"goto"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return GOTO; }
-"continue"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return CONTINUE; }
-"break"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return BREAK; }
-"return"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return RETURN; }
-
-"sizeof"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; yylval.string = strdup(yytext); return SIZEOF; }
-
+"void"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return VOID; }
+"char"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return CHAR; }
+"short"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return SHORT; }
+"int"       { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return INT; }
+"long"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return LONG; }
+"float"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return FLOAT; }
+"double"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return DOUBLE; }
+"signed"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return SIGNED; }
+"unsigned"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return UNSIGNED; }
+"case"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return CASE; }
+"default"   { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return DEFAULT; }
+"if"        { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return IF; }
+"else"      { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return ELSE; }
+"switch"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return SWITCH; }
+"do"        { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return DO; }
+"while"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return WHILE; }
+"for"       { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return FOR; }
+"continue"  { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return CONTINUE; }
+"break"     { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return BREAK; }
+"return"    { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; raizPalabraReservada = agregarReservada(raizPalabraReservada, yytext, yylloc.first_column, yylloc.first_line); yylval.string = strdup(yytext); return RETURN; }
     
 {digitoNoCero}{digito}*{sufijoEntero}? { 
     raizDecimal = agregarDecimales(raizDecimal,atoi(yytext));
@@ -132,9 +112,15 @@ noReconocida ([^ \t\n])
     raizIdentificador = agregarIdentificadores(raizIdentificador, yytext);
     yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.string = strdup(yytext);
+    {
+        long aux = strlen(buffer_acumulador);
+        if (aux + yyleng + 1 < sizeof(buffer_acumulador)) {
+            strncat(buffer_acumulador, yytext, yyleng);
+        }
+    }
+
     return IDENTIFICADOR;
 }
-
 
 {digito}+\.{digito}+({exponente})?{sufijoReal}? { 
     raizReal = agregarReal(raizReal, yytext);
@@ -142,12 +128,14 @@ noReconocida ([^ \t\n])
     yylval.constantes = strtod(yytext, NULL);
     return REAL;
 }
+
 {digito}+{exponente}{sufijoReal}? {
     raizReal = agregarReal(raizReal, yytext);
     yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.constantes = strtod(yytext, NULL);
     return REAL;
 }
+
 \.{digito}+({exponente})?{sufijoReal}? {
     raizReal = agregarReal(raizReal, yytext);
     yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
@@ -155,14 +143,12 @@ noReconocida ([^ \t\n])
     return REAL;
 }
 
-
 '([^'\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)' { 
     raizCaracter = agregarCaracter(raizCaracter, yytext);
     yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
     yylval.caracter = strdup(yytext);
     return CARACTER;
 }
-
 
 \"([^\"\\]|\\{escapeSimple}|\\{digitoOctal}+|\\[xX]{digitoHexa}+)*\" { 
     raizLiterales = agregarLiteralesCadena(raizLiterales, yytext, yyleng - 2);
@@ -187,22 +173,29 @@ noReconocida ([^ \t\n])
 {puntuaciones} {
     raizPuntuaciones = agregarPuntuacion(raizPuntuaciones, yytext);
     yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng;
+    {
+        long aux = strlen(buffer_acumulador);
+        if (aux + yyleng + 1 < sizeof(buffer_acumulador)) strncat(buffer_acumulador, yytext, yyleng);
+    }
     return yytext[0];
 }
 
-[ \t]+ { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; }
+[ \t]+ { yylloc.first_column = yylloc.last_column; yylloc.last_column += yyleng; { long aux = strlen(buffer_acumulador); if (aux + yyleng + 1 < sizeof(buffer_acumulador)) strncat(buffer_acumulador, yytext, yyleng); } }
 
 \n {
         yylloc.last_line += yyleng;
         yylloc.first_line = yylloc.last_line;
         yylloc.first_column = yylloc.last_column = INICIO_CONTEO_COLUMNA;
-        return '\n';
+        buffer_acumulador[0] = '\0';
     }
 
 [^ \t\n] {
     yylloc.first_column = yylloc.last_column;
     yylloc.last_column += yyleng;
-    if (buffer) { free(buffer); buffer = NULL; }
+    if (buffer) { 
+        free(buffer); 
+        buffer = NULL; }
+    
     buffer = (char*)malloc(yyleng + 1);
     memcpy(buffer, yytext, yyleng);
     buffer[yyleng] = '\0';
