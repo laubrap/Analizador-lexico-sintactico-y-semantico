@@ -118,5 +118,49 @@ typedef struct{
     infoNodoCadenasNoReconocidas info;
    struct nodoCadenasNoReconocidas * sgte;
 } nodoCadenasNoReconocidas;
+typedef struct {
+    char* nombre;
+    char* tipo;
+    int linea;
+} infoVarDeclarada;
+
+typedef struct nodoVarDeclarada {
+    infoVarDeclarada info;
+    struct nodoVarDeclarada* sgte;
+} nodoVarDeclarada;
+
+typedef struct {
+    char* nombre;
+    char* retorna;
+    char* parametros;
+    int es_definicion;
+    int linea;
+} infoFuncion;
+
+typedef struct nodoFuncion {
+    infoFuncion info;
+    struct nodoFuncion* sgte;
+} nodoFuncion;
+
+typedef struct {
+    char* tipo;
+    int linea;
+    int columna;
+} infoSentencia;
+
+typedef struct nodoSentencia {
+    infoSentencia info;
+    struct nodoSentencia* sgte;
+} nodoSentencia;
+
+typedef struct {
+    char* texto;
+    int linea;
+} infoEstructuraNoReconocida;
+
+typedef struct nodoEstructuraNoReconocida {
+    infoEstructuraNoReconocida info;
+    struct nodoEstructuraNoReconocida* sgte;
+} nodoEstructuraNoReconocida;
 
 #endif /* TIPOS_H */

@@ -3,14 +3,22 @@
 /* Inicio de la seccion de prólogo (declaraciones y definiciones de C y directivas del preprocesador) */
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "general.h"
 
 	/* Declaración de la funcion yylex del analizador léxico, necesaria para que la funcion yyparse del analizador sintáctico pueda invocarla cada vez que solicite un nuevo token */
 extern int yylex(void);
+	/* Archivo de entrada para el analizador léxico */
+extern FILE* yyin;
 	/* Declaracion de la función yyerror para reportar errores, necesaria para que la función yyparse del analizador sintáctico pueda invocarla para reportar un error */
 void yyerror(const char*);
+
+/* Estado auxiliar para armar strings en acciones */
+char* buffer_auxiliar[128];
+
 %}
 /* Fin de la sección de prólogo (declaraciones y definiciones de C y directivas del preprocesador) */
 
@@ -46,15 +54,11 @@ void yyerror(const char*);
 %token <caracter> CARACTER 
 %token <string> LITERAL_CADENA
 
-%token AUTO REGISTER STATIC EXTERN TYPEDEF
 %token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED
-%token CONST VOLATILE
-%token STRUCT UNION
-%token ENUM
 %token CASE DEFAULT
 %token IF ELSE SWITCH
 %token DO WHILE FOR
-%token GOTO CONTINUE BREAK RETURN SIZEOF
+%token CONTINUE BREAK RETURN
 
 %token INCREMENTO DECREMENTO
 %token MAS_IGUAL MENOS_IGUAL MULTIPLICAR_IGUAL DIVIDIR_IGUAL
@@ -63,6 +67,7 @@ void yyerror(const char*);
 
         /* */
 %type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expIgualdad expRelacional expAditiva expMultiplicativa expUnaria expPostfijo expPrimaria listaArgumentos
+%type <string> tipoDato parametro listaParametros parametros listaVarSimples unaVarSimple
 
 
 	/* Para especificar el no-terminal de inicio de la gramática (el axioma). Si esto se omitiera, se asumiría que es el no-terminal de la primera regla */
@@ -73,14 +78,18 @@ void yyerror(const char*);
 /* Inicio de la sección de reglas gramaticales */
 %%
 
+/* Unidad de compilación mínima: secuencia de declaraciones/definiciones y/o nuevas líneas a tope */
 input
-        : /* intencionalmente se deja el resto de esta línea vacía: es la producción nula */
-        | input line
+        : /* vacío */
+        | input unidad
         ;
 
-line
-        : '\n'
-        | exp '\n'  { printf ("El resultado de la expresion es: %lu\n", $1); YYACCEPT; } /* la macro 'YYACEPT;' produce que la función yyparse() retorne inmediatamente con valor 0 */
+unidad
+        : declaracion
+        | prototipoDeFuncion
+        | definicionDeFuncion
+        | ';'
+        | error ';' { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, buffer_acumulador, @2.first_line); yyerrok; }
         ;
 
 exp
@@ -165,6 +174,8 @@ expPrimaria
         | OCTAL
         | HEXA
         | REAL
+        | LITERAL_CADENA
+        | CARACTER
         | '(' exp ')'
         ;
 
@@ -176,32 +187,50 @@ sentencia
         | sentSeleccion 
         | sentIteracion 
         | sentSalto
+        | sentEtiquetada
+        | error ';' { yyerrok; }
         ;
 
 sentCompuesta
-        : listaDeclaraciones
-        | listaSentencias
+        : '{' listaDeclaraciones listaSentencias '}'
+        | '{' listaSentencias '}'
+        | '{' listaDeclaraciones '}'
+        | '{' '}'
+        ;
+
+sentSeleccion 
+        : sentIf
+        | sentIfElse
+        | sentSwitch
         ;
 
 listaDeclaraciones
-        : declaracion
-        | listaDeclaraciones declaracion
+        : /* vacío */
+        | listaDeclaraciones declaVarSimples
         ;
 
 listaSentencias
-        : sentencia
+        : /* vacío */
         | listaSentencias sentencia
         ;
 
 sentExpresion
-        : '(' exp ')'
+        : exp ';'
+        | ';'
         ;
 
-sentSeleccion
-        : IF '(' exp ')' sentencia
-        | IF '(' exp ')' sentencia ELSE sentencia
-        | IF error
-        ;
+sentIf
+    : IF '(' exp ')' sentencia{ raizSentencias = agregarSentencia(raizSentencias, "if", @1.first_line, @1.first_column); }
+    | IF error { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, "if ...", @1.first_line); yyerrok; }
+    ;
+
+sentIfElse
+    : IF '(' exp ')' sentencia ELSE sentencia{ raizSentencias = agregarSentencia(raizSentencias, "if/else", @1.first_line, @1.first_column); }
+    ;
+
+sentSwitch
+    : SWITCH '(' exp ')' sentencia{ raizSentencias = agregarSentencia(raizSentencias, "switch", @1.first_line, @1.first_column); }
+    ;
 
         /* Expresión opcional para manejar los casos vacíos dentro del for */
 optExp
@@ -210,37 +239,44 @@ optExp
         ;
 
 sentIteracion
-        : WHILE '(' exp ')' sentencia
-        | DO sentencia WHILE '(' exp ')'
-        | FOR '(' optExp ';' optExp ';' optExp ')' sentencia
-        | WHILE error
-        | FOR error
-        | DO error
+        : WHILE { raizSentencias = agregarSentencia(raizSentencias, "while", @1.first_line, @1.first_column); } '(' exp ')' sentencia
+        | DO { raizSentencias = agregarSentencia(raizSentencias, "do/while", @1.first_line, @1.first_column); } sentencia WHILE '(' exp ')' ';'
+        | FOR { raizSentencias = agregarSentencia(raizSentencias, "for", @1.first_line, @1.first_column); } '(' optExp ';' optExp ';' optExp ')' sentencia
+        | WHILE error { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, "while ...", @1.first_line); yyerrok; }
+        | FOR error { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, "for ...", @1.first_line); yyerrok; }
+        | DO error { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, "do ...", @1.first_line); yyerrok; }
         ;
 
 
 sentSalto
-        : RETURN '(' exp ')'
+        : RETURN '(' exp ')' ';' { raizSentencias = agregarSentencia(raizSentencias, "return", @1.first_line, @1.first_column); }
+        | RETURN exp ';' { raizSentencias = agregarSentencia(raizSentencias, "return", @1.first_line, @1.first_column); }
+        | RETURN ';' { raizSentencias = agregarSentencia(raizSentencias, "return", @1.first_line, @1.first_column); }
+        | CONTINUE ';' { raizSentencias = agregarSentencia(raizSentencias, "continue", @1.first_line, @1.first_column); }
+        | BREAK ';' { raizSentencias = agregarSentencia(raizSentencias, "break", @1.first_line, @1.first_column); }
+        ;
+
+sentEtiquetada
+        : CASE exp ':' { raizSentencias = agregarSentencia(raizSentencias, "case", @1.first_line, @1.first_column); }
+        | DEFAULT ':' { raizSentencias = agregarSentencia(raizSentencias, "default", @1.first_line, @1.first_column); }
         ;
 
 // BNF de las Declaraciones
 
 
 tipoDato
-        : VOID
-        | CHAR
-        | INT
-        | DOUBLE
-        | FLOAT
-        | SHORT
-        | LONG
-        | SIGNED
-        | UNSIGNED
-        | CONST
-        | VOLATILE
-        | STRUCT
-        | UNION
-        | ENUM
+        : UNSIGNED INT { $$ = strdup("unsigned int"); }
+        | SIGNED INT   { $$ = strdup("signed int"); }
+        | VOID      { $$ = strdup("void"); }
+        | CHAR      { $$ = strdup("char"); }
+        | INT       { $$ = strdup("int"); }
+        | DOUBLE    { $$ = strdup("double"); }
+        | FLOAT     { $$ = strdup("float"); }
+        | SHORT     { $$ = strdup("short"); }
+        | LONG      { $$ = strdup("long"); }
+        | SIGNED    { $$ = strdup("signed"); }
+        | UNSIGNED  { $$ = strdup("unsigned"); }
+
         ;
 
 declaracion
@@ -249,28 +285,43 @@ declaracion
         ;
 
 declaVarSimples
-        : tipoDato listaVarSimples ';'
+        : tipoDato {  if ($1) { strncpy(buffer_auxiliar, $1, sizeof(buffer_auxiliar)-1); free($1); } } listaVarSimples ';'
         ;
 
 listaVarSimples
-        :unaVarSimple
+        : unaVarSimple
 	| listaVarSimples ',' unaVarSimple
         ;
 
 unaVarSimple	
-        : IDENTIFICADOR 
-        | IDENTIFICADOR '=' exp
+        : IDENTIFICADOR           { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar, @1.first_line); }
+        | IDENTIFICADOR '=' exp   { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar, @1.first_line); }
         ;
 
 inicializacion		
         : '=' '('exp')'
         ;
 
+/* Lista de parámetros de funciones (simple): (tipo nombre) separados por coma, o void */
+parametro
+        : tipoDato IDENTIFICADOR
+        ;
+
+listaParametros
+        : parametro { $$ = $1; }
+        | listaParametros ',' parametro
+        ;
+
+parametros
+        : VOID { $$ = strdup("void"); }
+        | listaParametros { $$ = $1; }
+        ;
+
 prototipoDeFuncion
-        : tipoDato IDENTIFICADOR '('listaArgumentos')' ';'
+        : tipoDato IDENTIFICADOR '(' parametros ')' ';' { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 0, @2.first_line); if ($1) free($1); if ($4) free($4); }
         ;
 definicionDeFuncion
-        : tipoDato IDENTIFICADOR '('listaArgumentos')' '{' listaDeclaraciones listaSentencias '}'
+        : tipoDato IDENTIFICADOR '(' parametros ')' sentCompuesta { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 1, @2.first_line); if ($1) free($1); if ($4) free($4); }
         ;
 
 %%
@@ -285,19 +336,28 @@ int main(int argc, char *argv[]) {
                 yydebug = 1;
         #endif
 
-        while(1) {
-                printf("Ingrese una expresion aritmetica en notacion polaca inversa para resolver:\n");
-                printf("(La funcion yyparse ha retornado con valor: %d)\n\n", yyparse());
-                /* Valor | Significado */
-                /*   0   | Análisis sintáctico exitoso (debido a un fin de entrada (EOF) indicado por el analizador léxico (yylex), ó bien a una invocación de la macro YYACCEPT) */
-                /*   1   | Fallo en el análisis sintáctico (debido a un error en el análisis sintáctico del que no se pudo recuperar, ó bien a una invocación de la macro YYABORT) */
-                /*   2   | Fallo en el análisis sintáctico (debido a un agotamiento de memoria) */
+        FILE *file = NULL;
+        if (argc >= 2) {
+                file = fopen(argv[1], "r");
+                if (file == 0)  
+                        return 1; 
+                
+                yyin = file;
         }
 
-        pausa();
+        yyparse();
+
+        imprimirVariablesDeclaradas(raizVariables);
+        imprimirFunciones(raizFunciones);
+        imprimirSentencias(raizSentencias);
+        imprimirEstructurasNoReconocidas(raizEstructurasNoReconocidas);
+        imprimirCadenaNoReconocida(raizNoReconocida);
+
+        if (file) 
+                fclose(file);
+        
         return 0;
 }
-
 	/* Definición de la funcion yyerror para reportar errores, necesaria para que la funcion yyparse del analizador sintáctico pueda invocarla para reportar un error */
 void yyerror(const char* literalCadena) {
         fprintf(stderr, "Bison: %d:%d: %s\n", yylloc.first_line, yylloc.first_column, literalCadena);

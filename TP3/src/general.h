@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "structsTP3.h"
+#include "misFunciones.h"
 
 /* En los archivos de cabecera (header files) (*.h) poner DECLARACIONES (evitar DEFINICIONES) de C, así como directivas de preprocesador */
 /* Recordar solamente indicar archivos *.h en las directivas de preprocesador #include, nunca archivos *.c */
@@ -29,6 +30,9 @@ extern nodoCadenasNoReconocidas* raizNoReconocida;
 extern int linea_actual;
 extern int columna_actual;
 
+
+extern char buffer_acumulador[512];
+
 typedef struct YYLTYPE
 {
   int first_line;
@@ -40,11 +44,6 @@ typedef struct YYLTYPE
 #define INICIO_CONTEO_LINEA 1
 #define INICIO_CONTEO_COLUMNA 1
 
-void pausa(void);
 void inicializarUbicacion(void);
-void reinicializarUbicacion(void);
-char *devolverAParser(char *aDevolver);
-
-
 
 #endif
