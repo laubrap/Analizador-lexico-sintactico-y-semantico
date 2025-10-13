@@ -28,14 +28,42 @@ void yyerror(const char*);
 
 	/* Para especificar la colección completa de posibles tipos de datos para los valores semánticos */
 %union {
-	unsigned long unsigned_long_type;
+        long unsigned_long_type;
+        int numeros;
+        double constantes; 
+        char *string;
+        char *caracter;
+        
 }
 
         /* */
-%token <unsigned_long_type> NUM
+        
+%token <string> IDENTIFICADOR 
+%token <numeros> DECIMAL 
+%token <numeros> OCTAL 
+%token <numeros> HEXA 
+%token <constantes> REAL
+%token <caracter> CARACTER 
+%token <string> LITERAL_CADENA
 
-	/* */
-%type <unsigned_long_type> exp
+%token AUTO REGISTER STATIC EXTERN TYPEDEF
+%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED
+%token CONST VOLATILE
+%token STRUCT UNION
+%token ENUM
+%token CASE DEFAULT
+%token IF ELSE SWITCH
+%token DO WHILE FOR
+%token GOTO CONTINUE BREAK RETURN SIZEOF
+
+%token INCREMENTO DECREMENTO
+%token MAS_IGUAL MENOS_IGUAL MULTIPLICAR_IGUAL DIVIDIR_IGUAL
+%token IGUAL_IGUAL NEGADO_IGUAL
+%token MAYOR_IGUAL MENOR_IGUAL AND OR
+
+        /* */
+%type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expIgualdad expRelacional expAditiva expMultiplicativa expUnaria expPostfijo expPrimaria listaArgumentos
+
 
 	/* Para especificar el no-terminal de inicio de la gramática (el axioma). Si esto se omitiera, se asumiría que es el no-terminal de la primera regla */
 %start input
@@ -56,12 +84,193 @@ line
         ;
 
 exp
-        : NUM             { $$ = $1; }
-        | exp exp '+'     { $$ = $1 + $2; }
-        | exp exp '-'     { $$ = $1 - $2; }
-        | exp exp '*'     { $$ = $1 * $2; }
-        | exp exp '/'     { $$ = $1 / $2; }
-        | exp exp '^'     { $$ = pow($1, $2); }
+        : expAsignacion
+        ;
+
+expAsignacion
+        : expCondicional
+        | expUnaria '=' expAsignacion {$$ = ($1 = $3);}
+        | expUnaria MAS_IGUAL expAsignacion {$$ = ($1 += $3);}
+        | expUnaria MENOS_IGUAL expAsignacion {$$ = ($1 -= $3);}
+        | expUnaria MULTIPLICAR_IGUAL expAsignacion {$$ = ($1 *= $3);}
+        | expUnaria DIVIDIR_IGUAL expAsignacion {$$ = ($1 /= $3);}
+        ;
+
+expCondicional
+        : expOr
+        ;
+
+expOr
+        : expAnd
+        | expOr OR expAnd {$$ = ($1 || $3);}
+        ;
+
+expAnd
+        : expIgualdad
+        | expAnd AND expIgualdad {$$ = $1 && $3}
+        ;
+
+expIgualdad
+        : expRelacional
+        | expIgualdad IGUAL_IGUAL expRelacional {$$ = $1 == $3}
+        | expIgualdad NEGADO_IGUAL expRelacional {$$ = $1 != $3}
+        ;
+
+expRelacional
+        : expAditiva
+        | expRelacional MAYOR_IGUAL expAditiva {$$ = $1 >= $3}
+        | expRelacional '>' expAditiva  {$$ = $1 > $3}
+        | expRelacional MENOR_IGUAL expAditiva {$$ = $1 <= $3}
+        | expRelacional '<' expAditiva {$$ = $1 < $3}
+        ;
+
+expAditiva
+        : expMultiplicativa
+        | expAditiva '+' expMultiplicativa {$$ = $1 + $3}
+        | expAditiva '-' expMultiplicativa {$$ = $1 - $3}
+        ;
+
+expMultiplicativa
+        : expUnaria
+        | expMultiplicativa '*' expUnaria {$$ = $1 * $3}
+        | expMultiplicativa '/' expUnaria {$$ = $1 / $3}
+        ;
+
+expUnaria
+        : expPostfijo
+        | INCREMENTO expUnaria {$$ = $2 +1}
+        | DECREMENTO expUnaria {$$ = $2 -1}
+        | expUnaria INCREMENTO {$$ = $1 -1}
+        | expUnaria DECREMENTO {$$ = $1 +1}     
+        | '&'expUnaria {$$ = (unsigned long)& $2}
+        | '*'expUnaria {$$ = (unsigned long)*((unsigned long*)$2)}
+        | '-'expUnaria {$$ = - $2}
+        | '!'expUnaria {$$ = ! $2}
+        ;       
+
+expPostfijo
+        : expPrimaria
+        | expPostfijo '[' exp ']'
+        | expPostfijo '('listaArgumentos')'
+        ;
+
+listaArgumentos
+        : expAsignacion
+        | listaArgumentos ',' expAsignacion
+        ;
+        
+expPrimaria
+        : IDENTIFICADOR
+        | DECIMAL
+        | OCTAL
+        | HEXA
+        | REAL
+        | '(' exp ')'
+        ;
+
+// BNF de sentencias
+
+sentencia
+        : sentCompuesta 
+        | sentExpresion 
+        | sentSeleccion 
+        | sentIteracion 
+        | sentSalto
+        ;
+
+sentCompuesta
+        : listaDeclaraciones
+        | listaSentencias
+        ;
+
+listaDeclaraciones
+        : declaracion
+        | listaDeclaraciones declaracion
+        ;
+
+listaSentencias
+        : sentencia
+        | listaSentencias sentencia
+        ;
+
+sentExpresion
+        : '(' exp ')'
+        ;
+
+sentSeleccion
+        : IF '(' exp ')' sentencia
+        | IF '(' exp ')' sentencia ELSE sentencia
+        | IF error
+        ;
+
+        /* Expresión opcional para manejar los casos vacíos dentro del for */
+optExp
+        : exp
+        | /* vacío */
+        ;
+
+sentIteracion
+        : WHILE '(' exp ')' sentencia
+        | DO sentencia WHILE '(' exp ')'
+        | FOR '(' optExp ';' optExp ';' optExp ')' sentencia
+        | WHILE error
+        | FOR error
+        | DO error
+        ;
+
+
+sentSalto
+        : RETURN '(' exp ')'
+        ;
+
+// BNF de las Declaraciones
+
+
+tipoDato
+        : VOID
+        | CHAR
+        | INT
+        | DOUBLE
+        | FLOAT
+        | SHORT
+        | LONG
+        | SIGNED
+        | UNSIGNED
+        | CONST
+        | VOLATILE
+        | STRUCT
+        | UNION
+        | ENUM
+        ;
+
+declaracion
+        : declaVarSimples
+        | prototipoDeFuncion
+        ;
+
+declaVarSimples
+        : tipoDato listaVarSimples ';'
+        ;
+
+listaVarSimples
+        :unaVarSimple
+	| listaVarSimples ',' unaVarSimple
+        ;
+
+unaVarSimple	
+        : IDENTIFICADOR 
+        | IDENTIFICADOR '=' exp
+        ;
+
+inicializacion		
+        : '=' '('exp')'
+        ;
+
+prototipoDeFuncion
+        : tipoDato IDENTIFICADOR '('listaArgumentos')' ';'
+        ;
+definicionDeFuncion
+        : tipoDato IDENTIFICADOR '('listaArgumentos')' '{' listaDeclaraciones listaSentencias '}'
         ;
 
 %%
