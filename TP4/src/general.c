@@ -2,16 +2,35 @@
 /* Recordar solamente indicar archivos *.h en las directivas de preprocesador #include, nunca archivos *.c */
 
 #include <stdio.h>
-
 #include "general.h"
 
 extern YYLTYPE yylloc;
 
-void pausa(void)
-{
-    printf("Presione ENTER para continuar...\n");
-    getchar();
-}
+int sumaDecimales = 0;
+int acumuladorIdentificadores = 0;
+int num_linea = 1;
+char* buffer = NULL;
+
+nodoIdentificadores *raizIdentificador = NULL;
+nodoLiteralCadena *raizLiterales = NULL;
+nodoDecimal *raizDecimal = NULL;
+nodoHexadecimal *raizHexadecimal = NULL;
+nodoOctal *raizOctal = NULL;
+nodoReservada *raizPalabraReservada = NULL;
+nodoReal *raizReal = NULL;
+nodoCaracter *raizCaracter = NULL;
+nodoPuntuaciones *raizPuntuaciones = NULL;
+nodoCadenasNoReconocidas* raizNoReconocida = NULL;
+
+nodoVarDeclarada* raizVariables = NULL;
+nodoFuncion* raizFunciones = NULL;
+nodoSentencia* raizSentencias = NULL;
+nodoEstructuraNoReconocida* raizEstructurasNoReconocidas = NULL;
+
+int linea_actual = 1;
+int columna_actual = 1;
+
+char buffer_acumulador[512];
 
 void inicializarUbicacion(void)
 {
@@ -19,8 +38,3 @@ void inicializarUbicacion(void)
     yylloc.first_column = yylloc.last_column = INICIO_CONTEO_COLUMNA;
 }
 
-void reinicializarUbicacion(void)
-{
-    yylloc.first_line = yylloc.last_line;
-    yylloc.first_column = yylloc.last_column;
-}
