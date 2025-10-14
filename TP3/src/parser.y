@@ -149,8 +149,8 @@ expUnaria
         : expPostfijo
         | INCREMENTO expUnaria {$$ = $2 +1;}
         | DECREMENTO expUnaria {$$ = $2 -1;}
-        | expUnaria INCREMENTO {$$ = $1 -1;}
-        | expUnaria DECREMENTO {$$ = $1 +1;}     
+        | expUnaria INCREMENTO {$$ = $1 +1;}
+        | expUnaria DECREMENTO {$$ = $1 -1;}     
         | '&'expUnaria {$$ = (unsigned long)& $2;}
         | '*'expUnaria {$$ = (unsigned long)*((unsigned long*)$2);}
         | '-'expUnaria {$$ = - $2;}
