@@ -8,8 +8,6 @@
 #include <errno.h>
 #include <limits.h>
 
-// --- Definiciones de Categorías (Esto estaba bien) ---
-
 typedef enum {
     clase_almacenamiento,
     especificador_tipo,
@@ -22,9 +20,6 @@ typedef enum {
     salto,
     unario
 } CategoriaReservada;
-
-// --- Definiciones de 'info' (Datos) ---
-// (Estas no son nodos, solo contienen los datos)
 
 typedef struct {
     char *nombreIdentificador;
@@ -66,8 +61,6 @@ typedef struct {
 
 typedef struct {
     char* caracter;
-    // Se quitó 'struct nodoCaracter *sgte;' de aquí.
-    // El puntero 'sgte' va en el NODO, no en la INFO.
 } infoNodoCaracter;
 
 typedef struct {
@@ -102,10 +95,6 @@ typedef struct {
 } infoEstructuraNoReconocida;
 
 
-// --- Definiciones de NODOS (Contenedores) ---
-// (Aquí se aplica la corrección)
-
-// Declaraciones adelantadas
 typedef struct nodoDecimal nodoDecimal;
 typedef struct nodoHexadecimal nodoHexadecimal;
 typedef struct nodoOctal nodoOctal;
@@ -120,10 +109,6 @@ typedef struct nodoVarDeclarada nodoVarDeclarada;
 typedef struct nodoFuncion nodoFuncion;
 typedef struct nodoSentencia nodoSentencia;
 typedef struct nodoEstructuraNoReconocida nodoEstructuraNoReconocida;
-
-
-// Definiciones de Structs
-// (Nota cómo 'sgte' ahora usa el alias del typedef, sin 'struct')
 
 struct nodoDecimal {
     int valor;
