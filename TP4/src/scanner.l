@@ -1,4 +1,3 @@
-
 /* Inicio de la sección de definiciones. Aquí: */
     /* 1. Cualquier texto sangrado o encerrado entre '%{' y '%}' (estos últimos dos sin sangrar en líneas ocupadas únicamente por ellos) se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
         /* De esas formas podemos poner declaraciones y definiciones de C y directivas del preprocesador */
