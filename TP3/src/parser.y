@@ -17,7 +17,7 @@ extern FILE* yyin;
 void yyerror(const char*);
 
 /* Estado auxiliar para armar strings en acciones */
-char* buffer_auxiliar[128];
+char buffer_auxiliar[256];
 
 %}
 /* Fin de la sección de prólogo (declaraciones y definiciones de C y directivas del preprocesador) */
