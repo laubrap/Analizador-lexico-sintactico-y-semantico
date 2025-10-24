@@ -73,7 +73,9 @@ typedef struct {
 typedef struct {
     char* nombre;
     char* tipo;
+    char* simbolo;
     int linea; 
+    int columna;
 } infoVarDeclarada;
 
 typedef struct {
@@ -188,18 +190,39 @@ typedef struct{
 }tablaDeSimbolos;
 
 typedef struct {
-    char* mensaje;
-    char* nota; 
-    int linea;
-    int columna;
-} infoErrorSemantico;
+    CodigoError idError;             
+    char* identificador;   
+    int linea1;       
+    int columna1;
+    int tipoDeDatoAnterior;
+    int linea2;  
+    int columna2;      
+    char* tipoDato;     
+} errorSemanticoIdentificadores;
 
+typedef enum {
+    ERROR_SIN_DECLARAR = 1,              
+    ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, 
+    ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO,  
+    ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO,
+    ERROR_REDEFINICION_FUNCION_IGUAL_TIPO,
+    OPERANDOS_INVALIDOS,
+    FUNCION_SIN_DECLARAR,
+    FUNCION_NO_SE_QUE_PONER,
+    INSUFICIENTES_PARAMETROS,
+    DEMASIADOS_PARAMETROS,
+    INCOMPATIBILIDAD_TIPOS,
+    RETORNO_VOID,
+    INCOMPATIBILIDAD_TIPOS_AL_INICIAR,
+    ASIGNAR_EN_UNA_CONSTANTE,
+    NO_EXISTE_L_VALOR_MODIFICABLE,
+    NO_RETURN_EN_FUNCION_NO_VOID,
+    TIPO_DE_DATO_INCOMPATIBLE_RETURN
+} CodigoError;
 typedef struct{
-    infoErrorSemantico info;
-    nodoErrorSemantico* sgte;
-} nodoErrorSemantico;
-
-
+    errorSemanticoIdentificadores info;
+    nodoError* sgte;
+} nodoError;
 
 
 

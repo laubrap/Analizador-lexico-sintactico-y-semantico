@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stdio.h>
 
-// ---------- IDENTIFICADORES ----------
+nodoError *listaDeErrores;
 
+// ---------- IDENTIFICADORES ----------
 
 nodoIdentificadores * agregarIdentificadores(nodoIdentificadores*raiz , char*elementoParaAgregar) {
     nodoIdentificadores *aux = raiz;
@@ -692,21 +693,40 @@ void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
 
 // ------------- Nuevas funciones ------------------
 
-nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, const char* tipo, int linea) {
-
+nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, char* nombre, char* tipo, char* simbolo, int linea, int columna) {
     nodoVarDeclarada* aux = raiz;
     nodoVarDeclarada* anterior = NULL;
 
     while (aux != NULL) {
-        if (aux->info.linea == linea && aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
-            return raiz;
+        
+        if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
+            
+            if ((strcmp(aux->info.simbolo, "funcion") == 0 && strcmp(tipo, "variable") == 0) ||(strcmp(aux->info.simbolo, "variable") == 0 && strcmp(tipo, "funcion") == 0)) {
+                agregarError(ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                return raiz;
+            }
+
+            if (strcmp(aux->info.tipo, tipo) != 0 && ((strcmp(aux->info.tipo, "variable") == 0 && strcmp(tipo, "variable") == 0) || (strcmp(aux->info.tipo, "funcion") == 0 && strcmp(tipo, "funcion") == 0))) {
+                agregarError(ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                return raiz;
+            }
+
+            if (strcmp(aux->info.tipo, tipo) == 0 && strcmp(tipo, "variable") == 0) {
+                agregarError(ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                return raiz;
+            }
+
+            if (strcmp(aux->info.tipo, tipo) == 0 && strcmp(tipo, "funcion") == 0) {
+                agregarError(ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                return raiz;
+            }
         }
+
         anterior = aux;
         aux = aux->sgte;
     }
 
     nodoVarDeclarada* nuevo = malloc(sizeof(nodoVarDeclarada));
-
     nuevo->info.nombre = strdup(nombre);
     nuevo->info.tipo = strdup(tipo);
     nuevo->info.linea = linea;
@@ -717,6 +737,29 @@ nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, co
 
     anterior->sgte = nuevo;
     return raiz;
+}
+
+void agregarError(int codigo,char* identificador,char* tipoPrevio,int linea1, int columna1,int linea2, int columna2) {
+
+    nodoError* nuevo = malloc(sizeof(nodoError));
+    nuevo->info.idError = codigo;
+    nuevo->info.identificador = strdup(identificador);
+    nuevo->info.tipoDeDatoAnterior = tipoPrevio ? strdup(tipoPrevio) : NULL;
+    nuevo->info.linea1 = linea1;
+    nuevo->info.columna1 = columna1;
+    nuevo->info.linea2 = linea2;
+    nuevo->info.columna2 = columna2;
+    nuevo->sgte = NULL;
+
+    if (listaDeErrores == NULL) {
+        listaDeErrores = nuevo;
+        return;
+    }
+
+    nodoError* aux = listaDeErrores;
+    while (aux->sgte != NULL)
+        aux = aux->sgte;
+    aux->sgte = nuevo;
 }
 
 nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* retorna, const char* parametros, int es_definicion, int linea) {
@@ -865,4 +908,9 @@ void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz) {
         aux = aux->sgte;
     }
     printf("\n");
+}
+
+void imprimirErrores(nodoError *lista){
+    printf("* Listado de errores semanticos:\n");
+    
 }
