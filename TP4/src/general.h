@@ -45,4 +45,12 @@ typedef struct YYLTYPE
 
 void inicializarUbicacion(void);
 
+int agregarIdentificadorATS(char* nombre);
+
+char* obtenerTipoIdentificador(const char* nombre) ;
+
+extern tablaDeSimbolos TS;
+
+void iniciar_tabla(void); 
+
 #endif

@@ -27,6 +27,8 @@ nodoFuncion* raizFunciones = NULL;
 nodoSentencia* raizSentencias = NULL;
 nodoEstructuraNoReconocida* raizEstructurasNoReconocidas = NULL;
 
+nodoErrorSemantico* raizErroresSemanticos = NULL;
+
 int linea_actual = 1;
 int columna_actual = 1;
 
@@ -38,3 +40,55 @@ void inicializarUbicacion(void)
     yylloc.first_column = yylloc.last_column = INICIO_CONTEO_COLUMNA;
 }
 
+int agregarIdentificadorATS(const char* nombre, const char* tipo, int linea) {
+    nodoVarDeclarada* aux = TS.nodoVariable;
+    nodoVarDeclarada* ultimo = NULL;
+
+    while (aux != NULL) {
+        if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0){
+            return -1;
+        }
+        ultimo = aux;
+        aux = aux->sgte;
+    }
+
+    nodoVarDeclarada* nuevo = (nodoVarDeclarada*)malloc(sizeof(nodoVarDeclarada));
+
+    nuevo->info.nombre = strdup(nombre);
+    if (tipo != NULL) {
+        nuevo->info.tipo = strdup(tipo);
+    } else {
+        nuevo->info.tipo = NULL;
+    }
+    nuevo->info.linea = linea;
+    nuevo->sgte = NULL;
+
+    if (TS.nodoVariable == NULL) {
+        TS.nodoVariable = nuevo;
+    } else {
+        ultimo->sgte = nuevo;
+    }
+
+    return 0;
+}
+
+void acumularError(char *identificador, int codigo, int linea, int columna);
+
+char* obtenerTipoIdentificador(char* nombre) {
+    nodoVarDeclarada* aux = TS.nodoVariable;
+    while (aux != NULL) {
+
+        if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
+            return aux->info.tipo;
+        }
+        aux = aux->sgte;
+    }
+    return NULL;
+}
+
+tablaDeSimbolos TS = { NULL, NULL };
+
+void iniciar_tabla(void) {
+    TS.nodoVariable  = NULL;
+    TS.nodoFuncion  = NULL;
+}
