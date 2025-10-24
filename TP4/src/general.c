@@ -27,7 +27,9 @@ nodoFuncion* raizFunciones = NULL;
 nodoSentencia* raizSentencias = NULL;
 nodoEstructuraNoReconocida* raizEstructurasNoReconocidas = NULL;
 
-nodoErrorSemantico* raizErroresSemanticos = NULL;
+tablaDeSimbolos *raizTS = NULL;
+errorSemantico *raizErrores = NULL;
+
 
 int linea_actual = 1;
 int columna_actual = 1;
@@ -40,55 +42,106 @@ void inicializarUbicacion(void)
     yylloc.first_column = yylloc.last_column = INICIO_CONTEO_COLUMNA;
 }
 
-int agregarIdentificadorATS(const char* nombre, const char* tipo, int linea) {
-    nodoVarDeclarada* aux = TS.nodoVariable;
-    nodoVarDeclarada* ultimo = NULL;
-
-    while (aux != NULL) {
-        if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0){
-            return -1;
-        }
-        ultimo = aux;
-        aux = aux->sgte;
-    }
-
-    nodoVarDeclarada* nuevo = (nodoVarDeclarada*)malloc(sizeof(nodoVarDeclarada));
-
-    nuevo->info.nombre = strdup(nombre);
-    if (tipo != NULL) {
-        nuevo->info.tipo = strdup(tipo);
-    } else {
-        nuevo->info.tipo = NULL;
-    }
-    nuevo->info.linea = linea;
-    nuevo->sgte = NULL;
-
-    if (TS.nodoVariable == NULL) {
-        TS.nodoVariable = nuevo;
-    } else {
-        ultimo->sgte = nuevo;
-    }
-
-    return 0;
-}
-
-void acumularError(char *identificador, int codigo, int linea, int columna);
-
-char* obtenerTipoIdentificador(char* nombre) {
-    nodoVarDeclarada* aux = TS.nodoVariable;
-    while (aux != NULL) {
-
-        if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
-            return aux->info.tipo;
-        }
+tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre) {
+    tablaDeSimbolos *aux = raiz;
+    while (aux) {
+        if (strcmp(aux->nombre, nombre) == 0)
+            return aux;
         aux = aux->sgte;
     }
     return NULL;
 }
 
-tablaDeSimbolos TS = { NULL, NULL };
+tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna) {
+    tablaDeSimbolos *nuevo = malloc(sizeof(tablaDeSimbolos));
+    nuevo->nombre = copia(nombre);
+    nuevo->tipoDato = copia(tipoDato);
+    nuevo->tipoSimbolo = copia(tipoSimbolo);
+    nuevo->linea = linea;
+    nuevo->columna = columna;
+    nuevo->definida = 0;
+    nuevo->sgte = NULL;
 
-void iniciar_tabla(void) {
-    TS.nodoVariable  = NULL;
-    TS.nodoFuncion  = NULL;
+    if (raiz == NULL) 
+    {
+        return nuevo;
+    }
+
+    tablaDeSimbolos *aux = raiz;
+    while (aux->sgte){
+        aux = aux->sgte;
+    }
+    aux->sgte = nuevo;
+    return raiz;
 }
+
+void agregarError(CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual) {
+    errorSemantico *nuevo = malloc(sizeof(errorSemantico));
+    if (nuevo == NULL) 
+      return;
+
+    nuevo->codigo = codigo;
+    nuevo->identificador = identificador;
+    nuevo->tipoPrevio = tipoPrevio;
+    nuevo->lineaPrevio = lineaPrevio;
+    nuevo->columnaPrevio = columnaPrevio;
+    nuevo->lineaActual = lineaActual;
+    nuevo->columnaActual = columnaActual;
+    nuevo->sgte = NULL;
+
+    if (raizErrores == NULL) {
+        raizErrores = nuevo;
+        return;
+    }
+    errorSemantico *aux = raizErrores;
+    while (aux->sgte){
+        aux = aux->sgte;
+    }
+    aux->sgte = nuevo;
+}
+
+void imprimirErrores(void) {
+    if (raizErrores == NULL) {
+        printf("-\n"); 
+        return;
+    }
+
+    errorSemantico *aux = raizErrores;
+    while (aux) {
+        
+        printf("%d:%d: ", aux->lineaActual, aux->columnaActual);
+        switch (aux->codigo) {
+            case ERROR_SIN_DECLARAR:
+                printf("'%s' sin declarar\n", aux->identificador);
+                break;
+            case ERROR_REDECLARACION_TIPO_DIF_SIMBOLO:
+                printf("'%s' redeclarado como un tipo diferente de simbolo\n", aux->identificador);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            case ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO:
+                printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n",
+                       aux->identificador, aux->tipoPrevio);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            case ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO:
+                printf("Redeclaracion de '%s'\n", aux->identificador);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            case ERROR_REDEFINICION_FUNCION_IGUAL_TIPO:
+                printf("Redefinicion de '%s'\n", aux->identificador);
+                printf("Nota: la definicion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            default:
+                printf("Error desconocido code=%d\n", aux->codigo);
+        }
+        aux = aux->sgte;
+    }
+}
+
+
+
+
