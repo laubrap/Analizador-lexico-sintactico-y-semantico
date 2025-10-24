@@ -165,8 +165,8 @@ listaArgumentos
         
 expPrimaria
     : IDENTIFICADOR {
-        if (!buscarSimbolo(raizVariables, $1) && !buscarSimbolo(raizFunciones, $1)) {
-            agregarError(ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
+        if (!buscarSimbolo(raizTS, $1) && !buscarSimbolo(raizTS, $1)) {
+            agregarError(raizErrores,ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
         }
         
     }
@@ -295,10 +295,10 @@ listaVarSimples
 
 unaVarSimple
     : IDENTIFICADOR {
-        raizVariables = insertarSimbolo(raizVariables, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
+        raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
       }
     | IDENTIFICADOR '=' exp {
-        raizVariables = insertarSimbolo(raizVariables, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
+        raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
       }
     ;
 
@@ -357,7 +357,7 @@ int main(int argc, char *argv[]) {
         imprimirEstructurasNoReconocidas(raizEstructurasNoReconocidas);
         imprimirCadenaNoReconocida(raizNoReconocida);
 
-        imprimirErrores();
+        imprimirErrores(raizErrores);
 
         if (file) 
                 fclose(file);

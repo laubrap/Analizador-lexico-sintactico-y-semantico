@@ -885,3 +885,103 @@ void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz) {
     }
     printf("\n");
 }
+
+tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre) {
+    tablaDeSimbolos *aux = raiz;
+    while (aux) {
+        if (strcmp(aux->nombre, nombre) == 0)
+            return aux;
+        aux = aux->sgte;
+    }
+    return NULL;
+}
+
+tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna) {
+    tablaDeSimbolos *nuevo = malloc(sizeof(tablaDeSimbolos));
+    nuevo->nombre = nombre;
+    nuevo->tipoDato = tipoDato;
+    nuevo->tipoSimbolo = tipoSimbolo;
+    nuevo->linea = linea;
+    nuevo->columna = columna;
+    nuevo->definida = 0;
+    nuevo->sgte = NULL;
+
+    if (raiz == NULL) 
+    {
+        return nuevo;
+    }
+
+    tablaDeSimbolos *aux = raiz;
+    while (aux->sgte){
+        aux = aux->sgte;
+    }
+    aux->sgte = nuevo;
+    return raiz;
+}
+
+void agregarError(errorSemantico* raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual) {
+    errorSemantico *nuevo = malloc(sizeof(errorSemantico));
+    if (nuevo == NULL) 
+      return;
+
+    nuevo->codigo = codigo;
+    nuevo->identificador = identificador;
+    nuevo->tipoPrevio = tipoPrevio;
+    nuevo->lineaPrevio = lineaPrevio;
+    nuevo->columnaPrevio = columnaPrevio;
+    nuevo->lineaActual = lineaActual;
+    nuevo->columnaActual = columnaActual;
+    nuevo->sgte = NULL;
+
+    if (raizErrores == NULL) {
+        raizErrores = nuevo;
+        return;
+    }
+    errorSemantico *aux = raizErrores;
+    while (aux->sgte){
+        aux = aux->sgte;
+    }
+    aux->sgte = nuevo;
+}
+
+void imprimirErrores(errorSemantico* raizErrores) {
+    if (raizErrores == NULL) {
+        printf("-\n"); 
+        return;
+    }
+
+    errorSemantico *aux = raizErrores;
+    while (aux) {
+        
+        printf("%d:%d: ", aux->lineaActual, aux->columnaActual);
+        switch (aux->codigo) {
+            case ERROR_SIN_DECLARAR:
+                printf("'%s' sin declarar\n", aux->identificador);
+                break;
+            case ERROR_REDECLARACION_TIPO_DIF_SIMBOLO:
+                printf("'%s' redeclarado como un tipo diferente de simbolo\n", aux->identificador);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            case ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO:
+                printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n",
+                       aux->identificador, aux->tipoPrevio);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            case ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO:
+                printf("Redeclaracion de '%s'\n", aux->identificador);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            case ERROR_REDEFINICION_FUNCION_IGUAL_TIPO:
+                printf("Redefinicion de '%s'\n", aux->identificador);
+                printf("Nota: la definicion previa de '%s' es de tipo '%s': %d:%d\n",
+                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+            default:
+                printf("Error desconocido code=%d\n", aux->codigo);
+        }
+        aux = aux->sgte;
+    }
+}

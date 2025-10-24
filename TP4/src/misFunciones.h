@@ -47,6 +47,8 @@ extern nodoVarDeclarada* raizVariables;
 extern nodoFuncion* raizFunciones;
 extern nodoSentencia* raizSentencias;
 extern nodoEstructuraNoReconocida* raizEstructurasNoReconocidas;
+extern tablaDeSimbolos *raizTS;
+extern errorSemantico *raizErrores;
 
 nodoVarDeclarada* agregarVariable(errorSemantico*listaErrores, nodoVarDeclarada* raiz,char* nombre,char* tipo,char* simbolo,int linea,int columna);
 nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* retorna, const char* parametros, int es_definicion, int linea);
@@ -57,3 +59,9 @@ void imprimirVariablesDeclaradas(nodoVarDeclarada* raiz);
 void imprimirFunciones(nodoFuncion* raiz);
 void imprimirSentencias(nodoSentencia* raiz);
 void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz);
+
+tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre);
+tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna);
+
+void agregarError(errorSemantico *raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual);
+void imprimirErrores(errorSemantico* raizErrores);

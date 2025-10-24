@@ -48,10 +48,5 @@ typedef struct YYLTYPE
 
 void inicializarUbicacion(void);
 
-tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre);
-tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna);
-
-void agregarError(CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual);
-void imprimirErrores(void);
 
 #endif
