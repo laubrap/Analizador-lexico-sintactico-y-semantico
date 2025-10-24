@@ -11,6 +11,7 @@ int acumuladorIdentificadores = 0;
 int num_linea = 1;
 char* buffer = NULL;
 
+
 nodoIdentificadores *raizIdentificador = NULL;
 nodoLiteralCadena *raizLiterales = NULL;
 nodoDecimal *raizDecimal = NULL;

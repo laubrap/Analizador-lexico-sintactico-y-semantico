@@ -837,13 +837,16 @@ nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoRecono
     return raiz;
 }
 
-void imprimirVariablesDeclaradas(nodoVarDeclarada* raiz) {
+void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz) {
     printf("* Listado de variables declaradas (tipo de dato y numero de linea):\n");
-    nodoVarDeclarada* aux = raiz;
+    tablaDeSimbolos* aux = raiz;
     if (!aux) { printf("-\n\n"); return; }
+
     while (aux) {
-        printf("%s: %s, linea %d\n", aux->info.nombre, aux->info.tipo, aux->info.linea);
+        if(strcmp(aux->tipoSimbolo, "variable") == 0){
+        printf("%s: %s, linea %d, columna %d\n", aux->nombre, aux->tipoDato, aux->linea,aux->columna);
         aux = aux->sgte;
+        }
     }
     printf("\n");
 }
@@ -896,30 +899,49 @@ tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre) {
     return NULL;
 }
 
-tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna) {
+tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico **raizErrores) {
+    tablaDeSimbolos *aux = raiz;
+
+    while (aux) {
+
+        if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "variable") == 0) {
+    
+            if (strcmp(aux->tipoDato, tipoDato) != 0) {
+                agregarError(raizErrores, ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+            } else {
+                agregarError(raizErrores, ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+            }
+            return raiz;
+        }
+
+        if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "funcion") == 0) {
+            agregarError(raizErrores, ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+            return raiz;
+        }
+        aux = aux->sgte;
+    }
+
     tablaDeSimbolos *nuevo = malloc(sizeof(tablaDeSimbolos));
-    nuevo->nombre = nombre;
-    nuevo->tipoDato = tipoDato;
-    nuevo->tipoSimbolo = tipoSimbolo;
+    nuevo->nombre = strdup(nombre);
+    nuevo->tipoDato = strdup(tipoDato);
+    nuevo->tipoSimbolo = strdup(tipoSimbolo);
     nuevo->linea = linea;
     nuevo->columna = columna;
     nuevo->definida = 0;
     nuevo->sgte = NULL;
 
-    if (raiz == NULL) 
-    {
+    if (raiz == NULL)
         return nuevo;
-    }
 
-    tablaDeSimbolos *aux = raiz;
-    while (aux->sgte){
+    aux = raiz;
+    while (aux->sgte)
         aux = aux->sgte;
-    }
+
     aux->sgte = nuevo;
     return raiz;
 }
 
-void agregarError(errorSemantico* raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual) {
+void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual) {
     errorSemantico *nuevo = malloc(sizeof(errorSemantico));
     if (nuevo == NULL) 
       return;
@@ -985,3 +1007,4 @@ void imprimirErrores(errorSemantico* raizErrores) {
         aux = aux->sgte;
     }
 }
+
