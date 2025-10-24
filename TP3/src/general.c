@@ -2,8 +2,8 @@
 /* Recordar solamente indicar archivos *.h en las directivas de preprocesador #include, nunca archivos *.c */
 
 #include <stdio.h>
-
 #include "general.h"
+#include "structsTP4.h"
 
 #include "structsTP3.h"
 

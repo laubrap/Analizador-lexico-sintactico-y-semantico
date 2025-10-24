@@ -21,6 +21,26 @@ typedef enum {
     unario
 } CategoriaReservada;
 
+typedef enum {
+    ERROR_SIN_DECLARAR = 1,
+    ERROR_REDECLARACION_TIPO_DIF_SIMBOLO,
+    ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO,
+    ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO,
+    ERROR_REDEFINICION_FUNCION_IGUAL_TIPO,
+    OPERANDOS_INVALIDOS,
+    FUNCION_SIN_DECLARAR,
+    FUNCION_NO_SE_QUE_PONER,
+    INSUFICIENTES_PARAMETROS,
+    DEMASIADOS_PARAMETROS,
+    INCOMPATIBILIDAD_TIPOS,
+    RETORNO_VOID,
+    INCOMPATIBILIDAD_TIPOS_AL_INICIAR,
+    ASIGNAR_EN_UNA_CONSTANTE,
+    NO_EXISTE_L_VALOR_MODIFICABLE,
+    NO_RETURN_EN_FUNCION_NO_VOID,
+    TIPO_DE_DATO_INCOMPATIBLE_RETURN
+} CodigoError;
+
 typedef struct {
     char *nombreIdentificador;
     char *tipoIdentificador;
@@ -74,14 +94,14 @@ typedef struct {
     char* nombre;
     char* tipo;
     char* simbolo;
-    int linea; 
+    int linea;
     int columna;
 } infoVarDeclarada;
 
 typedef struct {
     char* nombre;
     char* retorna;
-    infoVarDeclarada* parametros;
+    char* parametros;
     int es_definicion;
     int linea;
     int columna;
@@ -98,133 +118,95 @@ typedef struct {
     int linea;
 } infoEstructuraNoReconocida;
 
-
-typedef struct nodoDecimal nodoDecimal;
-typedef struct nodoHexadecimal nodoHexadecimal;
-typedef struct nodoOctal nodoOctal;
-typedef struct nodoReal nodoReal;
-typedef struct nodoCaracter nodoCaracter;
-typedef struct nodoIdentificadores nodoIdentificadores;
-typedef struct nodoLiteralCadena nodoLiteralCadena;
-typedef struct nodoReservada nodoReservada;
-typedef struct nodoPuntuaciones nodoPuntuaciones;
-typedef struct nodoCadenasNoReconocidas nodoCadenasNoReconocidas;
-typedef struct nodoVarDeclarada nodoVarDeclarada;
-typedef struct nodoFuncion nodoFuncion;
-typedef struct nodoSentencia nodoSentencia;
-typedef struct nodoEstructuraNoReconocida nodoEstructuraNoReconocida;
-
-typedef struct {
+typedef struct nodoDecimal {
     int valor;
-    nodoDecimal *sgte;
-}nodoDecimal;
+    struct nodoDecimal* sgte;
+} nodoDecimal;
 
 typedef struct nodoHexadecimal {
     infoNodoHexadecimal info;
-    nodoHexadecimal *sgte;
-};
+    struct nodoHexadecimal* sgte;
+} nodoHexadecimal;
 
 typedef struct nodoOctal {
     infoNodoOctal info;
-    nodoOctal *sgte;
-};
+    struct nodoOctal* sgte;
+} nodoOctal;
 
 typedef struct nodoReal {
     infoNodoReal info;
-    nodoReal *sgte;
-};
+    struct nodoReal* sgte;
+} nodoReal;
 
 typedef struct nodoCaracter {
     infoNodoCaracter info;
-    nodoCaracter *sgte;
-};
+    struct nodoCaracter* sgte;
+} nodoCaracter;
 
 typedef struct nodoIdentificadores {
     infoNodoIdentificadores info;
-    nodoIdentificadores *sgte;
-};
+    struct nodoIdentificadores* sgte;
+} nodoIdentificadores;
 
 typedef struct nodoLiteralCadena {
     infoNodoLiteralCadena info;
-    nodoLiteralCadena *sgte;
-};
+    struct nodoLiteralCadena* sgte;
+} nodoLiteralCadena;
 
 typedef struct nodoReservada {
     infoNodoPalabrasReservada info;
-    nodoReservada* sgte;
-};
+    struct nodoReservada* sgte;
+} nodoReservada;
 
 typedef struct nodoPuntuaciones {
     infoNodoPuntuaciones info;
-    nodoPuntuaciones * sgte;
-};
+    struct nodoPuntuaciones* sgte;
+} nodoPuntuaciones;
 
 typedef struct nodoCadenasNoReconocidas {
     infoNodoCadenasNoReconocidas info;
-    nodoCadenasNoReconocidas * sgte;
-};
+    struct nodoCadenasNoReconocidas* sgte;
+} nodoCadenasNoReconocidas;
 
 typedef struct nodoVarDeclarada {
     infoVarDeclarada info;
-    nodoVarDeclarada* sgte;
-};
+    struct nodoVarDeclarada* sgte;
+} nodoVarDeclarada;
 
 typedef struct nodoFuncion {
     infoFuncion info;
-    nodoFuncion* sgte;
-};
+    struct nodoFuncion* sgte;
+} nodoFuncion;
 
 typedef struct nodoSentencia {
     infoSentencia info;
-    nodoSentencia* sgte;
-};
+    struct nodoSentencia* sgte;
+} nodoSentencia;
 
 typedef struct nodoEstructuraNoReconocida {
     infoEstructuraNoReconocida info;
-    nodoEstructuraNoReconocida* sgte;
-};
+    struct nodoEstructuraNoReconocida* sgte;
+} nodoEstructuraNoReconocida;
 
-typedef struct{
-    nodoVarDeclarada *nodoVariable;
-    infoFuncion *nodoFuncion;
-}tablaDeSimbolos;
+typedef struct errorSemantico {
+    CodigoError codigo;
+    char *identificador;
+    char *tipoPrevio;
+    int lineaPrevio;
+    int columnaPrevio;
+    int lineaActual;
+    int columnaActual;
+    struct errorSemantico* sgte;
+} errorSemantico;
 
-typedef struct {
-    CodigoError idError;             
-    char* identificador;   
-    int linea1;       
-    int columna1;
-    int tipoDeDatoAnterior;
-    int linea2;  
-    int columna2;      
-    char* tipoDato;     
-} errorSemanticoIdentificadores;
-
-typedef enum {
-    ERROR_SIN_DECLARAR = 1,              
-    ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, 
-    ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO,  
-    ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO,
-    ERROR_REDEFINICION_FUNCION_IGUAL_TIPO,
-    OPERANDOS_INVALIDOS,
-    FUNCION_SIN_DECLARAR,
-    FUNCION_NO_SE_QUE_PONER,
-    INSUFICIENTES_PARAMETROS,
-    DEMASIADOS_PARAMETROS,
-    INCOMPATIBILIDAD_TIPOS,
-    RETORNO_VOID,
-    INCOMPATIBILIDAD_TIPOS_AL_INICIAR,
-    ASIGNAR_EN_UNA_CONSTANTE,
-    NO_EXISTE_L_VALOR_MODIFICABLE,
-    NO_RETURN_EN_FUNCION_NO_VOID,
-    TIPO_DE_DATO_INCOMPATIBLE_RETURN
-} CodigoError;
-
-typedef struct{
-    errorSemanticoIdentificadores info;
-    nodoError* sgte;
-} nodoError;
-
-
+typedef struct tablaDeSimbolos {
+    char *nombre;
+    char *tipoDato;
+    char *tipoSimbolo;
+    int linea;
+    int columna;
+    int definida;
+    struct tablaDeSimbolos* sgte;
+} tablaDeSimbolos;
 
 #endif /* TIPOS_H */

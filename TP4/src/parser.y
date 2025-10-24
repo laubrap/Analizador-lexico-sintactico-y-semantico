@@ -164,7 +164,12 @@ listaArgumentos
         ;
         
 expPrimaria
-        : IDENTIFICADOR
+    : IDENTIFICADOR {
+        if (!buscarSimbolo(raizVariables, $1) && !buscarSimbolo(raizFunciones, $1)) {
+            agregarError(ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
+        }
+        
+    }
         | DECIMAL            
         | OCTAL              
         | HEXA               
@@ -288,10 +293,14 @@ listaVarSimples
 	| listaVarSimples ',' unaVarSimple
         ;
 
-unaVarSimple	
-        : IDENTIFICADOR           { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar,"variable", @1.first_line, @1.first_column); }
-        | IDENTIFICADOR '=' exp   { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column); }
-        ;
+unaVarSimple
+    : IDENTIFICADOR {
+        raizVariables = insertarSimbolo(raizVariables, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
+      }
+    | IDENTIFICADOR '=' exp {
+        raizVariables = insertarSimbolo(raizVariables, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
+      }
+    ;
 
 inicializacion		
         : '=' '('exp')'
@@ -347,6 +356,8 @@ int main(int argc, char *argv[]) {
         imprimirSentencias(raizSentencias);
         imprimirEstructurasNoReconocidas(raizEstructurasNoReconocidas);
         imprimirCadenaNoReconocida(raizNoReconocida);
+
+        imprimirErrores();
 
         if (file) 
                 fclose(file);
