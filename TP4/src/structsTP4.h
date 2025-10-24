@@ -82,6 +82,7 @@ typedef struct {
     infoVarDeclarada* parametros;
     int es_definicion;
     int linea;
+    int columna;
 } infoFuncion;
 
 typedef struct {
@@ -111,82 +112,93 @@ typedef struct nodoFuncion nodoFuncion;
 typedef struct nodoSentencia nodoSentencia;
 typedef struct nodoEstructuraNoReconocida nodoEstructuraNoReconocida;
 
-struct nodoDecimal {
+typedef struct {
     int valor;
     nodoDecimal *sgte;
-};
+}nodoDecimal;
 
-struct nodoHexadecimal {
+typedef struct nodoHexadecimal {
     infoNodoHexadecimal info;
     nodoHexadecimal *sgte;
 };
 
-struct nodoOctal {
+typedef struct nodoOctal {
     infoNodoOctal info;
     nodoOctal *sgte;
 };
 
-struct nodoReal {
+typedef struct nodoReal {
     infoNodoReal info;
     nodoReal *sgte;
 };
 
-struct nodoCaracter {
+typedef struct nodoCaracter {
     infoNodoCaracter info;
     nodoCaracter *sgte;
 };
 
-struct nodoIdentificadores {
+typedef struct nodoIdentificadores {
     infoNodoIdentificadores info;
     nodoIdentificadores *sgte;
 };
 
-struct nodoLiteralCadena {
+typedef struct nodoLiteralCadena {
     infoNodoLiteralCadena info;
     nodoLiteralCadena *sgte;
 };
 
-struct nodoReservada {
+typedef struct nodoReservada {
     infoNodoPalabrasReservada info;
     nodoReservada* sgte;
 };
 
-struct nodoPuntuaciones {
+typedef struct nodoPuntuaciones {
     infoNodoPuntuaciones info;
     nodoPuntuaciones * sgte;
 };
 
-struct nodoCadenasNoReconocidas {
+typedef struct nodoCadenasNoReconocidas {
     infoNodoCadenasNoReconocidas info;
     nodoCadenasNoReconocidas * sgte;
 };
 
-struct nodoVarDeclarada {
+typedef struct nodoVarDeclarada {
     infoVarDeclarada info;
     nodoVarDeclarada* sgte;
 };
 
-struct nodoFuncion {
+typedef struct nodoFuncion {
     infoFuncion info;
     nodoFuncion* sgte;
 };
 
-struct nodoSentencia {
+typedef struct nodoSentencia {
     infoSentencia info;
     nodoSentencia* sgte;
 };
 
-struct nodoEstructuraNoReconocida {
+typedef struct nodoEstructuraNoReconocida {
     infoEstructuraNoReconocida info;
     nodoEstructuraNoReconocida* sgte;
 };
-
-
 
 typedef struct{
     nodoVarDeclarada *nodoVariable;
     infoFuncion *nodoFuncion;
 }tablaDeSimbolos;
+
+typedef struct {
+    char* mensaje;
+    char* nota; 
+    int linea;
+    int columna;
+} infoErrorSemantico;
+
+typedef struct{
+    infoErrorSemantico info;
+    nodoErrorSemantico* sgte;
+} nodoErrorSemantico;
+
 
 
 
