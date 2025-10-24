@@ -219,6 +219,7 @@ typedef enum {
     NO_RETURN_EN_FUNCION_NO_VOID,
     TIPO_DE_DATO_INCOMPATIBLE_RETURN
 } CodigoError;
+
 typedef struct{
     errorSemanticoIdentificadores info;
     nodoError* sgte;

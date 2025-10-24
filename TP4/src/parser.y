@@ -294,8 +294,8 @@ listaVarSimples
         ;
 
 unaVarSimple	
-        : IDENTIFICADOR           { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar, @1.first_line); }
-        | IDENTIFICADOR '=' exp   { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar, @1.first_line); }
+        : IDENTIFICADOR           { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar,"variable", @1.first_line, @1.first_column); }
+        | IDENTIFICADOR '=' exp   { raizVariables = agregarVariable(raizVariables, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column); }
         ;
 
 inicializacion		
