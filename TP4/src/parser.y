@@ -165,19 +165,13 @@ listaArgumentos
         
 expPrimaria
         : IDENTIFICADOR
-          {
-                const char* tipo = obtenerTipoIdentificador($1);
-                $$ = (char*)tipo;
-                agregarIdentificadorATS($1, tipo, @1.first_line, @1.first_column);
-                
-          }
-        | DECIMAL            { $$ = (char*)"int"; }
-        | OCTAL              { $$ = (char*)"int"; }
-        | HEXA               { $$ = (char*)"int"; }
-        | REAL               { $$ = (char*)"double"; }
-        | LITERAL_CADENA     { $$ = (char*)"char *"; }
-        | CARACTER           { $$ = (char*)"char"; }
-        | '(' exp ')'        { $$ = $2; }
+        | DECIMAL            
+        | OCTAL              
+        | HEXA               
+        | REAL               
+        | LITERAL_CADENA     
+        | CARACTER           
+        | '(' exp ')'        
         ;
 
 // BNF de sentencias
