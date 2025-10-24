@@ -32,7 +32,6 @@ extern errorSemantico *raizErrores;
 extern int linea_actual;
 extern int columna_actual;
 
-
 extern char buffer_acumulador[512];
 
 typedef struct YYLTYPE

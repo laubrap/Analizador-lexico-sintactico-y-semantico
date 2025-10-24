@@ -61,7 +61,7 @@ void imprimirSentencias(nodoSentencia* raiz);
 void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz);
 
 tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre);
-tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna);
+tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico **raizErrores);
 
-void agregarError(errorSemantico *raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual);
-void imprimirErrores(errorSemantico* raizErrores);
+void agregarError(errorSemantico *raiz, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual);
+void imprimirErrores(errorSemantico* raiz);

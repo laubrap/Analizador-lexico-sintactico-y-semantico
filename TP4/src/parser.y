@@ -165,10 +165,10 @@ listaArgumentos
         
 expPrimaria
     : IDENTIFICADOR {
-        if (!buscarSimbolo(raizTS, $1) && !buscarSimbolo(raizTS, $1)) {
-            agregarError(raizErrores,ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
+        tablaDeSimbolos *simbolo = buscarSimbolo(raizTS, $1);
+        if (!simbolo) {
+            agregarError(&raizErrores, ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
         }
-        
     }
         | DECIMAL            
         | OCTAL              
@@ -232,7 +232,6 @@ sentSwitch
     : SWITCH '(' exp ')' sentencia{ raizSentencias = agregarSentencia(raizSentencias, "switch", @1.first_line, @1.first_column); }
     ;
 
-        /* Expresión opcional para manejar los casos vacíos dentro del for */
 optExp
         : exp
         | /* vacío */
@@ -295,10 +294,10 @@ listaVarSimples
 
 unaVarSimple
     : IDENTIFICADOR {
-        raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
+        raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column, raizErrores);
       }
     | IDENTIFICADOR '=' exp {
-        raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column);
+        raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column, raizErrores);
       }
     ;
 
