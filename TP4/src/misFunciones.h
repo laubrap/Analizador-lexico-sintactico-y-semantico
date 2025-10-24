@@ -55,13 +55,13 @@ nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* r
 nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea, int columna);
 nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoReconocida* raiz, const char* texto, int linea);
 
-void imprimirVariablesDeclaradas(nodoVarDeclarada* raiz);
+void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz);
 void imprimirFunciones(nodoFuncion* raiz);
 void imprimirSentencias(nodoSentencia* raiz);
 void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz);
 
 tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre);
-tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico **raizErrores);
+tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico *raizErrores);
 
-void agregarError(errorSemantico *raiz, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual);
+void agregarError(errorSemantico **raiz, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual);
 void imprimirErrores(errorSemantico* raiz);

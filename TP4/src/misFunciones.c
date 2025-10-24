@@ -700,22 +700,22 @@ nodoVarDeclarada* agregarVariable(errorSemantico* listaDeErrores, nodoVarDeclara
         if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
             
             if ((strcmp(aux->info.simbolo, "funcion") == 0 && strcmp(tipo, "variable") == 0) ||(strcmp(aux->info.simbolo, "variable") == 0 && strcmp(tipo, "funcion") == 0)) {
-                agregarError(listaDeErrores,ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
 
             if (strcmp(aux->info.tipo, tipo) != 0 && ((strcmp(aux->info.tipo, "variable") == 0 && strcmp(tipo, "variable") == 0) || (strcmp(aux->info.tipo, "funcion") == 0 && strcmp(tipo, "funcion") == 0))) {
-                agregarError(listaDeErrores,ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
 
             if (strcmp(aux->info.tipo, tipo) == 0 && strcmp(tipo, "variable") == 0) {
-                agregarError(listaDeErrores,ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
 
             if (strcmp(aux->info.tipo, tipo) == 0 && strcmp(tipo, "funcion") == 0) {
-                agregarError(listaDeErrores,ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
         }
@@ -843,10 +843,10 @@ void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz) {
     if (!aux) { printf("-\n\n"); return; }
 
     while (aux) {
-        if(strcmp(aux->tipoSimbolo, "variable") == 0){
+        if(aux->tipoSimbolo && strcmp(aux->tipoSimbolo, "variable") == 0){
         printf("%s: %s, linea %d, columna %d\n", aux->nombre, aux->tipoDato, aux->linea,aux->columna);
-        aux = aux->sgte;
         }
+        aux = aux->sgte;
     }
     printf("\n");
 }
@@ -899,7 +899,7 @@ tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre) {
     return NULL;
 }
 
-tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico **raizErrores) {
+tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico *raizErrores) {
     tablaDeSimbolos *aux = raiz;
 
     while (aux) {
@@ -942,6 +942,9 @@ tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipo
 }
 
 void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual) {
+     if (raizErrores == NULL) {
+        return;
+    }
     errorSemantico *nuevo = malloc(sizeof(errorSemantico));
     if (nuevo == NULL) 
       return;
@@ -955,11 +958,11 @@ void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identif
     nuevo->columnaActual = columnaActual;
     nuevo->sgte = NULL;
 
-    if (raizErrores == NULL) {
-        raizErrores = nuevo;
+    if (*raizErrores == NULL) {
+        *raizErrores = nuevo;
         return;
     }
-    errorSemantico *aux = raizErrores;
+    errorSemantico *aux = *raizErrores;
     while (aux->sgte){
         aux = aux->sgte;
     }

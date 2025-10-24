@@ -172,7 +172,7 @@ expPrimaria
     : IDENTIFICADOR {
         tablaDeSimbolos *simbolo = buscarSimbolo(raizTS, $1);
         if (!simbolo) {
-            agregarError(&raizErrores, ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
+            agregarError(raizErrores, ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
         }
     }
         | DECIMAL            

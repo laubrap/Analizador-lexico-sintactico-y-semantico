@@ -247,8 +247,9 @@ noReconocida ([^ \t\n])
 	/* 1. Se utiliza para rutinas de complemento que llaman al analizador léxico o son llamadas por este; la presencia de esta sección es opcional */
     /* 2. Toda esta sección simplemente se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
 
-/**/
-int main(int argc, char *argv[]) {
+/*lo dejo aca por las dudas cualquier cosa lo vemos despues*/
+
+/* int main(int argc, char *argv[]) {
 
     yyin = fopen(argv[1],"r");
     yylex();
@@ -258,6 +259,6 @@ int main(int argc, char *argv[]) {
     fclose(yyin);
 
     return 0;
-}
+} */
 
 /* Fin de la sección de código de usuario */
