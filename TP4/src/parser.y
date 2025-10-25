@@ -350,7 +350,7 @@ int main(int argc, char *argv[]) {
 
         yyparse();
 
-        imprimirVariablesDeclaradas(raizVariables);
+        imprimirVariablesDeclaradas(raizTS);
         imprimirFunciones(raizFunciones);
         imprimirSentencias(raizSentencias);
         imprimirEstructurasNoReconocidas(raizEstructurasNoReconocidas);
