@@ -54,7 +54,7 @@ char buffer_auxiliar[256];
 %token <caracter> CARACTER 
 %token <string> LITERAL_CADENA
 
-%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED
+%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED CONST CONST_FLOAT CONST_INT CONST_CHAR CONST_DOUBLE CONST_SHORT CONST_LONG CONST_UNSIGNED_INT CONST_SIGNED_INT 
 %token CASE DEFAULT
 %token IF ELSE SWITCH
 %token DO WHILE FOR
@@ -67,7 +67,7 @@ char buffer_auxiliar[256];
 
         /* */
 %type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expIgualdad expRelacional expAditiva expMultiplicativa expUnaria expPostfijo expPrimaria listaArgumentos
-%type <string> tipoDato parametro listaParametros parametros listaVarSimples unaVarSimple
+%type <string> tipoDato tipoBasico parametro listaParametros parametros listaVarSimples unaVarSimple
 
 
 	/* Para especificar el no-terminal de inicio de la gramática (el axioma). Si esto se omitiera, se asumiría que es el no-terminal de la primera regla */
@@ -269,6 +269,18 @@ sentEtiquetada
 
 
 tipoDato
+        : tipoBasico
+        | CONST tipoBasico { 
+            char *tipo = $2;
+            char *resultado = malloc(strlen("const ") + strlen(tipo) + 1);
+            strcpy(resultado, "const ");
+            strcat(resultado, tipo);
+            free(tipo);
+            $$ = resultado;
+          }
+        ;
+
+tipoBasico
         : UNSIGNED INT { $$ = strdup("unsigned int"); }
         | SIGNED INT   { $$ = strdup("signed int"); }
         | VOID      { $$ = strdup("void"); }
@@ -280,7 +292,6 @@ tipoDato
         | LONG      { $$ = strdup("long"); }
         | SIGNED    { $$ = strdup("signed"); }
         | UNSIGNED  { $$ = strdup("unsigned"); }
-
         ;
 
 declaracion
@@ -304,6 +315,10 @@ unaVarSimple
     | IDENTIFICADOR '=' exp {
         raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column, raizErrores);
       }
+    | IDENTIFICADOR '=' error {
+        raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column, raizErrores);
+        yyerrok;
+      }
     ;
 
 inicializacion		
@@ -312,12 +327,27 @@ inicializacion
 
 /* Lista de parámetros de funciones (simple): (tipo nombre) separados por coma, o void */
 parametro
-        : tipoDato IDENTIFICADOR
+        : tipoBasico IDENTIFICADOR {
+            char *resultado = malloc(strlen($1) + strlen(" ") + strlen($2) + 1);
+            strcpy(resultado, $1);
+            strcat(resultado, " ");
+            strcat(resultado, $2);
+            free($1);
+            $$ = resultado;
+        }
         ;
 
 listaParametros
         : parametro { $$ = $1; }
-        | listaParametros ',' parametro
+        | listaParametros ',' parametro {
+            char *resultado = malloc(strlen($1) + strlen(", ") + strlen($3) + 1);
+            strcpy(resultado, $1);
+            strcat(resultado, ", ");
+            strcat(resultado, $3);
+            free($1);
+            free($3);
+            $$ = resultado;
+        }
         ;
 
 parametros
@@ -326,10 +356,10 @@ parametros
         ;
 
 prototipoDeFuncion
-        : tipoDato IDENTIFICADOR '(' parametros ')' ';' { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 0, @2.first_line); if ($1) free($1); if ($4) free($4); }
+        : tipoBasico IDENTIFICADOR '(' parametros ')' ';' { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 0, @1.first_line); if ($1) free($1); if ($4) free($4); }
         ;
 definicionDeFuncion
-        : tipoDato IDENTIFICADOR '(' parametros ')' sentCompuesta { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 1, @2.first_line); if ($1) free($1); if ($4) free($4); }
+        : tipoBasico IDENTIFICADOR '(' parametros ')' sentCompuesta { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 1, @1.first_line); if ($1) free($1); if ($4) free($4); }
         ;
 
 %%

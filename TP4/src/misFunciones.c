@@ -744,9 +744,11 @@ nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* r
     nodoFuncion* anterior = NULL;
 
     while (aux != NULL) {
-        if (aux->info.linea == linea &&
-            aux->info.es_definicion == es_definicion &&
-            aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
+          if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0 &&
+            aux->info.retorna && strcmp(aux->info.retorna, retorna) == 0 &&
+            aux->info.parametros && strcmp(aux->info.parametros, parametros) == 0 &&
+            aux->info.es_definicion == es_definicion) {
+            // Si ya existe una función idéntica, no agregar duplicados
             return raiz;
         }
         anterior = aux;
