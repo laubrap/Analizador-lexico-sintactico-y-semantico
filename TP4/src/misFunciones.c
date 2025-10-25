@@ -840,7 +840,7 @@ nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoRecono
 void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz) {
     printf("* Listado de variables declaradas (tipo de dato y numero de linea):\n");
     tablaDeSimbolos* aux = raiz;
-    if (!aux) { printf("-\n\n"); return; }
+    if (raiz == NULL) { printf("-\n\n"); return; }
 
     while (aux) {
         if(aux->tipoSimbolo && strcmp(aux->tipoSimbolo, "variable") == 0){
