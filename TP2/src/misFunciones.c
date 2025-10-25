@@ -677,7 +677,7 @@ nodoCadenasNoReconocidas* agregarCadenaNoReconocida(nodoCadenasNoReconocidas* ra
 void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
     nodoCadenasNoReconocidas *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de cadenas no reconocidas: \n");
+    printf("* Listado de errores lexicos: \n");
     
     while (aux != NULL) { 
         printf("%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
