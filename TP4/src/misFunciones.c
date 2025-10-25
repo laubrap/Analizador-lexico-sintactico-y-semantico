@@ -738,39 +738,57 @@ nodoVarDeclarada* agregarVariable(errorSemantico* listaDeErrores, nodoVarDeclara
 }
 
 
-nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* retorna, const char* parametros, int es_definicion, int linea) {
-    
-    nodoFuncion* aux = raiz;
-    nodoFuncion* anterior = NULL;
+nodoFuncion* agregarFuncion(nodoFuncion* raiz, char* nombre, char* tipoRetorno, char* parametros, int esDefinicion,int linea) {
+    nodoFuncion* nueva = malloc(sizeof(nodoFuncion));
+    nueva->info.nombre = strdup(nombre);
+    nueva->info.retorna = strdup(tipoRetorno ? tipoRetorno : "void");
+    nueva->info.parametros = strdup(parametros ? parametros : "void");
+    nueva->info.es_definicion = esDefinicion;
+    nueva->info.linea = linea;
+    nueva->sgte = NULL;
 
+    if (raiz == NULL)
+        return nueva;
+
+    nodoFuncion* aux = raiz;
     while (aux != NULL) {
-          if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0 &&
-            aux->info.retorna && strcmp(aux->info.retorna, retorna) == 0 &&
-            aux->info.parametros && strcmp(aux->info.parametros, parametros) == 0 &&
-            aux->info.es_definicion == es_definicion) {
-            // Si ya existe una función idéntica, no agregar duplicados
-            return raiz;
+        // 1️⃣ Mismo nombre
+        if (strcmp(aux->info.nombre, nombre) == 0) {
+
+            // 2️⃣ Distinto tipo de retorno → NO se agrega, conservar primera aparición
+            if (strcmp(aux->info.retorna, tipoRetorno) != 0) {
+                free(nueva->info.nombre);
+                free(nueva->info.retorna);
+                free(nueva->info.parametros);
+                free(nueva);
+                return raiz;
+            }
+
+            // 3️⃣ Misma firma (nombre, tipo retorno y mismos tipos de parámetros) → NO agregar duplicado
+            if (strcmp(aux->info.parametros, parametros) == 0) {
+                free(nueva->info.nombre);
+                free(nueva->info.retorna);
+                free(nueva->info.parametros);
+                free(nueva);
+                return raiz;
+            }
+
+            // 4️⃣ Misma firma excepto nombres de parámetros (tipos iguales pero nombres distintos)
+            // En este caso, los "parametros" deben coincidir en tipos aunque no texto exacto
+            // Pero como vos guardás solo los tipos (no los nombres), este caso pasa por (3️⃣)
+            // Si querés que se agregue aunque el string de parámetros sea idéntico, quitá (3️⃣)
         }
-        anterior = aux;
         aux = aux->sgte;
     }
 
-    nodoFuncion* nuevo = malloc(sizeof(nodoFuncion));
+    // 5️⃣ Si no se encontró coincidencia prohibida, la agregamos al final
+    aux = raiz;
+    while (aux->sgte != NULL)
+        aux = aux->sgte;
+    aux->sgte = nueva;
 
-    nuevo->info.nombre = strdup(nombre);
-    nuevo->info.retorna = strdup(retorna);
-    nuevo->info.parametros = strdup(parametros);
-    nuevo->info.es_definicion = es_definicion;
-    nuevo->info.linea = linea;
-    nuevo->sgte = NULL;
-
-    if (raiz == NULL)
-        return nuevo;
-
-    anterior->sgte = nuevo;
     return raiz;
 }
-
 nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea, int columna) {
     
     nodoSentencia* nuevo = malloc(sizeof(nodoSentencia));
