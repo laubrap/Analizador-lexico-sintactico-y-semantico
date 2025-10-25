@@ -278,6 +278,8 @@ tipoDato
 tipoBasico
         : UNSIGNED INT { $$ = strdup("unsigned int"); }
         | SIGNED INT   { $$ = strdup("signed int"); }
+        | UNSIGNED LONG { $$ = strdup("unsigned long"); }
+        | LONG UNSIGNED { $$ = strdup("unsigned long"); }
         | VOID      { $$ = strdup("void"); }
         | CHAR      { $$ = strdup("char"); }
         | INT       { $$ = strdup("int"); }
@@ -287,7 +289,6 @@ tipoBasico
         | LONG      { $$ = strdup("long"); }
         | SIGNED    { $$ = strdup("signed"); }
         | UNSIGNED  { $$ = strdup("unsigned"); }
-        | UNSIGNED LONG { $$ = strdup("unsigned long"); } //
         ;
 
 declaracion
@@ -331,6 +332,7 @@ parametro
             free($1);
             $$ = resultado;
         }
+        | tipoBasico { $$ = $1; }
         ;
 
 listaParametros
@@ -383,7 +385,6 @@ int main(int argc, char *argv[]) {
 
         imprimirVariablesDeclaradas(raizTS);
         imprimirFunciones(raizFunciones);
-        imprimirSentencias(raizSentencias);
         imprimirEstructurasNoReconocidas(raizEstructurasNoReconocidas);
         imprimirCadenaNoReconocida(raizNoReconocida);
 
