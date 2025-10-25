@@ -292,6 +292,7 @@ tipoBasico
         | LONG      { $$ = strdup("long"); }
         | SIGNED    { $$ = strdup("signed"); }
         | UNSIGNED  { $$ = strdup("unsigned"); }
+        | UNSIGNED LONG { $$ = strdup("unsigned long"); } //
         ;
 
 declaracion
