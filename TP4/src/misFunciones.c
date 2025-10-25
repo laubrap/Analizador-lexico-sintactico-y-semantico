@@ -676,16 +676,12 @@ nodoCadenasNoReconocidas* agregarCadenaNoReconocida(nodoCadenasNoReconocidas* ra
 void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
     nodoCadenasNoReconocidas *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de cadenas no reconocidas: \n");
+    printf("* Listado de errores lexicos: \n");
     
     while (aux != NULL) { 
         printf("%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
         encontradas = 1;
         aux = aux->sgte;
-    }
-
-    if (encontradas == 0) {
-        printf("-\n");
     }
 }
 
@@ -752,10 +748,8 @@ nodoFuncion* agregarFuncion(nodoFuncion* raiz, char* nombre, char* tipoRetorno, 
 
     nodoFuncion* aux = raiz;
     while (aux != NULL) {
-        // 1️⃣ Mismo nombre
         if (strcmp(aux->info.nombre, nombre) == 0) {
 
-            // 2️⃣ Distinto tipo de retorno → NO se agrega, conservar primera aparición
             if (strcmp(aux->info.retorna, tipoRetorno) != 0) {
                 free(nueva->info.nombre);
                 free(nueva->info.retorna);
@@ -764,7 +758,6 @@ nodoFuncion* agregarFuncion(nodoFuncion* raiz, char* nombre, char* tipoRetorno, 
                 return raiz;
             }
 
-            // 3️⃣ Misma firma (nombre, tipo retorno y mismos tipos de parámetros) → NO agregar duplicado
             if (strcmp(aux->info.parametros, parametros) == 0) {
                 free(nueva->info.nombre);
                 free(nueva->info.retorna);
@@ -772,16 +765,10 @@ nodoFuncion* agregarFuncion(nodoFuncion* raiz, char* nombre, char* tipoRetorno, 
                 free(nueva);
                 return raiz;
             }
-
-            // 4️⃣ Misma firma excepto nombres de parámetros (tipos iguales pero nombres distintos)
-            // En este caso, los "parametros" deben coincidir en tipos aunque no texto exacto
-            // Pero como vos guardás solo los tipos (no los nombres), este caso pasa por (3️⃣)
-            // Si querés que se agregue aunque el string de parámetros sea idéntico, quitá (3️⃣)
         }
         aux = aux->sgte;
     }
-
-    // 5️⃣ Si no se encontró coincidencia prohibida, la agregamos al final
+    
     aux = raiz;
     while (aux->sgte != NULL)
         aux = aux->sgte;
@@ -899,7 +886,7 @@ void imprimirSentencias(nodoSentencia* raiz) {
 }
 
 void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz) {
-    printf("* Listado de estructuras sintacticas no reconocidas:\n");
+    printf("* Listado de errores sintacticos:\n");
     nodoEstructuraNoReconocida* aux = raiz;
     if (!aux) { printf("-\n\n"); return; }
     while (aux) {
@@ -927,15 +914,15 @@ tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipo
         if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "variable") == 0) {
     
             if (strcmp(aux->tipoDato, tipoDato) != 0) {
-                agregarError(raizErrores, ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+                agregarError(&raizErrores, ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
             } else {
-                agregarError(raizErrores, ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+                agregarError(&raizErrores, ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
             }
             return raiz;
         }
 
         if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "funcion") == 0) {
-            agregarError(raizErrores, ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+            agregarError(&raizErrores, ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
             return raiz;
         }
         aux = aux->sgte;
@@ -990,6 +977,8 @@ void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identif
 }
 
 void imprimirErrores(errorSemantico* raizErrores) {
+
+    printf("\n* Listado de errores semanticos:\n");
     if (raizErrores == NULL) {
         printf("-\n"); 
         return;
@@ -997,7 +986,6 @@ void imprimirErrores(errorSemantico* raizErrores) {
 
     errorSemantico *aux = raizErrores;
     while (aux) {
-        
         printf("%d:%d: ", aux->lineaActual, aux->columnaActual);
         switch (aux->codigo) {
             case ERROR_SIN_DECLARAR:
