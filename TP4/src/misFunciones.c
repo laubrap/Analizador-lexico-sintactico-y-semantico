@@ -776,7 +776,7 @@ nodoFuncion* agregarFuncion(nodoFuncion* raiz, char* nombre, char* tipoRetorno, 
 
     return raiz;
 }
-nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea, int columna) {
+nodoSentencia* agregarSentencia(nodoSentencia* raiz, char* tipo, int linea, int columna) {
     
     nodoSentencia* nuevo = malloc(sizeof(nodoSentencia));
 
@@ -821,7 +821,7 @@ nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea
 }
 
 
-nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoReconocida* raiz, const char* texto, int linea) {
+nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoReconocida* raiz, char* texto, int linea) {
     
     nodoEstructuraNoReconocida* aux = raiz;
     nodoEstructuraNoReconocida* anterior = NULL;
@@ -977,45 +977,160 @@ void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identif
 }
 
 void imprimirErrores(errorSemantico* raizErrores) {
-
     printf("\n* Listado de errores semanticos:\n");
     if (raizErrores == NULL) {
-        printf("-\n"); 
+        printf("-\n");
         return;
     }
 
-    errorSemantico *aux = raizErrores;
+    errorSemantico* aux = raizErrores;
     while (aux) {
         printf("%d:%d: ", aux->lineaActual, aux->columnaActual);
+
         switch (aux->codigo) {
+            case OPERANDOS_INVALIDOS:
+                printf("Operandos invalidos del operador binario * (tienen '%s' y '%s')\n",
+                       aux->tipoPrevio, aux->tipoActual);
+                break;
+
             case ERROR_SIN_DECLARAR:
                 printf("'%s' sin declarar\n", aux->identificador);
                 break;
+
             case ERROR_REDECLARACION_TIPO_DIF_SIMBOLO:
                 printf("'%s' redeclarado como un tipo diferente de simbolo\n", aux->identificador);
                 printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
                        aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
                 break;
+
             case ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO:
                 printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n",
-                       aux->identificador, aux->tipoPrevio);
+                       aux->identificador, aux->tipoActual);
                 printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
                        aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
                 break;
+
             case ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO:
                 printf("Redeclaracion de '%s'\n", aux->identificador);
                 printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
                        aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
                 break;
+
             case ERROR_REDEFINICION_FUNCION_IGUAL_TIPO:
                 printf("Redefinicion de '%s'\n", aux->identificador);
                 printf("Nota: la definicion previa de '%s' es de tipo '%s': %d:%d\n",
                        aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
                 break;
+
+            case FUNCION_SIN_DECLARAR:
+                printf("Funcion '%s' sin declarar\n", aux->identificador);
+                break;
+
+            case FUNCION_NO_SE_QUE_PONER:
+                printf("El objeto invocado '%s' no es una funcion o un puntero a una funcion\n",
+                       aux->identificador);
+                printf("Nota: declarado aqui: %d:%d\n", aux->lineaPrevio, aux->columnaPrevio);
+                break;
+
+            case INSUFICIENTES_PARAMETROS:
+                printf("Insuficientes argumentos para la funcion '%s'\n", aux->identificador);
+                printf("Nota: declarado aqui: %d:%d\n", aux->lineaPrevio, aux->columnaPrevio);
+                break;
+
+            case DEMASIADOS_PARAMETROS:
+                printf("Demasiados argumentos para la funcion '%s'\n", aux->identificador);
+                printf("Nota: declarado aqui: %d:%d\n", aux->lineaPrevio, aux->columnaPrevio);
+                break;
+
+            case INCOMPATIBILIDAD_TIPOS:
+                printf("Incompatibilidad de tipos para el argumento #%d de '%s'\n",
+                       aux->numeroArgumento, aux->identificador);
+                printf("Nota: se esperaba '%s' pero el argumento es de tipo '%s': %d:%d\n",
+                       aux->tipoPrevio, aux->tipoActual, aux->lineaPrevio, aux->columnaPrevio);
+                break;
+
+            case RETORNO_VOID:
+                printf("No se ignora el valor de retorno void como deberia ser\n");
+                break;
+
+            case INCOMPATIBILIDAD_TIPOS_AL_INICIAR:
+                printf("Incompatibilidad de tipos al inicializar el tipo '%s' usando el tipo '%s'\n",
+                       aux->tipoPrevio, aux->tipoActual);
+                break;
+
+            case ASIGNAR_EN_UNA_CONSTANTE:
+                printf("Asignacion de la variable de solo lectura '%s'\n", aux->identificador);
+                break;
+
+            case NO_EXISTE_L_VALOR_MODIFICABLE:
+                printf("Se requiere un valor-L modificable como operando izquierdo de la asignacion\n");
+                break;
+
+            case NO_RETURN_EN_FUNCION_NO_VOID:
+                printf("'return' sin valor en una funcion que no retorna void\n");
+                printf("Nota: declarado aqui: %d:%d\n", aux->lineaPrevio, aux->columnaPrevio);
+                break;
+
+            case TIPO_DE_DATO_INCOMPATIBLE_RETURN:
+                printf("Incompatibilidad de tipos al retornar el tipo '%s' pero se esperaba '%s'\n",
+                       aux->tipoPrevio, aux->tipoActual);
+                break;
+
             default:
-                printf("Error desconocido code=%d\n", aux->codigo);
+                printf("Error semantico desconocido (%d)\n", aux->codigo);
+                break;
         }
         aux = aux->sgte;
     }
+}
+
+int tiposCompatibles(char *t1, char *t2) {
+    if (
+        (!strcmp(t1, "int") || !strcmp(t1, "float")) &&
+        (!strcmp(t2, "int") || !strcmp(t2, "float"))
+    ) {
+        return 1; 
+    }
+    return 0; 
+}
+
+char* tipoResultadoMultiplicacion(char *t1, char *t2) {
+    if (!strcmp(t1, "float") || !strcmp(t2, "float"))
+        return "float";
+    return "int";
+}
+
+char* buscarTipoDato(tablaDeSimbolos *raiz, char *nombre) {
+    tablaDeSimbolos *aux = raiz;
+
+    while (aux != NULL) {
+        if (strcmp(aux->nombre, nombre) == 0) {
+            
+            return strdup(aux->tipoDato);
+        }
+        aux = aux->sgte;
+    }
+
+    agregarError(&raizErrores, ERROR_SIN_DECLARAR, nombre, NULL, -1, -1, -1, -1);
+}
+
+int buscarLineaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
+    tablaDeSimbolos *aux = raiz;
+    while (aux != NULL) {
+        if (strcmp(aux->nombre, nombre) == 0)
+            return aux->linea;
+        aux = aux->sgte;
+    }
+    return -1;
+}
+
+int buscarColumnaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
+    tablaDeSimbolos *aux = raiz;
+    while (aux != NULL) {
+        if (strcmp(aux->nombre, nombre) == 0)
+            return aux->columna;
+        aux = aux->sgte;
+    }
+    return -1;
 }
 
