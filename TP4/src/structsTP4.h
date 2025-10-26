@@ -192,11 +192,13 @@ typedef struct errorSemantico {
     CodigoError codigo;
     char *identificador;
     char *tipoPrevio;
+    char *tipoActual;
     int lineaPrevio;
     int columnaPrevio;
     int lineaActual;
     int columnaActual;
-    struct errorSemantico* sgte;
+    int numeroArgumento; // Para errores de argumentos
+    struct errorSemantico *sgte;
 } errorSemantico;
 
 typedef struct tablaDeSimbolos {

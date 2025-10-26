@@ -136,7 +136,21 @@ expAditiva
 
 expMultiplicativa
         : expUnaria
-        | expMultiplicativa '*' expUnaria {$$ = $1 * $3;}
+        | expMultiplicativa '*' expUnaria {
+                char *tipo1 = buscarTipoDato(raizTS, $1);
+                char *tipo3 = buscarTipoDato(raizTS, $3);
+
+                int lineaPrevia = buscarLineaDeclaracion(raizTS,$1);
+                int columnaPrevia = buscarColumnaDeclaracion(raizTS,$1);
+
+        if (!tiposCompatibles(tipo1, tipo3)){
+            agregarError(raizErrores,OPERANDOS_INVALIDOS,"*",tipo1,lineaPrevia,columnaPrevia,@2.first_line,@2.first_column);
+            $$= "error";  
+        } else {
+            $$= tipoResultadoMultiplicacion(tipo1,tipo3);
+        }
+        $$ = $1 * $3;
+        }
         | expMultiplicativa '/' expUnaria {$$ = $1 / $3;}
         ;
 
