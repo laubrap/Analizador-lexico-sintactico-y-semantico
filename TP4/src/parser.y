@@ -1,4 +1,4 @@
-/* Calculadora de notación polaca inversa */
+ /* Calculadora de notación polaca inversa */
 
 /* Inicio de la seccion de prólogo (declaraciones y definiciones de C y directivas del preprocesador) */
 %{
@@ -66,7 +66,7 @@ char buffer_auxiliar[256];
 %token MAYOR_IGUAL MENOR_IGUAL AND OR
 
         /* */
-%type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expIgualdad expRelacional expAditiva expMultiplicativa expUnaria expPostfijo expPrimaria listaArgumentos
+%type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expPrimaria expIgualdad expRelacional expAditiva expMultiplicativa expUnaria expPostfijo listaArgumentos
 %type <string> tipoDato tipoBasico parametro listaParametros parametros listaVarSimples unaVarSimple
 
 
@@ -142,17 +142,18 @@ expAditiva
 expMultiplicativa
         : expUnaria
         | expMultiplicativa '*' expUnaria {
-                char *tipo1 = buscarTipoDato(raizTS, $1);
-                char *tipo3 = buscarTipoDato(raizTS, $3);
+                char s1[32], s3[32];
+                snprintf(s1, sizeof s1, "%lu", (unsigned long)$1);
+                snprintf(s3, sizeof s3, "%lu", (unsigned long)$3);
 
-                int lineaPrevia = buscarLineaDeclaracion(raizTS,$1);
-                int columnaPrevia = buscarColumnaDeclaracion(raizTS,$1);
+                char *tipo1 = buscarTipoDato(raizTS, s1);
+                char *tipo3 = buscarTipoDato(raizTS, s3);
+
+                int lineaPrevia = buscarLineaDeclaracion(raizTS,s1);
+                int columnaPrevia = buscarColumnaDeclaracion(raizTS,s1);
 
         if (!tiposCompatibles(tipo1, tipo3)){
-            agregarError(raizErrores,OPERANDOS_INVALIDOS,"*",tipo1,lineaPrevia,columnaPrevia,@2.first_line,@2.first_column);
-            $$= "error";  
-        } else {
-            $$= tipoResultadoMultiplicacion(tipo1,tipo3);
+            agregarError(&raizErrores,OPERANDOS_INVALIDOS,"*",tipo1,lineaPrevia,columnaPrevia,@2.first_line,@2.first_column);
         }
         $$ = $1 * $3;
         }

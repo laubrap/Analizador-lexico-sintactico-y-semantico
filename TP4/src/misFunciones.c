@@ -859,7 +859,7 @@ void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz) {
 }
 
 void imprimirFunciones(nodoFuncion* raiz) {
-    printf("* Listado de funciones declaradas o definidas:\n");
+    printf("* Listado de funciones declaradas y definidas:\n");
     nodoFuncion* aux = raiz;
     if (!aux) { printf("-\n\n"); return; }
     while (aux) {
@@ -1076,9 +1076,7 @@ void imprimirErrores(errorSemantico* raizErrores) {
                        aux->tipoPrevio, aux->tipoActual);
                 break;
 
-            default:
-                printf("Error semantico desconocido (%d)\n", aux->codigo);
-                break;
+        
         }
         aux = aux->sgte;
     }
@@ -1098,7 +1096,9 @@ char* tipoResultadoMultiplicacion(char *t1, char *t2) {
     if (!strcmp(t1, "float") || !strcmp(t2, "float"))
         return "float";
     return "int";
+
 }
+
 
 char* buscarTipoDato(tablaDeSimbolos *raiz, char *nombre) {
     tablaDeSimbolos *aux = raiz;
@@ -1110,8 +1110,7 @@ char* buscarTipoDato(tablaDeSimbolos *raiz, char *nombre) {
         }
         aux = aux->sgte;
     }
-
-    agregarError(&raizErrores, ERROR_SIN_DECLARAR, nombre, NULL, -1, -1, -1, -1);
+    return strdup("error");
 }
 
 int buscarLineaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
