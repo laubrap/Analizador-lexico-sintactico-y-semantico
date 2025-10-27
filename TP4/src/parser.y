@@ -636,15 +636,17 @@ parametros
 prototipoDeFuncion
         : tipoDato IDENTIFICADOR '(' parametros ')' ';' {
 
-            // Aca lo que hacemos es agregar directamente toda la funcion a la tabla de simbolos, por eso usamos
-            // sprintf     
             raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 0, @1.first_line);
 
             char *tiposSolo = extraerTiposParametros($4 ? $4 : "void");
 
-            char *tipoFuncion;
+            char *tipoFuncion = malloc(strlen($1) + strlen("(") + strlen(tiposSolo) + strlen(")") + 1);
             sprintf(tipoFuncion, "%s(%s)", $1, tiposSolo);
             raizTS = insertarSimbolo(raizTS, $2, tipoFuncion, "funcion", @2.first_line, @2.first_column, raizErrores);
+            free(tiposSolo);
+            free(tipoFuncion);
+            if ($1) free($1);
+            if ($4) free($4);
 
           }
         ;
