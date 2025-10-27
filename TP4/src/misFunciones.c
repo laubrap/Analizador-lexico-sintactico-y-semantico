@@ -875,7 +875,7 @@ nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoRecono
 void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz) {
     printf("* Listado de variables declaradas (tipo de dato y numero de linea):\n");
     tablaDeSimbolos* aux = raiz;
-    if (raiz == NULL) { printf("-\n\n"); return; }
+    if (raiz == NULL) { printf("-\n"); return; }
 
     while (aux) {
         if(aux->tipoSimbolo && strcmp(aux->tipoSimbolo, "variable") == 0){
@@ -884,13 +884,13 @@ void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz) {
         aux = aux->sgte;
     }
     printf("\n");
-    printf("\n");
+
 }
 
 void imprimirFunciones(nodoFuncion* raiz) {
     printf("* Listado de funciones declaradas y definidas:\n");
     nodoFuncion* aux = raiz;
-    if (!aux) { printf("-\n\n"); return; }
+    if (!aux) { printf("-\n"); return; }
     while (aux) {
         printf("%s: %s, input: %s, retorna: %s, linea %d\n",
                aux->info.nombre,
@@ -915,7 +915,7 @@ void imprimirSentencias(nodoSentencia* raiz) {
 }
 
 void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz) {
-    printf("\n* Listado de errores sintacticos:\n");
+    printf("* Listado de errores sintacticos:\n");
     nodoEstructuraNoReconocida* aux = raiz;
     if (!aux) { printf("-\n\n"); return; }
     while (aux) {
@@ -1212,7 +1212,6 @@ void imprimirErrores(errorSemantico* raizErrores) {
         }
         aux = aux->sgte;
     }
-    printf("\n");
     printf("\n");
 }
 
