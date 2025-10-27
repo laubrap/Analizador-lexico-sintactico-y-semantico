@@ -686,6 +686,34 @@ void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
 }
 
 // ------------- Nuevas funciones ------------------
+/*
+nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, const char* tipo, int linea) {
+
+    nodoVarDeclarada* aux = raiz;
+    nodoVarDeclarada* anterior = NULL;
+
+    while (aux != NULL) {
+        if (aux->info.linea == linea && aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
+            return raiz;
+        }
+        anterior = aux;
+        aux = aux->sgte;
+    }
+
+    nodoVarDeclarada* nuevo = malloc(sizeof(nodoVarDeclarada));
+
+    nuevo->info.nombre = strdup(nombre);
+    nuevo->info.tipo = strdup(tipo);
+    nuevo->info.linea = linea;
+    nuevo->sgte = NULL;
+
+    if (raiz == NULL)
+        return nuevo;
+
+    anterior->sgte = nuevo;
+    return raiz;
+}
+*/
 
 nodoVarDeclarada* agregarVariable(errorSemantico* listaDeErrores, nodoVarDeclarada* raiz, char* nombre, char* tipo, char* simbolo, int linea, int columna) {
     nodoVarDeclarada* aux = raiz;
@@ -696,22 +724,22 @@ nodoVarDeclarada* agregarVariable(errorSemantico* listaDeErrores, nodoVarDeclara
         if (aux->info.nombre && strcmp(aux->info.nombre, nombre) == 0) {
             
             if ((strcmp(aux->info.simbolo, "funcion") == 0 && strcmp(tipo, "variable") == 0) ||(strcmp(aux->info.simbolo, "variable") == 0 && strcmp(tipo, "funcion") == 0)) {
-                agregarError(&listaDeErrores,ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, nombre, aux->info.tipo, tipo, aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
 
             if (strcmp(aux->info.tipo, tipo) != 0 && ((strcmp(aux->info.tipo, "variable") == 0 && strcmp(tipo, "variable") == 0) || (strcmp(aux->info.tipo, "funcion") == 0 && strcmp(tipo, "funcion") == 0))) {
-                agregarError(&listaDeErrores,ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->info.tipo, tipo, aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
 
             if (strcmp(aux->info.tipo, tipo) == 0 && strcmp(tipo, "variable") == 0) {
-                agregarError(&listaDeErrores,ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->info.tipo, tipo,aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
 
             if (strcmp(aux->info.tipo, tipo) == 0 && strcmp(tipo, "funcion") == 0) {
-                agregarError(&listaDeErrores,ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->info.tipo, aux->info.linea, linea, aux->info.columna, columna);
+                agregarError(&listaDeErrores,ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->info.tipo,tipo, aux->info.linea, linea, aux->info.columna, columna);
                 return raiz;
             }
         }
@@ -886,7 +914,7 @@ void imprimirSentencias(nodoSentencia* raiz) {
 }
 
 void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz) {
-    printf("* Listado de errores sintacticos:\n");
+    printf("\n* Listado de errores sintacticos:\n");
     nodoEstructuraNoReconocida* aux = raiz;
     if (!aux) { printf("-\n\n"); return; }
     while (aux) {
@@ -908,21 +936,21 @@ tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre) {
 
 tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico *raizErrores) {
     tablaDeSimbolos *aux = raiz;
-
+    
     while (aux) {
 
         if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "variable") == 0) {
     
             if (strcmp(aux->tipoDato, tipoDato) != 0) {
-                agregarError(&raizErrores, ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+                agregarError(&raizErrores, ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
             } else {
-                agregarError(&raizErrores, ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+                agregarError(&raizErrores, ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
             }
             return raiz;
         }
 
         if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "funcion") == 0) {
-            agregarError(&raizErrores, ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->tipoDato, aux->linea, aux->columna, linea, columna);
+            agregarError(&raizErrores, ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
             return raiz;
         }
         aux = aux->sgte;
@@ -948,14 +976,14 @@ tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipo
     return raiz;
 }
 
-void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual) {
+void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identificador, char *tipoPrevio, char* tipoActual, int lineaPrevio, int columnaPrevio,int lineaActual, int columnaActual) {
      if (raizErrores == NULL) {
         return;
     }
     errorSemantico *nuevo = malloc(sizeof(errorSemantico));
     if (nuevo == NULL) 
       return;
-
+    nuevo->tipoActual = tipoActual;
     nuevo->codigo = codigo;
     nuevo->identificador = identificador;
     nuevo->tipoPrevio = tipoPrevio;
@@ -989,8 +1017,10 @@ void imprimirErrores(errorSemantico* raizErrores) {
 
         switch (aux->codigo) {
             case OPERANDOS_INVALIDOS:
-                printf("Operandos invalidos del operador binario * (tienen '%s' y '%s')\n",
-                       aux->tipoPrevio, aux->tipoActual);
+                if(strcmp(aux->tipoActual, "string") == 0){
+                    aux->tipoActual = strdup("char *");
+                }
+                printf("Operandos invalidos del operador binario * (tienen '%s' y '%s')\n", aux->tipoPrevio, aux->tipoActual);
                 break;
 
             case ERROR_SIN_DECLARAR:
@@ -999,15 +1029,12 @@ void imprimirErrores(errorSemantico* raizErrores) {
 
             case ERROR_REDECLARACION_TIPO_DIF_SIMBOLO:
                 printf("'%s' redeclarado como un tipo diferente de simbolo\n", aux->identificador);
-                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
-                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
                 break;
 
             case ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO:
-                printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n",
-                       aux->identificador, aux->tipoActual);
-                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n",
-                       aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n", aux->identificador, aux->tipoActual);
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
                 break;
 
             case ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO:
@@ -1075,8 +1102,6 @@ void imprimirErrores(errorSemantico* raizErrores) {
                 printf("Incompatibilidad de tipos al retornar el tipo '%s' pero se esperaba '%s'\n",
                        aux->tipoPrevio, aux->tipoActual);
                 break;
-
-        
         }
         aux = aux->sgte;
     }
@@ -1113,23 +1138,68 @@ char* buscarTipoDato(tablaDeSimbolos *raiz, char *nombre) {
     return strdup("error");
 }
 
-int buscarLineaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
-    tablaDeSimbolos *aux = raiz;
-    while (aux != NULL) {
-        if (strcmp(aux->nombre, nombre) == 0)
-            return aux->linea;
-        aux = aux->sgte;
+// int buscarLineaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
+//     tablaDeSimbolos *aux = raiz;
+//     while (aux != NULL) {
+//         if (strcmp(aux->nombre, nombre) == 0)
+//             return aux->linea;
+//         aux = aux->sgte;
+//     }
+//     return -1;
+// }
+
+// int buscarColumnaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
+//     tablaDeSimbolos *aux = raiz;
+//     while (aux != NULL) {
+//         if (strcmp(aux->nombre, nombre) == 0)
+//             return aux->columna;
+//         aux = aux->sgte;
+//     }
+//     return -1;
+// }
+
+int tiposCompatiblesMultiplicacion(char* tipo1, char* tipo2) {
+    if (!tipo1 || !tipo2) return 0;
+
+    if (strcmp(tipo1, "error") == 0 || strcmp(tipo2, "error") == 0) return 1;
+
+    if (strstr(tipo1, "char*") || strstr(tipo2, "char*")) return 0;
+
+    char* tiposValidos[] = {"int", "float", "double", "short", "long", "const float", "unsigned int"};
+    int esNum1 = 0, esNum2 = 0;
+
+    for (int i = 0; i < 7; i++) {
+        if (strcmp(tipo1, tiposValidos[i]) == 0) esNum1 = 1;
+        if (strcmp(tipo2, tiposValidos[i]) == 0) esNum2 = 1;
     }
-    return -1;
+
+    if (!esNum1 || !esNum2) return 0;
+
+    return 1;
 }
 
-int buscarColumnaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
-    tablaDeSimbolos *aux = raiz;
-    while (aux != NULL) {
-        if (strcmp(aux->nombre, nombre) == 0)
-            return aux->columna;
-        aux = aux->sgte;
-    }
-    return -1;
+char* tipoDominante(char* tipo1, char* tipo2) {
+    if (!tipo1 || !tipo2) return strdup("error");
+
+    if (strstr(tipo1, "char*") || strstr(tipo2, "char*"))
+        return strdup("error");
+
+    if (strstr(tipo1, "void") || strstr(tipo2, "void"))
+        return strdup("error");
+
+    if (strcmp(tipo1, "double") == 0 || strcmp(tipo2, "double") == 0)
+        return strdup("double");
+
+    if (strcmp(tipo1, "float") == 0 || strcmp(tipo2, "float") == 0 ||
+        strcmp(tipo1, "const float") == 0 || strcmp(tipo2, "const float") == 0)
+        return strdup("float");
+
+    if (strcmp(tipo1, "long") == 0 || strcmp(tipo2, "long") == 0)
+        return strdup("long");
+
+    if (strcmp(tipo1, "unsigned int") == 0 || strcmp(tipo2, "unsigned int") == 0)
+        return strdup("unsigned int");
+
+    return strdup("int");
 }
 

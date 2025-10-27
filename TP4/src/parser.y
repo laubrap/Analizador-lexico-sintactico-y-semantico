@@ -54,7 +54,7 @@ char buffer_auxiliar[256];
 %token <caracter> CARACTER 
 %token <string> LITERAL_CADENA
 
-%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED CONST CONST_FLOAT CONST_INT CONST_CHAR CONST_DOUBLE CONST_SHORT CONST_LONG CONST_UNSIGNED_INT CONST_SIGNED_INT 
+%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED CONST CONST FLOAT CONST INT CONST CHAR CONST DOUBLE CONST SHORT CONST LONG CONST UNSIGNED INT CONST SIGNED_INT 
 %token CASE DEFAULT
 %token IF ELSE SWITCH
 %token DO WHILE FOR
@@ -66,8 +66,8 @@ char buffer_auxiliar[256];
 %token MAYOR_IGUAL MENOR_IGUAL AND OR
 
         /* */
-%type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expPrimaria expIgualdad expRelacional expAditiva expMultiplicativa expUnaria expPostfijo listaArgumentos
-%type <string> tipoDato tipoBasico parametro listaParametros parametros listaVarSimples unaVarSimple
+%type <unsigned_long_type> exp expAsignacion expCondicional expOr expAnd expIgualdad expRelacional expAditiva listaArgumentos
+%type <string> tipoDato tipoBasico parametro listaParametros parametros listaVarSimples unaVarSimple expMultiplicativa expUnaria expPostfijo expPrimaria
 
 
 	/* Para especificar el no-terminal de inicio de la gramática (el axioma). Si esto se omitiera, se asumiría que es el no-terminal de la primera regla */
@@ -90,19 +90,21 @@ unidad
         | definicionDeFuncion
         | ';'
         | error ';' { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, buffer_acumulador, @2.first_line); yyerrok; }
+        | error ';' { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, buffer_acumulador, @2.first_line); yyerrok; }
         ;
 
 exp
         : expAsignacion
         ;
 
+
 expAsignacion
         : expCondicional
-        | expUnaria '=' expAsignacion {$$ = ($1 = $3);}
-        | expUnaria MAS_IGUAL expAsignacion {$$ = ($1 += $3);}
-        | expUnaria MENOS_IGUAL expAsignacion {$$ = ($1 -= $3);}
-        | expUnaria MULTIPLICAR_IGUAL expAsignacion {$$ = ($1 *= $3);}
-        | expUnaria DIVIDIR_IGUAL expAsignacion {$$ = ($1 /= $3);}
+        | expUnaria '=' expAsignacion
+        | expUnaria MAS_IGUAL expAsignacion 
+        | expUnaria MENOS_IGUAL expAsignacion
+        | expUnaria MULTIPLICAR_IGUAL expAsignacion
+        | expUnaria DIVIDIR_IGUAL expAsignacion
         ;
 
 expCondicional
@@ -127,55 +129,72 @@ expIgualdad
 
 expRelacional
         : expAditiva
-        | expRelacional MAYOR_IGUAL expAditiva {$$ = $1 >= $3;}
-        | expRelacional '>' expAditiva  {$$ = $1 > $3;}
-        | expRelacional MENOR_IGUAL expAditiva {$$ = $1 <= $3;}
-        | expRelacional '<' expAditiva {$$ = $1 < $3;}
+        | expRelacional MAYOR_IGUAL expAditiva 
+        | expRelacional '>' expAditiva  
+        | expRelacional MENOR_IGUAL expAditiva 
+        | expRelacional '<' expAditiva 
         ;
 
 expAditiva
         : expMultiplicativa
-        | expAditiva '+' expMultiplicativa {$$ = $1 + $3;}
-        | expAditiva '-' expMultiplicativa {$$ = $1 - $3;}
+        | expAditiva '+' expMultiplicativa 
+        | expAditiva '-' expMultiplicativa 
         ;
 
 expMultiplicativa
-        : expUnaria
-        | expMultiplicativa '*' expUnaria {
-                char s1[32], s3[32];
-                snprintf(s1, sizeof s1, "%lu", (unsigned long)$1);
-                snprintf(s3, sizeof s3, "%lu", (unsigned long)$3);
-
-                char *tipo1 = buscarTipoDato(raizTS, s1);
-                char *tipo3 = buscarTipoDato(raizTS, s3);
-
-                int lineaPrevia = buscarLineaDeclaracion(raizTS,s1);
-                int columnaPrevia = buscarColumnaDeclaracion(raizTS,s1);
-
-        if (!tiposCompatibles(tipo1, tipo3)){
-            agregarError(&raizErrores,OPERANDOS_INVALIDOS,"*",tipo1,lineaPrevia,columnaPrevia,@2.first_line,@2.first_column);
+    : expUnaria { $$ = $1; }
+    | expMultiplicativa '*' expUnaria {
+        if (!tiposCompatiblesMultiplicacion($1, $3)) {
+            agregarError(&raizErrores, OPERANDOS_INVALIDOS, "*", $1, $3, @2.first_line, @2.first_column, @2.first_line, @2.first_column);
+            $$ = strdup("error");
+        } else {
+            $$ = tipoDominante($1, $3);
         }
-        $$ = $1 * $3;
+    }
+    | expMultiplicativa '/' expUnaria {
+        if (!tiposCompatiblesMultiplicacion($1, $3)) {
+            agregarError(&raizErrores, OPERANDOS_INVALIDOS, "/", $1, $3, @2.first_line, @2.first_column, @2.first_line, @2.first_column);
+            $$ = strdup("error");
+        } else {
+            $$ = tipoDominante($1, $3);
         }
-        | expMultiplicativa '/' expUnaria {$$ = $1 / $3;}
-        ;
+    }
+;
 
 expUnaria
         : expPostfijo
-        | INCREMENTO expUnaria {$$ = $2 +1;}
-        | DECREMENTO expUnaria {$$ = $2 -1;}
-        | expUnaria INCREMENTO {$$ = $1 +1;}
-        | expUnaria DECREMENTO {$$ = $1 -1;}     
-        | '&'expUnaria {$$ = (unsigned long)& $2;}
-        | '*'expUnaria {$$ = (unsigned long)*((unsigned long*)$2);}
-        | '-'expUnaria {$$ = - $2;}
-        | '!'expUnaria {$$ = ! $2;}
+        | INCREMENTO expUnaria 
+        | DECREMENTO expUnaria
+        | expUnaria INCREMENTO 
+        | expUnaria DECREMENTO    
+        | '&'expUnaria 
+        | '*'expUnaria 
+        | '-'expUnaria 
+        | '!'expUnaria 
         ;       
 
 expPostfijo
         : expPrimaria
         | expPostfijo '[' exp ']'
         | expPostfijo '('listaArgumentos')'
+        | IDENTIFICADOR '(' ')' {
+                tablaDeSimbolos *simbolo = buscarSimbolo(raizTS, $1);
+                if (!simbolo) {
+                        agregarError(&raizErrores, FUNCION_SIN_DECLARAR, $1, NULL,NULL, -1, -1, @1.first_line, @1.first_column);
+                        raizTS = insertarSimbolo(raizTS, $1, "int", "funcion", @1.first_line, @1.first_column, raizErrores);
+                } else if (strcmp(simbolo->tipoSimbolo, "funcion") != 0) {
+                        agregarError(&raizErrores, FUNCION_NO_SE_QUE_PONER, $1, NULL, NULL, simbolo->linea, simbolo->columna, @1.first_line, @1.first_column);
+                }
+        }
+        | IDENTIFICADOR '(' listaArgumentos ')' {
+                tablaDeSimbolos *simbolo = buscarSimbolo(raizTS, $1);
+                if (!simbolo) {
+                        agregarError(&raizErrores, FUNCION_SIN_DECLARAR, $1, NULL, NULL, -1, -1, @1.first_line, @1.first_column);
+                        raizTS = insertarSimbolo(raizTS, $1, "int", "funcion", @1.first_line, @1.first_column, raizErrores);
+                } else if (strcmp(simbolo->tipoSimbolo, "funcion") != 0) {
+                        agregarError(&raizErrores, FUNCION_NO_SE_QUE_PONER, $1, NULL,NULL, simbolo->linea, simbolo->columna, @1.first_line, @1.first_column);
+                }
+        }
         ;
 
 listaArgumentos
@@ -187,17 +206,20 @@ expPrimaria
     : IDENTIFICADOR {
         tablaDeSimbolos *simbolo = buscarSimbolo(raizTS, $1);
         if (!simbolo) {
-            agregarError(&raizErrores, ERROR_SIN_DECLARAR, $1, NULL, -1, -1, @1.first_line, @1.first_column);
+            agregarError(&raizErrores, ERROR_SIN_DECLARAR, $1, NULL, NULL, -1, -1, @1.first_line, @1.first_column);
+            $$ = strdup("error");
+        } else {
+            $$ = strdup(simbolo->tipoDato); 
         }
     }
-        | DECIMAL            
-        | OCTAL              
-        | HEXA               
-        | REAL               
-        | LITERAL_CADENA     
-        | CARACTER           
-        | '(' exp ')'        
-        ;
+    | DECIMAL            { $$ = strdup("int"); }
+    | OCTAL              { $$ = strdup("int"); }
+    | HEXA               { $$ = strdup("int"); }
+    | REAL               { $$ = strdup("double"); }
+    | LITERAL_CADENA     { $$ = strdup("string"); }
+    | CARACTER           { $$ = strdup("char"); }
+    | '(' exp ')'        { $$ = $2; }
+;
 
 // BNF de sentencias
 
@@ -264,7 +286,7 @@ sentIteracion
         | WHILE error { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, "while ...", @1.first_line); yyerrok; }
         | FOR error { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, "for ...", @1.first_line); yyerrok; }
         | DO error { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, "do ...", @1.first_line); yyerrok; }
-        ;
+   ;
 
 
 sentSalto
@@ -285,22 +307,32 @@ sentEtiquetada
 
 tipoDato
         : tipoBasico
-        | CONST tipoBasico { 
-            char *tipo = $2;
-            char *resultado = malloc(strlen("const ") + strlen(tipo) + 1);
-            strcpy(resultado, "const ");
-            strcat(resultado, tipo);
-            free(tipo);
-            $$ = resultado;
-          }
         ;
 
+-- tipoBasico
+--         : UNSIGNED INT    { $$ = strdup("unsigned int"); }
+--         | CONST FLOAT     { $$ = strdup("const float"); }
+--         | CONST DOUBLE     { $$ = strdup("const double"); }
+--         | CONST CHAR      { $$ = strdup("const char"); }
+--         | CONST INT       { $$ = strdup("const int"); }
+--         | CONST SHORT     { $$ = strdup("const short"); }
+--         | CONST LONG      { $$ = strdup("const long"); }
+--         | CONST VOID      { $$ = strdup("const void"); }
+--         | SIGNED INT      { $$ = strdup("signed int"); }
+--         | UNSIGNED LONG   { $$ = strdup("unsigned long"); }
+--         | LONG UNSIGNED   { $$ = strdup("unsigned long"); }
+--         | VOID            { $$ = strdup("void"); }
+--         | CHAR      { $$ = strdup("char"); }
+--         | INT       { $$ = strdup("int"); }
+--         | DOUBLE    { $$ = strdup("double"); }
+--         | FLOAT     { $$ = strdup("float"); }
+--         | SHORT     { $$ = strdup("short"); }
+--         | LONG      { $$ = strdup("long"); }
+--         | SIGNED    { $$ = strdup("signed"); }
+--         | UNSIGNED  { $$ = strdup("unsigned"); }
+--         ;
 tipoBasico
-        : UNSIGNED INT { $$ = strdup("unsigned int"); }
-        | SIGNED INT   { $$ = strdup("signed int"); }
-        | UNSIGNED LONG { $$ = strdup("unsigned long"); }
-        | LONG UNSIGNED { $$ = strdup("unsigned long"); }
-        | VOID      { $$ = strdup("void"); }
+        : VOID      { $$ = strdup("void"); }
         | CHAR      { $$ = strdup("char"); }
         | INT       { $$ = strdup("int"); }
         | DOUBLE    { $$ = strdup("double"); }
@@ -309,15 +341,24 @@ tipoBasico
         | LONG      { $$ = strdup("long"); }
         | SIGNED    { $$ = strdup("signed"); }
         | UNSIGNED  { $$ = strdup("unsigned"); }
+        | tipoConstante { $$ = $1; }
         ;
 
+tipoConstante
+        : CONST tipoBasico {
+            char *resultado = malloc(strlen("const ") + strlen($2) + 2);
+            strcpy(resultado, "const ");
+            strcat(resultado, $2);
+            $$ = resultado;
+          }
+        ;
 declaracion
         : declaVarSimples
         | prototipoDeFuncion
         ;
 
 declaVarSimples
-        : tipoDato {  if ($1) { strncpy(buffer_auxiliar, $1, sizeof(buffer_auxiliar)-1); free($1); } } listaVarSimples ';'
+        : tipoDato { strncpy(buffer_auxiliar, $1, sizeof(buffer_auxiliar)-1); free($1); } listaVarSimples ';'
         ;
 
 listaVarSimples
@@ -325,7 +366,7 @@ listaVarSimples
 	| listaVarSimples ',' unaVarSimple
         ;
 
-unaVarSimple
+unaVarSimple        
     : IDENTIFICADOR {
         raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column, raizErrores);
       }
@@ -335,8 +376,10 @@ unaVarSimple
     | IDENTIFICADOR '=' error {
         raizTS = insertarSimbolo(raizTS, $1, buffer_auxiliar, "variable", @1.first_line, @1.first_column, raizErrores);
         yyerrok;
+        ;
       }
-    ;
+
+
 
 inicializacion		
         : '=' '('exp')'
@@ -374,10 +417,20 @@ parametros
         ;
 
 prototipoDeFuncion
-        : tipoBasico IDENTIFICADOR '(' parametros ')' ';' { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 0, @1.first_line); if ($1) free($1); if ($4) free($4); }
+        : tipoBasico IDENTIFICADOR '(' parametros ')' ';' {
+            raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 0, @1.first_line);
+            raizTS = insertarSimbolo(raizTS, $2, $1, "funcion", @2.first_line, @2.first_column, raizErrores);
+            if ($1) free($1);
+            if ($4) free($4);
+          }
         ;
 definicionDeFuncion
-        : tipoBasico IDENTIFICADOR '(' parametros ')' sentCompuesta { raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 1, @1.first_line); if ($1) free($1); if ($4) free($4); }
+        : tipoBasico IDENTIFICADOR '(' parametros ')' sentCompuesta {
+            raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 1, @1.first_line);
+            raizTS = insertarSimbolo(raizTS, $2, $1, "funcion", @2.first_line, @2.first_column, raizErrores);
+            if ($1) free($1);
+            if ($4) free($4);
+          }
         ;
 
 %%
