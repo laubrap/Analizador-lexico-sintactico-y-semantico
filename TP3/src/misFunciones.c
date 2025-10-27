@@ -692,7 +692,7 @@ void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
 
 // ------------- Nuevas funciones ------------------
 
-nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, const char* tipo, int linea) {
+nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz,  char* nombre, char* tipo, int linea) {
 
     nodoVarDeclarada* aux = raiz;
     nodoVarDeclarada* anterior = NULL;
@@ -719,7 +719,7 @@ nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, co
     return raiz;
 }
 
-nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* retorna, const char* parametros, int es_definicion, int linea) {
+nodoFuncion* agregarFuncion(nodoFuncion* raiz, char* nombre, char* retorna, char* parametros, int es_definicion, int linea) {
     
     nodoFuncion* aux = raiz;
     nodoFuncion* anterior = NULL;
@@ -750,7 +750,7 @@ nodoFuncion* agregarFuncion(nodoFuncion* raiz, const char* nombre, const char* r
     return raiz;
 }
 
-nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea, int columna) {
+nodoSentencia* agregarSentencia(nodoSentencia* raiz, char* tipo, int linea, int columna) {
     
     nodoSentencia* nuevo = malloc(sizeof(nodoSentencia));
 
@@ -795,7 +795,7 @@ nodoSentencia* agregarSentencia(nodoSentencia* raiz, const char* tipo, int linea
 }
 
 
-nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoReconocida* raiz, const char* texto, int linea) {
+nodoEstructuraNoReconocida* agregarEstructuraNoReconocida(nodoEstructuraNoReconocida* raiz, char* texto, int linea) {
     
     nodoEstructuraNoReconocida* aux = raiz;
     nodoEstructuraNoReconocida* anterior = NULL;
