@@ -49,7 +49,7 @@ char buffer_auxiliar[256];
 %token <caracter> CARACTER 
 %token <string> LITERAL_CADENA
 
-%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED CONST CONST FLOAT CONST INT CONST CHAR CONST DOUBLE CONST SHORT CONST LONG CONST UNSIGNED INT CONST SIGNED_INT 
+%token VOID CHAR SHORT INT LONG FLOAT DOUBLE UNSIGNED SIGNED CONST FLOAT CONST INT CONST CHAR CONST DOUBLE CONST SHORT CONST LONG CONST UNSIGNED INT CONST SIGNED_INT 
 %token CASE DEFAULT
 %token IF ELSE SWITCH
 %token DO WHILE FOR
@@ -85,21 +85,19 @@ unidad
         | definicionDeFuncion
         | ';'
         | error ';' { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, buffer_acumulador, @2.first_line); yyerrok; }
-        | error ';' { raizEstructurasNoReconocidas = agregarEstructuraNoReconocida(raizEstructurasNoReconocidas, buffer_acumulador, @2.first_line); yyerrok; }
         ;
 
 exp
         : expAsignacion
         ;
 
-
 expAsignacion
         : expCondicional
-        | expUnaria '=' expAsignacion
+        | expUnaria '=' expAsignacion 
         | expUnaria MAS_IGUAL expAsignacion 
-        | expUnaria MENOS_IGUAL expAsignacion
-        | expUnaria MULTIPLICAR_IGUAL expAsignacion
-        | expUnaria DIVIDIR_IGUAL expAsignacion
+        | expUnaria MENOS_IGUAL expAsignacion 
+        | expUnaria MULTIPLICAR_IGUAL expAsignacion 
+        | expUnaria DIVIDIR_IGUAL expAsignacion 
         ;
 
 expCondicional
@@ -137,7 +135,7 @@ expAditiva
         ;
 
 expMultiplicativa
-    : expUnaria { $$ = $1; }
+    : expUnaria 
     | expMultiplicativa '*' expUnaria {
         if (!tiposCompatiblesMultiplicacion($1, $3)) {
             agregarError(&raizErrores, OPERANDOS_INVALIDOS, "*", $1, $3, @2.first_line, @2.first_column, @2.first_line, @2.first_column);
@@ -157,7 +155,7 @@ expMultiplicativa
 ;
 
 expUnaria
-        : expPostfijo
+        : expPostfijo 
         | INCREMENTO expUnaria 
         | DECREMENTO expUnaria
         | expUnaria INCREMENTO 
@@ -169,7 +167,7 @@ expUnaria
         ;       
 
 expPostfijo
-        : expPrimaria
+        : expPrimaria { $$ = $1; }
         | expPostfijo '[' exp ']'
         | expPostfijo '('listaArgumentos')'
         | IDENTIFICADOR '(' ')' {
@@ -247,7 +245,7 @@ listaDeclaraciones
         ;
 
 listaSentencias
-        : /* vacío */
+        : /* vacío */ 
         | listaSentencias sentencia
         ;
 
@@ -302,32 +300,21 @@ sentEtiquetada
 
 tipoDato
         : tipoBasico
+        | CONST tipoBasico { 
+            char *tipo = $2;
+            char *resultado = malloc(strlen("const ") + strlen(tipo) + 1);
+            strcpy(resultado, "const ");
+            strcat(resultado, tipo);
+            $$ = resultado;
+          }
         ;
 
--- tipoBasico
---         : UNSIGNED INT    { $$ = strdup("unsigned int"); }
---         | CONST FLOAT     { $$ = strdup("const float"); }
---         | CONST DOUBLE     { $$ = strdup("const double"); }
---         | CONST CHAR      { $$ = strdup("const char"); }
---         | CONST INT       { $$ = strdup("const int"); }
---         | CONST SHORT     { $$ = strdup("const short"); }
---         | CONST LONG      { $$ = strdup("const long"); }
---         | CONST VOID      { $$ = strdup("const void"); }
---         | SIGNED INT      { $$ = strdup("signed int"); }
---         | UNSIGNED LONG   { $$ = strdup("unsigned long"); }
---         | LONG UNSIGNED   { $$ = strdup("unsigned long"); }
---         | VOID            { $$ = strdup("void"); }
---         | CHAR      { $$ = strdup("char"); }
---         | INT       { $$ = strdup("int"); }
---         | DOUBLE    { $$ = strdup("double"); }
---         | FLOAT     { $$ = strdup("float"); }
---         | SHORT     { $$ = strdup("short"); }
---         | LONG      { $$ = strdup("long"); }
---         | SIGNED    { $$ = strdup("signed"); }
---         | UNSIGNED  { $$ = strdup("unsigned"); }
---         ;
 tipoBasico
-        : VOID      { $$ = strdup("void"); }
+        : UNSIGNED INT { $$ = strdup("unsigned int"); }
+        | SIGNED INT   { $$ = strdup("signed int"); }
+        | UNSIGNED LONG { $$ = strdup("unsigned long"); }
+        | LONG UNSIGNED { $$ = strdup("unsigned long"); }
+        | VOID      { $$ = strdup("void"); }
         | CHAR      { $$ = strdup("char"); }
         | INT       { $$ = strdup("int"); }
         | DOUBLE    { $$ = strdup("double"); }
@@ -336,17 +323,8 @@ tipoBasico
         | LONG      { $$ = strdup("long"); }
         | SIGNED    { $$ = strdup("signed"); }
         | UNSIGNED  { $$ = strdup("unsigned"); }
-        | tipoConstante { $$ = $1; }
         ;
-
-tipoConstante
-        : CONST tipoBasico {
-            char *resultado = malloc(strlen("const ") + strlen($2) + 2);
-            strcpy(resultado, "const ");
-            strcat(resultado, $2);
-            $$ = resultado;
-          }
-        ;
+        
 declaracion
         : declaVarSimples
         | prototipoDeFuncion
@@ -382,7 +360,7 @@ inicializacion
 
 /* Lista de parámetros de funciones (simple): (tipo nombre) separados por coma, o void */
 parametro
-        : tipoBasico IDENTIFICADOR {
+        : tipoDato IDENTIFICADOR {
             char *resultado = malloc(strlen($1) + strlen(" ") + strlen($2) + 1);
             strcpy(resultado, $1);
             strcat(resultado, " ");
@@ -390,7 +368,7 @@ parametro
             free($1);
             $$ = resultado;
         }
-        | tipoBasico { $$ = $1; }
+        | tipoDato { $$ = $1; }
         ;
 
 listaParametros
@@ -412,7 +390,7 @@ parametros
         ;
 
 prototipoDeFuncion
-        : tipoBasico IDENTIFICADOR '(' parametros ')' ';' {
+        : tipoDato IDENTIFICADOR '(' parametros ')' ';' {
             raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 0, @1.first_line);
             raizTS = insertarSimbolo(raizTS, $2, $1, "funcion", @2.first_line, @2.first_column, raizErrores);
             if ($1) free($1);
@@ -420,7 +398,7 @@ prototipoDeFuncion
           }
         ;
 definicionDeFuncion
-        : tipoBasico IDENTIFICADOR '(' parametros ')' sentCompuesta {
+        : tipoDato IDENTIFICADOR '(' parametros ')' sentCompuesta {
             raizFunciones = agregarFuncion(raizFunciones, $2, $1, $4 ? $4 : "void", 1, @1.first_line);
             raizTS = insertarSimbolo(raizTS, $2, $1, "funcion", @2.first_line, @2.first_column, raizErrores);
             if ($1) free($1);
