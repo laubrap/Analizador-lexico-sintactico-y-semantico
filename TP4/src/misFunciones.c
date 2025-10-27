@@ -980,6 +980,17 @@ void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identif
      if (raizErrores == NULL) {
         return;
     }
+
+    if (codigo == ERROR_SIN_DECLARAR || codigo == FUNCION_SIN_DECLARAR) {
+        errorSemantico *nodo = *raizErrores;
+        while (nodo) {
+            if (nodo->codigo == codigo && nodo->identificador && identificador && strcmp(nodo->identificador, identificador) == 0) {
+                return;
+            }
+            nodo = nodo->sgte;
+        }
+    }
+
     errorSemantico *nuevo = malloc(sizeof(errorSemantico));
     if (nuevo == NULL) 
       return;
@@ -1033,6 +1044,9 @@ void imprimirErrores(errorSemantico* raizErrores) {
                 break;
 
             case ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO:
+                if(strcmp(aux->tipoActual, "float") == 0){
+                    aux->tipoActual = "const float";
+                }
                 printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n", aux->identificador, aux->tipoActual);
                 printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
                 break;
