@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 #include "general.h"
-#include "structsTP4.h"
-
 #include "structsTP3.h"
 
 extern YYLTYPE yylloc;

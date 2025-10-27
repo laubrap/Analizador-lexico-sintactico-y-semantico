@@ -41,7 +41,12 @@ char *tipo_retorno_funcion_actual = NULL;
 
 	/* Para especificar la colección completa de posibles tipos de datos para los valores semánticos */
 %union {
-	unsigned long unsigned_long_type;
+        long unsigned_long_type;
+        int numeros;
+        double constantes; 
+        char *string;
+        char *caracter;
+        
 }
 
         /* */
