@@ -50,6 +50,7 @@ extern nodoEstructuraNoReconocida* raizEstructurasNoReconocidas;
 extern tablaDeSimbolos *raizTS;
 extern errorSemantico *raizErrores;
 
+//nodoVarDeclarada* agregarVariable(nodoVarDeclarada* raiz, const char* nombre, const char* tipo, int linea);
 nodoVarDeclarada* agregarVariable(errorSemantico*listaErrores, nodoVarDeclarada* raiz,char* nombre,char* tipo,char* simbolo,int linea,int columna);
 nodoFuncion* agregarFuncion(nodoFuncion* raiz, char* nombre, char* tipoRetorno, char* parametros, int esDefinicion,int linea);
 nodoSentencia* agregarSentencia(nodoSentencia* raiz, char* tipo, int linea, int columna);
@@ -63,9 +64,12 @@ void imprimirEstructurasNoReconocidas(nodoEstructuraNoReconocida* raiz);
 tablaDeSimbolos *buscarSimbolo(tablaDeSimbolos *raiz, char *nombre);
 tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipoDato, char *tipoSimbolo, int linea, int columna, errorSemantico *raizErrores);
 
-void agregarError(errorSemantico **raiz, CodigoError codigo,char *identificador, char *tipoPrevio, int lineaPrevio, int columnaPrevio, int lineaActual, int columnaActual);
+void agregarError(errorSemantico **raiz, CodigoError codigo,char *identificador, char *tipoPrevio, char* tipoActual, int lineaPrevio, int columnaPrevio, int lineaActual, int columnaActual);
 void imprimirErrores(errorSemantico* raiz);
 
 char* buscarTipoDato(tablaDeSimbolos *raiz, char *nombre);
 int buscarColumnaDeclaracion(tablaDeSimbolos *raiz, char *nombre);
 int buscarLineaDeclaracion(tablaDeSimbolos *raiz, char *nombre);
+
+int tiposCompatiblesMultiplicacion(char* tipo1,char* tipo2);
+char* tipoDominante(char* tipo1,char* tipo2);
