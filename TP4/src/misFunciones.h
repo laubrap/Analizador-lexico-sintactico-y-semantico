@@ -73,3 +73,8 @@ int buscarLineaDeclaracion(tablaDeSimbolos *raiz, char *nombre);
 
 int tiposCompatiblesMultiplicacion(char* tipo1,char* tipo2);
 char* tipoDominante(char* tipo1,char* tipo2);
+
+int contarArgumentos(char *argumentos);
+int extraerCantidadDeArgumentos(char *argumentos);
+int contarParametrosEnTipo(char *tipo);
+char* extraerTiposParametros(char *parametros);
