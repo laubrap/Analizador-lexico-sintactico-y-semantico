@@ -676,7 +676,7 @@ nodoCadenasNoReconocidas* agregarCadenaNoReconocida(nodoCadenasNoReconocidas* ra
 void imprimirCadenaNoReconocida(nodoCadenasNoReconocidas *raiz) {
     nodoCadenasNoReconocidas *aux = raiz;
     int encontradas = 0;
-    printf("* Listado de errores lexicos: \n");
+    printf("* Listado de errores lexicos:\n");
     
     while (aux != NULL) { 
         printf("%s: linea %d, columna %d\n", aux->info.palabra, aux->info.linea, aux->info.columna);
@@ -884,6 +884,7 @@ void imprimirVariablesDeclaradas(tablaDeSimbolos* raiz) {
         aux = aux->sgte;
     }
     printf("\n");
+    printf("\n");
 }
 
 void imprimirFunciones(nodoFuncion* raiz) {
@@ -938,6 +939,12 @@ tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipo
     tablaDeSimbolos *aux = raiz;
     
     while (aux) {
+        // Detectar si se está redeclarando con un tipo diferente de símbolo (variable vs función)
+        if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, tipoSimbolo) != 0) {
+            agregarError(&raizErrores, ERROR_REDECLARACION_TIPO_DIF_SIMBOLO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
+            // NO agregar el símbolo cuando hay conflicto de tipos
+            return raiz;
+        }
 
         if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "variable") == 0) {
     
@@ -946,16 +953,37 @@ tablaDeSimbolos *insertarSimbolo(tablaDeSimbolos *raiz, char *nombre, char *tipo
             } else {
                 agregarError(&raizErrores, ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
             }
-            return raiz;
+            // NO retornar: permitir que se agregue
+            break;
         }
 
         if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, "funcion") == 0) {
-            agregarError(&raizErrores, ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
-            return raiz;
+            if (strcmp(aux->tipoDato, tipoDato) != 0) {
+                agregarError(&raizErrores, ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
+            } else {
+                agregarError(&raizErrores, ERROR_REDEFINICION_FUNCION_IGUAL_TIPO, nombre, aux->tipoDato, tipoDato, aux->linea, aux->columna, linea, columna);
+            }
+            // NO retornar: permitir que se agregue
+            break;
         }
         aux = aux->sgte;
     }
 
+    // Verificar si ya existe para evitar duplicados
+    aux = raiz;
+    int yaExiste = 0;
+    while (aux) {
+        if (strcmp(aux->nombre, nombre) == 0 && strcmp(aux->tipoSimbolo, tipoSimbolo) == 0) {
+            yaExiste = 1;
+            break;
+        }
+        aux = aux->sgte;
+    }
+    
+    if (yaExiste) {
+        return raiz;
+    }
+    
     tablaDeSimbolos *nuevo = malloc(sizeof(tablaDeSimbolos));
     nuevo->nombre = strdup(nombre);
     nuevo->tipoDato = strdup(tipoDato);
@@ -994,10 +1022,10 @@ void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identif
     errorSemantico *nuevo = malloc(sizeof(errorSemantico));
     if (nuevo == NULL) 
       return;
-    nuevo->tipoActual = tipoActual;
+    nuevo->tipoActual = tipoActual ? strdup(tipoActual) : NULL;
     nuevo->codigo = codigo;
-    nuevo->identificador = identificador;
-    nuevo->tipoPrevio = tipoPrevio;
+    nuevo->identificador = identificador ? strdup(identificador) : NULL;
+    nuevo->tipoPrevio = tipoPrevio ? strdup(tipoPrevio) : NULL;
     nuevo->lineaPrevio = lineaPrevio;
     nuevo->columnaPrevio = columnaPrevio;
     nuevo->lineaActual = lineaActual;
@@ -1015,8 +1043,29 @@ void agregarError(errorSemantico** raizErrores, CodigoError codigo,char *identif
     aux->sgte = nuevo;
 }
 
+char* convertirTipoFuncion(char* tipo) {
+    if (!tipo || !strstr(tipo, "(") || strstr(tipo, "(*")) return tipo;
+    
+    char *paren = strchr(tipo, '(');
+    if (paren) {
+        char *retorno = malloc(paren - tipo + 1);
+        strncpy(retorno, tipo, paren - tipo);
+        retorno[paren - tipo] = '\0';
+        char *params = malloc(strlen(paren + 1) + 1);
+        strcpy(params, paren + 1);
+        char *close = strchr(params, ')');
+        if (close) *close = '\0';
+        char *nuevo = malloc(100);
+        sprintf(nuevo, "%s (*)(%s)", retorno, params);
+        free(retorno);
+        free(params);
+        return nuevo;
+    }
+    return tipo;
+}
+
 void imprimirErrores(errorSemantico* raizErrores) {
-    printf("\n* Listado de errores semanticos:\n");
+    printf("* Listado de errores semanticos:\n");
     if (raizErrores == NULL) {
         printf("-\n");
         return;
@@ -1031,6 +1080,13 @@ void imprimirErrores(errorSemantico* raizErrores) {
                 if(strcmp(aux->tipoActual, "string") == 0){
                     aux->tipoActual = strdup("char *");
                 }
+                // Convertir tipos de función
+                if (aux->tipoPrevio && strstr(aux->tipoPrevio, "(") && !strstr(aux->tipoPrevio, "(*")) {
+                    aux->tipoPrevio = convertirTipoFuncion(aux->tipoPrevio);
+                }
+                if (aux->tipoActual && strstr(aux->tipoActual, "(") && !strstr(aux->tipoActual, "(*")) {
+                    aux->tipoActual = convertirTipoFuncion(aux->tipoActual);
+                }
                 printf("Operandos invalidos del operador binario * (tienen '%s' y '%s')\n", aux->tipoPrevio, aux->tipoActual);
                 break;
 
@@ -1039,16 +1095,17 @@ void imprimirErrores(errorSemantico* raizErrores) {
                 break;
 
             case ERROR_REDECLARACION_TIPO_DIF_SIMBOLO:
-                printf("'%s' redeclarado como un tipo diferente de simbolo\n", aux->identificador);
-                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                printf("'%s' redeclarado como un tipo diferente de simbolo\n", aux->identificador ? aux->identificador : "");
+                if (aux->tipoPrevio && strstr(aux->tipoPrevio, "void") && strstr(aux->tipoPrevio, "void")) {
+                    printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, "void(void)", aux->lineaPrevio, aux->columnaPrevio);
+                } else {
+                    printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, aux->tipoPrevio ? aux->tipoPrevio : "", aux->lineaPrevio, aux->columnaPrevio);
+                }
                 break;
 
             case ERROR_CONFLICTO_TIPOS_MISMO_SIMBOLO:
-                if(strcmp(aux->tipoActual, "float") == 0){
-                    aux->tipoActual = "const float";
-                }
-                printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n", aux->identificador, aux->tipoActual);
-                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, aux->tipoPrevio, aux->lineaPrevio, aux->columnaPrevio);
+                printf("conflicto de tipos para '%s'; la ultima es de tipo '%s'\n", aux->identificador, aux->tipoActual ? aux->tipoActual : "desconocido");
+                printf("Nota: la declaracion previa de '%s' es de tipo '%s': %d:%d\n", aux->identificador, aux->tipoPrevio ? aux->tipoPrevio : "desconocido", aux->lineaPrevio, aux->columnaPrevio);
                 break;
 
             case ERROR_REDECLARACION_VARIABLE_IGUAL_TIPO:
@@ -1084,6 +1141,13 @@ void imprimirErrores(errorSemantico* raizErrores) {
                 break;
 
             case INCOMPATIBILIDAD_TIPOS:
+                // Convertir tipos de función antes de imprimir
+                if (aux->tipoPrevio && strstr(aux->tipoPrevio, "(") && !strstr(aux->tipoPrevio, "(*")) {
+                    aux->tipoPrevio = convertirTipoFuncion(aux->tipoPrevio);
+                }
+                if (aux->tipoActual && strstr(aux->tipoActual, "(") && !strstr(aux->tipoActual, "(*")) {
+                    aux->tipoActual = convertirTipoFuncion(aux->tipoActual);
+                }
                 printf("Incompatibilidad de tipos para el argumento #%d de '%s'\n",
                        aux->numeroArgumento, aux->identificador);
                 printf("Nota: se esperaba '%s' pero el argumento es de tipo '%s': %d:%d\n",
@@ -1095,8 +1159,30 @@ void imprimirErrores(errorSemantico* raizErrores) {
                 break;
 
             case INCOMPATIBILIDAD_TIPOS_AL_INICIAR:
+                // Convertir tipos de función antes de imprimir
+                if (aux->tipoPrevio && strstr(aux->tipoPrevio, "(") && !strstr(aux->tipoPrevio, "(*")) {
+                    aux->tipoPrevio = convertirTipoFuncion(aux->tipoPrevio);
+                }
+                if (aux->tipoActual && strstr(aux->tipoActual, "(") && !strstr(aux->tipoActual, "(*")) {
+                    aux->tipoActual = convertirTipoFuncion(aux->tipoActual);
+                }
+                // Normalizar: quitar "const " del tipo y convertir "string" a "char *"
+                char *tipoPrevioNorm = aux->tipoPrevio ? aux->tipoPrevio : NULL;
+                if (tipoPrevioNorm && strncmp(tipoPrevioNorm, "const ", 6) == 0) {
+                    tipoPrevioNorm = tipoPrevioNorm + 6;
+                }
+                if (tipoPrevioNorm && strcmp(tipoPrevioNorm, "string") == 0) {
+                    tipoPrevioNorm = "char *";
+                }
+                char *tipoActualNorm = aux->tipoActual ? aux->tipoActual : NULL;
+                if (tipoActualNorm && strncmp(tipoActualNorm, "const ", 6) == 0) {
+                    tipoActualNorm = tipoActualNorm + 6;
+                }
+                if (tipoActualNorm && strcmp(tipoActualNorm, "string") == 0) {
+                    tipoActualNorm = "char *";
+                }
                 printf("Incompatibilidad de tipos al inicializar el tipo '%s' usando el tipo '%s'\n",
-                       aux->tipoPrevio, aux->tipoActual);
+                       tipoPrevioNorm ? tipoPrevioNorm : "desconocido", tipoActualNorm ? tipoActualNorm : "desconocido");
                 break;
 
             case ASIGNAR_EN_UNA_CONSTANTE:
@@ -1113,12 +1199,21 @@ void imprimirErrores(errorSemantico* raizErrores) {
                 break;
 
             case TIPO_DE_DATO_INCOMPATIBLE_RETURN:
+                // Convertir tipos de función antes de imprimir
+                if (aux->tipoPrevio && strstr(aux->tipoPrevio, "(") && !strstr(aux->tipoPrevio, "(*")) {
+                    aux->tipoPrevio = convertirTipoFuncion(aux->tipoPrevio);
+                }
+                if (aux->tipoActual && strstr(aux->tipoActual, "(") && !strstr(aux->tipoActual, "(*")) {
+                    aux->tipoActual = convertirTipoFuncion(aux->tipoActual);
+                }
                 printf("Incompatibilidad de tipos al retornar el tipo '%s' pero se esperaba '%s'\n",
                        aux->tipoPrevio, aux->tipoActual);
                 break;
         }
         aux = aux->sgte;
     }
+    printf("\n");
+    printf("\n");
 }
 
 int tiposCompatibles(char *t1, char *t2) {
@@ -1151,26 +1246,6 @@ char* buscarTipoDato(tablaDeSimbolos *raiz, char *nombre) {
     }
     return strdup("error");
 }
-
-// int buscarLineaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
-//     tablaDeSimbolos *aux = raiz;
-//     while (aux != NULL) {
-//         if (strcmp(aux->nombre, nombre) == 0)
-//             return aux->linea;
-//         aux = aux->sgte;
-//     }
-//     return -1;
-// }
-
-// int buscarColumnaDeclaracion(tablaDeSimbolos *raiz, char *nombre) {
-//     tablaDeSimbolos *aux = raiz;
-//     while (aux != NULL) {
-//         if (strcmp(aux->nombre, nombre) == 0)
-//             return aux->columna;
-//         aux = aux->sgte;
-//     }
-//     return -1;
-// }
 
 int tiposCompatiblesMultiplicacion(char* tipo1, char* tipo2) {
     if (!tipo1 || !tipo2) return 0;
@@ -1217,3 +1292,118 @@ char* tipoDominante(char* tipo1, char* tipo2) {
     return strdup("int");
 }
 
+int contarArgumentos(char *argumentos) {
+    if (!argumentos == NULL) 
+       return 0;
+    
+    int contador = 1;
+    char *punteroAux = argumentos;
+    while (punteroAux) {
+        if (*punteroAux == ','){
+            contador++;
+        }
+        punteroAux++;
+    }
+    return contador;
+}
+
+int extraerCantidadDeArgumentos(char *argumentos) {
+    if (!argumentos) 
+        return 0;
+
+    return atoi(argumentos);
+}
+
+int contarParametrosEnTipo(char *tipo) {
+    if (tipo == NULL) 
+       return 0;
+
+    char *posicion = strchr(tipo, '(');
+    if (posicion == NULL) 
+       return 0;
+
+    posicion++;
+
+    if (strncmp(posicion, "void", 4) == 0 && posicion[4] == ')') 
+    return 0;
+    
+    int contador = 1;
+    while (*posicion && *posicion != ')') {
+        if (*posicion == ',') contador++;
+        posicion++;
+    }
+    return contador;
+}
+
+
+char* extraerTiposParametros(char *parametros) {
+
+    if (!parametros || strcmp(parametros, "void") == 0)
+        return strdup("void");
+
+    char *resultado = calloc(1, 1000);
+    if (!resultado) 
+      return NULL;
+
+    char buffer[256];
+    char *punteroAux = parametros;
+    int posicion = 0;
+    int primero = 1;
+
+    while (*punteroAux) {
+
+        while (*punteroAux == ' ' || *punteroAux == '\t') punteroAux++;  //Sacamos espacios al principio si es que hay
+        if (*punteroAux == '\0') break;
+
+        // Extraemos el parámetro hasta coma o fin
+        char *inicio = punteroAux;
+        while (*punteroAux && *punteroAux != ',') 
+          punteroAux++;
+        char *fin = punteroAux;
+
+        // Copiamos el parametro a un buffer temporal
+        size_t longitud = fin - inicio;
+        if (longitud >= sizeof(buffer)) 
+         longitud = sizeof(buffer) - 1;
+
+        strncpy(buffer, inicio, longitud);
+        buffer[longitud] = '\0';
+
+        // Eliminamos espacios al final
+        for (int i = strlen(buffer) - 1; i >= 0 && isspace((unsigned char)buffer[i]); i--)
+            buffer[i] = '\0';
+
+        // Si tiene un identificador al final, eliminarlo
+        char *ultimaPalabra = strrchr(buffer, ' ');
+
+        if (ultimaPalabra != NULL) {
+            char *palabra = ultimaPalabra+ 1;
+
+
+            char *tiposConocidos[] = {"short","int","long","char","float","double","void","signed","unsigned",NULL};
+
+            int esTipo = 0;
+            for (int i = 0; tiposConocidos[i]; i++) {
+                if (strcmp(palabra, tiposConocidos[i]) == 0) {
+                    esTipo = 1;
+                    break;
+                }
+            }
+
+            // Si no es un tipo conocido, asumimos que es identificador
+            if (!esTipo && islower((unsigned char)palabra[0]))
+                *ultimaPalabra = '\0';
+        }
+
+        // Agregar coma si no es el primero
+        if (!primero) strcat(resultado, ", ");
+        primero = 0;
+
+        strcat(resultado, buffer);
+
+        // Avanzar coma
+        if (*punteroAux == ',') punteroAux++;
+    }
+
+    return resultado;
+}
