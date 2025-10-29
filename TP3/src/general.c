@@ -5,6 +5,8 @@
 #include "general.h"
 #include "structsTP3.h"
 
+#include "structsTP3.h"
+
 extern YYLTYPE yylloc;
 
 int sumaDecimales = 0;

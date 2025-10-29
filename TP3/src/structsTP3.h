@@ -19,21 +19,22 @@ typedef enum {
     iteracion,
     salto,
     unario
-}CategoriaReservada;
+} CategoriaReservada;
 
-typedef struct{
+typedef struct {
     char *nombreIdentificador;
     int contador;
-}infoNodoIdentificadores;
-typedef struct{
+} infoNodoIdentificadores;
+
+typedef struct {
     char *nombrePuntuaciones;
     int contador;
-}infoNodoPuntuaciones;
+} infoNodoPuntuaciones;
 
-typedef struct{
+typedef struct {
     char *nombreLiteralCadena;
-    int longitud; 
-}infoNodoLiteralCadena;
+    int longitud;
+} infoNodoLiteralCadena;
 
 typedef struct {
     char* hexadecimal;
@@ -44,6 +45,7 @@ typedef struct {
     char* octal;
     int decimal;
 } infoNodoOctal;
+
 typedef struct {
     char* palabra;
     int linea;
@@ -55,18 +57,11 @@ typedef struct {
     char* valor;
     float parteEntera;
     float mantisa;
-}infoNodoReal;
+} infoNodoReal;
 
 typedef struct {
     char* caracter;
-    struct nodoCaracter *sgte;
-}infoNodoCaracter;
-
-
-typedef struct{
-    int valor;
-    struct nodoDecimal *sgte;
-}nodoDecimal;
+} infoNodoCaracter;
 
 typedef struct {
     char* palabra;
@@ -75,59 +70,10 @@ typedef struct {
 } infoNodoCadenasNoReconocidas;
 
 typedef struct {
-    infoNodoHexadecimal info;
-    struct nodoHexadecimal *sgte;
-}nodoHexadecimal;
-
-typedef struct {
-    infoNodoOctal info;
-    struct nodoOctal *sgte;
-}nodoOctal;
-
-
-typedef struct{
-    infoNodoReal info;
-    struct nodoReal *sgte;
-}nodoReal;
-
-typedef struct{
-    infoNodoCaracter info;
-    struct nodoCaracter *sgte;
-}nodoCaracter;
-
-typedef struct{
-    infoNodoIdentificadores info;
-    struct nodoIdentificadores *sgte;
-}nodoIdentificadores;
-
-typedef struct{
-    infoNodoLiteralCadena info;
-    struct nodoLiteralCadena *sgte;
-}nodoLiteralCadena;
-typedef struct{
-    infoNodoPalabrasReservada info;
-    struct nodoReservada* sgte;
-} nodoReservada;
-
-typedef struct{
-    infoNodoPuntuaciones info;
-   struct nodoPuntuaciones * sgte;
-} nodoPuntuaciones;
-
-typedef struct{
-    infoNodoCadenasNoReconocidas info;
-   struct nodoCadenasNoReconocidas * sgte;
-} nodoCadenasNoReconocidas;
-typedef struct {
     char* nombre;
     char* tipo;
     int linea;
 } infoVarDeclarada;
-
-typedef struct nodoVarDeclarada {
-    infoVarDeclarada info;
-    struct nodoVarDeclarada* sgte;
-} nodoVarDeclarada;
 
 typedef struct {
     char* nombre;
@@ -137,30 +83,101 @@ typedef struct {
     int linea;
 } infoFuncion;
 
-typedef struct nodoFuncion {
-    infoFuncion info;
-    struct nodoFuncion* sgte;
-} nodoFuncion;
-
 typedef struct {
     char* tipo;
     int linea;
     int columna;
 } infoSentencia;
 
-typedef struct nodoSentencia {
-    infoSentencia info;
-    struct nodoSentencia* sgte;
-} nodoSentencia;
-
 typedef struct {
     char* texto;
     int linea;
 } infoEstructuraNoReconocida;
 
-typedef struct nodoEstructuraNoReconocida {
+
+typedef struct nodoDecimal nodoDecimal;
+typedef struct nodoHexadecimal nodoHexadecimal;
+typedef struct nodoOctal nodoOctal;
+typedef struct nodoReal nodoReal;
+typedef struct nodoCaracter nodoCaracter;
+typedef struct nodoIdentificadores nodoIdentificadores;
+typedef struct nodoLiteralCadena nodoLiteralCadena;
+typedef struct nodoReservada nodoReservada;
+typedef struct nodoPuntuaciones nodoPuntuaciones;
+typedef struct nodoCadenasNoReconocidas nodoCadenasNoReconocidas;
+typedef struct nodoVarDeclarada nodoVarDeclarada;
+typedef struct nodoFuncion nodoFuncion;
+typedef struct nodoSentencia nodoSentencia;
+typedef struct nodoEstructuraNoReconocida nodoEstructuraNoReconocida;
+
+struct nodoDecimal {
+    int valor;
+    nodoDecimal *sgte;
+};
+
+struct nodoHexadecimal {
+    infoNodoHexadecimal info;
+    nodoHexadecimal *sgte;
+};
+
+struct nodoOctal {
+    infoNodoOctal info;
+    nodoOctal *sgte;
+};
+
+struct nodoReal {
+    infoNodoReal info;
+    nodoReal *sgte;
+};
+
+struct nodoCaracter {
+    infoNodoCaracter info;
+    nodoCaracter *sgte;
+};
+
+struct nodoIdentificadores {
+    infoNodoIdentificadores info;
+    nodoIdentificadores *sgte;
+};
+
+struct nodoLiteralCadena {
+    infoNodoLiteralCadena info;
+    nodoLiteralCadena *sgte;
+};
+
+struct nodoReservada {
+    infoNodoPalabrasReservada info;
+    nodoReservada* sgte;
+};
+
+struct nodoPuntuaciones {
+    infoNodoPuntuaciones info;
+    nodoPuntuaciones * sgte;
+};
+
+struct nodoCadenasNoReconocidas {
+    infoNodoCadenasNoReconocidas info;
+    nodoCadenasNoReconocidas * sgte;
+};
+
+struct nodoVarDeclarada {
+    infoVarDeclarada info;
+    nodoVarDeclarada* sgte;
+};
+
+struct nodoFuncion {
+    infoFuncion info;
+    nodoFuncion* sgte;
+};
+
+struct nodoSentencia {
+    infoSentencia info;
+    nodoSentencia* sgte;
+};
+
+struct nodoEstructuraNoReconocida {
     infoEstructuraNoReconocida info;
-    struct nodoEstructuraNoReconocida* sgte;
-} nodoEstructuraNoReconocida;
+    nodoEstructuraNoReconocida* sgte;
+};
 
 #endif /* TIPOS_H */

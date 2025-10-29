@@ -17,7 +17,7 @@ extern FILE* yyin;
 void yyerror(const char*);
 
 /* Estado auxiliar para armar strings en acciones */
-char* buffer_auxiliar[128];
+char buffer_auxiliar[256];
 
 %}
 /* Fin de la sección de prólogo (declaraciones y definiciones de C y directivas del preprocesador) */
@@ -149,8 +149,8 @@ expUnaria
         : expPostfijo
         | INCREMENTO expUnaria {$$ = $2 +1;}
         | DECREMENTO expUnaria {$$ = $2 -1;}
-        | expUnaria INCREMENTO {$$ = $1 -1;}
-        | expUnaria DECREMENTO {$$ = $1 +1;}     
+        | expUnaria INCREMENTO {$$ = $1 +1;}
+        | expUnaria DECREMENTO {$$ = $1 -1;}     
         | '&'expUnaria {$$ = (unsigned long)& $2;}
         | '*'expUnaria {$$ = (unsigned long)*((unsigned long*)$2);}
         | '-'expUnaria {$$ = - $2;}
