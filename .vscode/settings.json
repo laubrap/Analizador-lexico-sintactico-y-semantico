@@ -7,6 +7,9 @@
         "stdio.h": "c",
         "structstp2.h": "c",
         "misfunciones.h": "c",
-        "structstp1.h": "c"
+        "structstp1.h": "c",
+        "structstp4.h": "c",
+        "errno.h": "c",
+        "limits.h": "c"
     }
 }
